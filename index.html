@@ -250,6 +250,10 @@
       <button id="btnStackIntroHeader" type="button" title="播放 3D 体素切片堆叠组装动画" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-cyan-300 border border-slate-700/70 transition">
         切片组装
       </button>
+      <button id="btnBgmToggle" type="button" title="切换宇宙 BGM 音乐播放/静音" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1">
+        <span>🎵</span>
+        <span id="txtBgmStatus">BGM: ON</span>
+      </button>
       <button id="btnAudioToggle" type="button" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/70 transition">
         SFX: ON
       </button>
@@ -373,6 +377,7 @@
             <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">Bayer Ordered Dithering</span>
             <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">Optical Cross Diffraction</span>
             <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">3-Stage Chaos Overlord Boss</span>
+            <span class="px-2 py-0.5 bg-slate-900 border border-emerald-500/70 text-emerald-300 shadow-[2px_2px_0px_#000]">🎵 Procedural Arcade BGM</span>
           </div>
         </div>
 
@@ -896,6 +901,45 @@
           </div>
         </section>
 
+        <!-- Audio & BGM Synthesizer Parameters -->
+        <section class="param-group space-y-2.5 bg-[#111622] p-2.5 rounded-lg border border-slate-800/80" data-keywords="audio sound music bgm volume sfx melody synthesizer atmosphere">
+          <div class="flex items-center justify-between text-xs font-semibold text-emerald-300">
+            <span class="flex items-center gap-1.5">
+              <span>🎵</span>
+              <span>SYNTH AUDIO & BGM · 音乐与音效</span>
+            </span>
+            <span id="badgeBgmTrack" class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-tech">
+              AUTO: TITLE
+            </span>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px] text-slate-300 font-mono-tech">
+              <span>BGM 音乐音量</span>
+              <span id="valBgmVolume" class="text-emerald-300">65%</span>
+            </div>
+            <input id="ctrlBgmVolume" type="range" min="0" max="100" value="65" class="w-full accent-emerald-400" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px] text-slate-300 font-mono-tech">
+              <span>SFX 音效音量</span>
+              <span id="valSfxVolume" class="text-cyan-300">80%</span>
+            </div>
+            <input id="ctrlSfxVolume" type="range" min="0" max="100" value="80" class="w-full accent-cyan-400" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="text-[11px] text-slate-300 font-mono-tech">BGM 乐段切换</div>
+            <div class="grid grid-cols-2 gap-1.5 text-[10px] font-mono-tech">
+              <button id="btnTrackAuto" type="button" class="py-1 px-1.5 rounded bg-emerald-600/30 text-emerald-300 border border-emerald-500/60 font-medium cursor-pointer">✨ 自动情境跟随</button>
+              <button id="btnTrackTitle" type="button" class="py-1 px-1.5 rounded bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer">🌌 慈爱勇者(序曲)</button>
+              <button id="btnTrackBattle" type="button" class="py-1 px-1.5 rounded bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer">⚡ 空战交锋(战斗)</button>
+              <button id="btnTrackBoss" type="button" class="py-1 px-1.5 rounded bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer">🔥 混沌决战(Boss)</button>
+            </div>
+          </div>
+        </section>
+
       </div>
     </aside>
 
@@ -943,39 +987,433 @@
       const params = Object.assign({}, DEFAULT_PARAMS);
 
       // ==========================================
-      // 2. SYNTHESIZED WEB AUDIO (COSMOS + TIMER)
+      // 2. SYNTHESIZED WEB AUDIO (MUSIC BGM + SFX)
       // ==========================================
       const soundEngine = {
         ctx: null,
-        muted: false,
+        masterGain: null,
+        bgmGain: null,
+        bgmFilter: null,
+        sfxGain: null,
         droneOsc: null,
         droneGain: null,
+        noiseBuffer: null,
         lastBeep: 0,
+
+        // Audio levels and mute states
+        muted: false,         // SFX mute
+        bgmMuted: false,      // BGM mute
+        bgmVolume: 0.65,
+        sfxVolume: 0.80,
+
+        // BGM sequencer state
+        bgmMode: 'TITLE',        // 'TITLE' | 'BATTLE' | 'BOSS' | 'OFF'
+        bgmSelectedMode: 'AUTO', // 'AUTO' | 'TITLE' | 'BATTLE' | 'BOSS' | 'OFF'
+        schedulerTimer: null,
+        step: 0,
+        nextStepTime: 0,
+        bpm: 122,
+
+        // Note data tables (64 steps = 4 bars of 16th notes)
+        titleArp: [
+          52, 55, 59, 64, 59, 55, 52, 59, 52, 55, 59, 64, 59, 55, 59, 62,
+          48, 52, 55, 60, 55, 52, 48, 55, 48, 52, 55, 60, 55, 52, 55, 59,
+          50, 54, 57, 62, 57, 54, 50, 57, 50, 54, 57, 62, 57, 54, 57, 60,
+          47, 51, 54, 59, 54, 51, 47, 54, 47, 51, 54, 59, 57, 54, 51, 54
+        ],
+        titleBass: [
+          40, 0, 40, 0, 40, 0, 40, 47, 40, 0, 40, 0, 40, 0, 43, 45,
+          36, 0, 36, 0, 36, 0, 36, 43, 36, 0, 36, 0, 36, 0, 40, 41,
+          38, 0, 38, 0, 38, 0, 38, 45, 38, 0, 38, 0, 38, 0, 41, 43,
+          35, 0, 35, 0, 35, 0, 35, 42, 35, 0, 35, 0, 35, 38, 40, 42
+        ],
+        titleMelody: {
+          0: [71, 5], 6: [74, 2], 8: [76, 5], 14: [74, 2],
+          16: [71, 5], 22: [69, 2], 24: [67, 5], 30: [69, 2],
+          32: [71, 5], 38: [74, 2], 40: [69, 5], 46: [67, 2],
+          48: [64, 11], 60: [67, 2], 62: [69, 2]
+        },
+
+        battleArp: [
+          57, 60, 64, 69, 64, 60, 57, 64, 57, 60, 64, 69, 64, 60, 64, 67,
+          53, 57, 60, 65, 60, 57, 53, 60, 53, 57, 60, 65, 60, 57, 60, 64,
+          55, 59, 62, 67, 62, 59, 55, 62, 55, 59, 62, 67, 62, 59, 62, 65,
+          52, 56, 59, 64, 59, 56, 52, 59, 52, 56, 59, 64, 62, 59, 56, 59
+        ],
+        battleBass: [
+          45, 0, 45, 57, 0, 45, 57, 0, 45, 0, 45, 57, 0, 45, 43, 44,
+          41, 0, 41, 53, 0, 41, 53, 0, 41, 0, 41, 53, 0, 41, 39, 40,
+          43, 0, 43, 55, 0, 43, 55, 0, 43, 0, 43, 55, 0, 43, 42, 41,
+          40, 0, 40, 52, 0, 40, 52, 0, 40, 0, 40, 52, 0, 40, 43, 44
+        ],
+        battleMelody: {
+          0: [76, 3], 4: [79, 2], 6: [81, 2], 8: [76, 5], 14: [74, 2],
+          16: [72, 3], 20: [74, 2], 22: [76, 2], 24: [74, 5], 30: [72, 2],
+          32: [71, 3], 36: [74, 2], 38: [79, 2], 40: [78, 5], 46: [76, 2],
+          48: [76, 7], 56: [71, 2], 58: [72, 2], 60: [74, 2], 62: [76, 2]
+        },
+
+        bossArp: [
+          62, 65, 69, 74, 69, 65, 62, 65, 62, 65, 69, 74, 73, 69, 65, 68,
+          58, 62, 65, 70, 65, 62, 58, 62, 58, 62, 65, 70, 69, 65, 62, 65,
+          55, 58, 62, 67, 62, 58, 55, 58, 55, 58, 62, 67, 65, 62, 58, 62,
+          57, 61, 64, 69, 64, 61, 57, 61, 57, 61, 64, 69, 68, 65, 64, 61
+        ],
+        bossBass: [
+          38, 38, 0, 38, 38, 0, 38, 38, 38, 38, 0, 38, 38, 38, 37, 36,
+          34, 34, 0, 34, 34, 0, 34, 34, 34, 34, 0, 34, 34, 34, 35, 36,
+          31, 31, 0, 31, 31, 0, 31, 31, 31, 31, 0, 31, 31, 31, 33, 35,
+          33, 33, 0, 33, 33, 0, 33, 33, 33, 33, 33, 33, 37, 37, 37, 37
+        ],
+        bossMelody: {
+          0: [74, 3], 4: [77, 2], 6: [80, 2], 8: [81, 5], 14: [79, 2],
+          16: [77, 3], 20: [74, 2], 22: [77, 2], 24: [76, 5], 30: [73, 2],
+          32: [74, 3], 36: [79, 2], 38: [77, 2], 40: [76, 5], 46: [74, 2],
+          48: [73, 7], 56: [76, 2], 58: [79, 2], 60: [81, 2], 62: [85, 2]
+        },
+
         init() {
-          if (this.ctx) return;
+          if (this.ctx) {
+            if (this.ctx.state === 'suspended') {
+              this.ctx.resume();
+            }
+            return;
+          }
           try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (!AudioCtx) return;
             this.ctx = new AudioCtx();
+
+            // 1. Dynamics Compressor for clean, punchy master mix
+            const compressor = this.ctx.createDynamicsCompressor();
+            compressor.threshold.setValueAtTime(-14, this.ctx.currentTime);
+            compressor.knee.setValueAtTime(30, this.ctx.currentTime);
+            compressor.ratio.setValueAtTime(10, this.ctx.currentTime);
+            compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+            compressor.release.setValueAtTime(0.22, this.ctx.currentTime);
+            compressor.connect(this.ctx.destination);
+
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
+            this.masterGain.connect(compressor);
+
+            // 2. SFX Bus
+            this.sfxGain = this.ctx.createGain();
+            this.sfxGain.gain.setValueAtTime(this.muted ? 0 : this.sfxVolume, this.ctx.currentTime);
+            this.sfxGain.connect(this.masterGain);
+
+            // 3. BGM Bus with Cinematic Lowpass Filter (Muffles gracefully when paused)
+            this.bgmFilter = this.ctx.createBiquadFilter();
+            this.bgmFilter.type = 'lowpass';
+            this.bgmFilter.frequency.setValueAtTime(20000, this.ctx.currentTime);
+            this.bgmFilter.Q.setValueAtTime(1.0, this.ctx.currentTime);
+
+            this.bgmGain = this.ctx.createGain();
+            this.bgmGain.gain.setValueAtTime(this.bgmMuted ? 0 : this.bgmVolume * 0.42, this.ctx.currentTime);
+
+            this.bgmFilter.connect(this.bgmGain);
+            this.bgmGain.connect(this.masterGain);
+
+            // 4. Noise buffer (1.0s loopable for crisp percussions)
+            const sr = this.ctx.sampleRate;
+            const noiseBuf = this.ctx.createBuffer(1, sr, sr);
+            const nData = noiseBuf.getChannelData(0);
+            for (let i = 0; i < sr; i++) {
+              nData[i] = Math.random() * 2 - 1;
+            }
+            this.noiseBuffer = noiseBuf;
+
+            // 5. Space Engine Drone Oscillator
             this.droneOsc = this.ctx.createOscillator();
             this.droneOsc.type = 'sine';
-            this.droneOsc.frequency.value = 90;
+            this.droneOsc.frequency.setValueAtTime(90, this.ctx.currentTime);
             this.droneGain = this.ctx.createGain();
-            this.droneGain.gain.value = 0.025;
+            this.droneGain.gain.setValueAtTime(0.02, this.ctx.currentTime);
             this.droneOsc.connect(this.droneGain);
-            this.droneGain.connect(this.ctx.destination);
+            this.droneGain.connect(this.sfxGain);
             this.droneOsc.start();
-          } catch (e) {}
+
+            // 6. Start BGM Lookahead Scheduler
+            this.nextStepTime = this.ctx.currentTime + 0.05;
+            this.step = 0;
+            if (this.schedulerTimer) clearInterval(this.schedulerTimer);
+            this.schedulerTimer = setInterval(() => this.schedulerTick(), 25);
+          } catch (e) {
+            console.warn('[soundEngine init error]', e);
+          }
         },
+
+        m2f(midi) {
+          return midi ? 440 * Math.pow(2, (midi - 69) / 12) : 0;
+        },
+
+        setBGM(mode) {
+          this.bgmMode = mode;
+          this.updateTrackBadge();
+        },
+
+        setTrackMode(selected) {
+          this.bgmSelectedMode = selected;
+          this.updateTrackBadge();
+        },
+
+        updateTrackBadge() {
+          const badge = document.getElementById('badgeBgmTrack');
+          if (badge) {
+            const eff = this.bgmSelectedMode !== 'AUTO' ? this.bgmSelectedMode : this.bgmMode;
+            badge.textContent = this.bgmSelectedMode === 'AUTO' ? `AUTO: ${eff}` : eff;
+          }
+        },
+
+        toggleBGM() {
+          this.bgmMuted = !this.bgmMuted;
+          if (this.bgmGain && this.ctx) {
+            this.bgmGain.gain.setTargetAtTime(this.bgmMuted ? 0 : this.bgmVolume * 0.42, this.ctx.currentTime, 0.05);
+          }
+          const txt = document.getElementById('txtBgmStatus');
+          if (txt) txt.textContent = this.bgmMuted ? 'BGM: OFF' : 'BGM: ON';
+        },
+
+        toggleSFX() {
+          this.muted = !this.muted;
+          if (this.sfxGain && this.ctx) {
+            this.sfxGain.gain.setTargetAtTime(this.muted ? 0 : this.sfxVolume, this.ctx.currentTime, 0.05);
+          }
+          const btn = document.getElementById('btnAudioToggle');
+          if (btn) btn.textContent = this.muted ? 'SFX: OFF' : 'SFX: ON';
+        },
+
+        setBgmVolume(val) {
+          this.bgmVolume = Math.max(0, Math.min(1, val));
+          if (this.bgmGain && this.ctx && !this.bgmMuted) {
+            this.bgmGain.gain.setTargetAtTime(this.bgmVolume * 0.42, this.ctx.currentTime, 0.05);
+          }
+        },
+
+        setSfxVolume(val) {
+          this.sfxVolume = Math.max(0, Math.min(1, val));
+          if (this.sfxGain && this.ctx && !this.muted) {
+            this.sfxGain.gain.setTargetAtTime(this.sfxVolume, this.ctx.currentTime, 0.05);
+          }
+        },
+
+        schedulerTick() {
+          if (!this.ctx || this.ctx.state !== 'running') return;
+          const lookahead = 0.12;
+          while (this.nextStepTime < this.ctx.currentTime + lookahead) {
+            this.scheduleStep(this.step, this.nextStepTime);
+            this.advanceStep();
+          }
+        },
+
+        advanceStep() {
+          const stepSec = (60 / this.bpm) / 4;
+          this.nextStepTime += stepSec;
+          this.step = (this.step + 1) % 64;
+        },
+
+        scheduleStep(step, t) {
+          if (this.bgmMuted) return;
+          const mode = this.bgmSelectedMode !== 'AUTO' ? this.bgmSelectedMode : this.bgmMode;
+          if (mode === 'OFF') return;
+
+          if (mode === 'TITLE') {
+            this.bpm = 122;
+            if (step % 8 === 0) this.playKick(t, 0.28);
+            if (step % 16 === 4 || step % 16 === 12) this.playSnare(t, 0.15, 150);
+            if (step % 2 === 0) this.playHat(t, (step % 4 === 2 ? 0.05 : 0.025), false);
+            const b = this.titleBass[step];
+            if (b) this.playBass(t, b, 0.13, 0.26);
+            const a = this.titleArp[step];
+            if (a) this.playArp(t, a, 0.08, 0.12);
+            const m = this.titleMelody[step];
+            if (m) {
+              const durSec = m[1] * (60 / this.bpm / 4) * 0.95;
+              this.playLead(t, m[0], durSec, 0.22);
+            }
+          } else if (mode === 'BATTLE') {
+            this.bpm = 136;
+            if (step % 4 === 0) this.playKick(t, 0.38);
+            if (step % 8 === 4) this.playSnare(t, 0.24, 185);
+            if (step % 4 === 2) this.playHat(t, 0.08, true);
+            else this.playHat(t, 0.035, false);
+            const b = this.battleBass[step];
+            if (b) this.playBass(t, b, 0.11, 0.30);
+            const a = this.battleArp[step];
+            if (a) this.playArp(t, a, 0.075, 0.13);
+            const m = this.battleMelody[step];
+            if (m) {
+              const durSec = m[1] * (60 / this.bpm / 4) * 0.92;
+              this.playLead(t, m[0], durSec, 0.24);
+            }
+          } else if (mode === 'BOSS') {
+            this.bpm = 148;
+            const bossKicks = [0, 2, 6, 8, 10, 14, 16, 18, 22, 24, 26, 30, 32, 34, 38, 40, 42, 46, 48, 50, 54, 56, 58];
+            if (bossKicks.includes(step)) this.playKick(t, 0.42);
+            if (step % 8 === 4) this.playSnare(t, 0.28, 210);
+            if (step >= 60) this.playSnare(t, 0.24, 240);
+            this.playHat(t, (step % 2 === 0 ? 0.06 : 0.03), false);
+            const b = this.bossBass[step];
+            if (b) this.playBass(t, b, 0.09, 0.34);
+            const a = this.bossArp[step];
+            if (a) this.playArp(t, a, 0.07, 0.15);
+            const m = this.bossMelody[step];
+            if (m) {
+              const durSec = m[1] * (60 / this.bpm / 4) * 0.90;
+              this.playLead(t, m[0], durSec, 0.26);
+            }
+          }
+        },
+
+        // Instrument Voices
+        playKick(t, vol = 0.35) {
+          if (!this.ctx || this.bgmMuted) return;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(140, t);
+          osc.frequency.exponentialRampToValueAtTime(36, t + 0.08);
+          g.gain.setValueAtTime(vol, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+          osc.connect(g);
+          g.connect(this.bgmFilter);
+          osc.start(t);
+          osc.stop(t + 0.11);
+        },
+
+        playSnare(t, vol = 0.22, tone = 180) {
+          if (!this.ctx || this.bgmMuted || !this.noiseBuffer) return;
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = this.noiseBuffer;
+          const bpf = this.ctx.createBiquadFilter();
+          bpf.type = 'bandpass';
+          bpf.frequency.setValueAtTime(1100, t);
+          bpf.Q.setValueAtTime(1.4, t);
+          const gN = this.ctx.createGain();
+          gN.gain.setValueAtTime(vol, t);
+          gN.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+          noise.connect(bpf);
+          bpf.connect(gN);
+          gN.connect(this.bgmFilter);
+          noise.start(t);
+          noise.stop(t + 0.14);
+
+          const osc = this.ctx.createOscillator();
+          const gT = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(tone, t);
+          osc.frequency.exponentialRampToValueAtTime(80, t + 0.06);
+          gT.gain.setValueAtTime(vol * 0.7, t);
+          gT.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+          osc.connect(gT);
+          gT.connect(this.bgmFilter);
+          osc.start(t);
+          osc.stop(t + 0.08);
+        },
+
+        playHat(t, vol = 0.07, open = false) {
+          if (!this.ctx || this.bgmMuted || !this.noiseBuffer) return;
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = this.noiseBuffer;
+          const hpf = this.ctx.createBiquadFilter();
+          hpf.type = 'highpass';
+          hpf.frequency.setValueAtTime(6800, t);
+          const g = this.ctx.createGain();
+          g.gain.setValueAtTime(vol, t);
+          const dur = open ? 0.16 : 0.035;
+          g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+          noise.connect(hpf);
+          hpf.connect(g);
+          g.connect(this.bgmFilter);
+          noise.start(t);
+          noise.stop(t + dur + 0.01);
+        },
+
+        playBass(t, midi, dur = 0.12, vol = 0.28) {
+          if (!this.ctx || this.bgmMuted || !midi) return;
+          const osc = this.ctx.createOscillator();
+          const f = this.ctx.createBiquadFilter();
+          const g = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(this.m2f(midi), t);
+          f.type = 'lowpass';
+          f.frequency.setValueAtTime(460, t);
+          f.Q.setValueAtTime(2.8, t);
+          g.gain.setValueAtTime(vol, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+          osc.connect(f);
+          f.connect(g);
+          g.connect(this.bgmFilter);
+          osc.start(t);
+          osc.stop(t + dur + 0.02);
+        },
+
+        playArp(t, midi, dur = 0.08, vol = 0.13) {
+          if (!this.ctx || this.bgmMuted || !midi) return;
+          const osc = this.ctx.createOscillator();
+          const f = this.ctx.createBiquadFilter();
+          const g = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(this.m2f(midi), t);
+          f.type = 'lowpass';
+          f.frequency.setValueAtTime(1700, t);
+          f.Q.setValueAtTime(2.2, t);
+          g.gain.setValueAtTime(vol, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+          osc.connect(f);
+          f.connect(g);
+          g.connect(this.bgmFilter);
+          osc.start(t);
+          osc.stop(t + dur + 0.02);
+        },
+
+        playLead(t, midi, dur = 0.35, vol = 0.22) {
+          if (!this.ctx || this.bgmMuted || !midi) return;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          const f = this.ctx.createBiquadFilter();
+
+          const lfo = this.ctx.createOscillator();
+          const lfoGain = this.ctx.createGain();
+          lfo.frequency.setValueAtTime(5.8, t);
+          lfoGain.gain.setValueAtTime(6.0, t);
+          lfo.connect(lfoGain);
+          lfoGain.connect(osc.frequency);
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(this.m2f(midi), t);
+
+          f.type = 'lowpass';
+          f.frequency.setValueAtTime(2600, t);
+
+          g.gain.setValueAtTime(0.001, t);
+          g.gain.linearRampToValueAtTime(vol, t + 0.025);
+          g.gain.setValueAtTime(vol * 0.85, t + dur * 0.7);
+          g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+          osc.connect(f);
+          f.connect(g);
+          g.connect(this.bgmFilter);
+          lfo.start(t);
+          osc.start(t);
+          lfo.stop(t + dur + 0.05);
+          osc.stop(t + dur + 0.05);
+        },
+
         update(speedRatio, boosting, criticalTimer, paused) {
           if (!this.ctx || !this.droneGain) return;
           const now = this.ctx.currentTime;
           if (this.muted || paused) {
             this.droneGain.gain.setTargetAtTime(0, now, 0.08);
-            return;
+          } else {
+            this.droneOsc.frequency.setTargetAtTime(85 + speedRatio * 70 + (boosting ? 65 : 0), now, 0.1);
+            this.droneGain.gain.setTargetAtTime(boosting ? 0.045 : 0.02, now, 0.1);
           }
-          this.droneOsc.frequency.setTargetAtTime(85 + speedRatio * 70 + (boosting ? 65 : 0), now, 0.1);
-          this.droneGain.gain.setTargetAtTime(boosting ? 0.05 : 0.02, now, 0.1);
+
+          // Cinematic muffle filter when paused
+          if (this.bgmFilter) {
+            this.bgmFilter.frequency.setTargetAtTime(paused ? 650 : 20000, now, 0.1);
+          }
 
           // Classic Color Timer warning beep when hull <= 2
           if (criticalTimer && performance.now() - this.lastBeep > 650) {
@@ -987,11 +1425,13 @@
             g.gain.setValueAtTime(0.05, now);
             g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
             osc.connect(g);
-            g.connect(this.ctx.destination);
+            g.connect(this.sfxGain || this.ctx.destination);
             osc.start(now);
             osc.stop(now + 0.15);
           }
         },
+
+        // Sound Effects
         playSlash() {
           if (!this.ctx || this.muted) return;
           const now = this.ctx.currentTime;
@@ -1003,7 +1443,7 @@
           g.gain.setValueAtTime(0.06, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.095);
           osc.connect(g);
-          g.connect(this.ctx.destination);
+          g.connect(this.sfxGain || this.ctx.destination);
           osc.start(now);
           osc.stop(now + 0.1);
         },
@@ -1019,7 +1459,7 @@
           g.gain.setValueAtTime(0.08, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.56);
           osc.connect(g);
-          g.connect(this.ctx.destination);
+          g.connect(this.sfxGain || this.ctx.destination);
           osc.start(now);
           osc.stop(now + 0.57);
         },
@@ -1034,7 +1474,7 @@
           g.gain.setValueAtTime(0.14, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.52);
           osc.connect(g);
-          g.connect(this.ctx.destination);
+          g.connect(this.sfxGain || this.ctx.destination);
           osc.start(now);
           osc.stop(now + 0.53);
         },
@@ -1049,7 +1489,7 @@
             g.gain.setValueAtTime(0.08, now + idx * 0.05);
             g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.28);
             osc.connect(g);
-            g.connect(this.ctx.destination);
+            g.connect(this.sfxGain || this.ctx.destination);
             osc.start(now + idx * 0.05);
             osc.stop(now + idx * 0.05 + 0.3);
           });
@@ -1065,7 +1505,7 @@
           g.gain.setValueAtTime(0.12, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
           osc.connect(g);
-          g.connect(this.ctx.destination);
+          g.connect(this.sfxGain || this.ctx.destination);
           osc.start(now);
           osc.stop(now + 0.09);
         },
@@ -1081,7 +1521,7 @@
           g.gain.linearRampToValueAtTime(0.09, now + 0.16);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
           osc.connect(g);
-          g.connect(this.ctx.destination);
+          g.connect(this.sfxGain || this.ctx.destination);
           osc.start(now);
           osc.stop(now + 0.21);
         },
@@ -1096,7 +1536,7 @@
             g.gain.setValueAtTime(0.06, now + idx * 0.16);
             g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.16 + 0.14);
             osc.connect(g);
-            g.connect(this.ctx.destination);
+            g.connect(this.sfxGain || this.ctx.destination);
             osc.start(now + idx * 0.16);
             osc.stop(now + idx * 0.16 + 0.15);
           });
@@ -1113,7 +1553,7 @@
           g.gain.linearRampToValueAtTime(0.24, now + 0.2);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
           osc.connect(g);
-          g.connect(this.ctx.destination);
+          g.connect(this.sfxGain || this.ctx.destination);
           osc.start(now);
           osc.stop(now + 0.96);
         }
@@ -1985,6 +2425,7 @@
         if (gameState === 'PLAYING') return;
         gameState = 'PLAYING';
         soundEngine.init();
+        soundEngine.setBGM('BATTLE');
         soundEngine.playDodgeChime();
         gamepadState.vibrate(220, 0.4, 0.85);
 
@@ -2018,6 +2459,7 @@
         gameState = 'TITLE';
         demoPhase = 0;
         demoTimer = 0;
+        soundEngine.setBGM('TITLE');
         const overlay = document.getElementById('titleOverlay');
         if (overlay) {
           overlay.style.display = 'flex';
@@ -2036,6 +2478,11 @@
         if (newPhase !== demoPhase) {
           demoPhase = newPhase;
           updateDemoUI();
+          if (gameState === 'TITLE') {
+            if (demoPhase === 0) soundEngine.setBGM('TITLE');
+            else if (demoPhase === 1) soundEngine.setBGM('BATTLE');
+            else if (demoPhase === 2) soundEngine.setBGM('BOSS');
+          }
         }
 
         // Rotate cosmos sky & planets slowly
@@ -2283,6 +2730,7 @@
       function spawnBoss() {
         if (waveState.bossActive) return;
         waveState.bossActive = true;
+        soundEngine.setBGM('BOSS');
         soundEngine.playBossAlert();
         soundEngine.playBossRoar();
         gamepadState.vibrate(500, 0.7, 1.0);
@@ -2333,6 +2781,7 @@
         scene.remove(bossObj.mesh);
         waveState.bossActive = false;
         waveState.boss = null;
+        soundEngine.setBGM('BATTLE');
         updateBossHUD();
 
         // Advance to next Wave & Sector
@@ -3554,10 +4003,67 @@
         });
       }
 
+      const btnBgm = document.getElementById('btnBgmToggle');
+      if (btnBgm) {
+        btnBgm.addEventListener('click', () => {
+          soundEngine.init();
+          soundEngine.toggleBGM();
+        });
+      }
+
       document.getElementById('btnAudioToggle').addEventListener('click', () => {
         soundEngine.init();
-        soundEngine.muted = !soundEngine.muted;
-        document.getElementById('btnAudioToggle').textContent = soundEngine.muted ? 'SFX: OFF' : 'SFX: ON';
+        soundEngine.toggleSFX();
+      });
+
+      const ctrlBgmV = document.getElementById('ctrlBgmVolume');
+      if (ctrlBgmV) {
+        ctrlBgmV.addEventListener('input', (e) => {
+          soundEngine.init();
+          const val = parseInt(e.target.value, 10);
+          document.getElementById('valBgmVolume').textContent = `${val}%`;
+          soundEngine.setBgmVolume(val / 100);
+        });
+      }
+
+      const ctrlSfxV = document.getElementById('ctrlSfxVolume');
+      if (ctrlSfxV) {
+        ctrlSfxV.addEventListener('input', (e) => {
+          soundEngine.init();
+          const val = parseInt(e.target.value, 10);
+          document.getElementById('valSfxVolume').textContent = `${val}%`;
+          soundEngine.setSfxVolume(val / 100);
+        });
+      }
+
+      const trackBtns = {
+        btnTrackAuto: 'AUTO',
+        btnTrackTitle: 'TITLE',
+        btnTrackBattle: 'BATTLE',
+        btnTrackBoss: 'BOSS'
+      };
+      const updateTrackButtonsUI = (selected) => {
+        Object.keys(trackBtns).forEach((id) => {
+          const btn = document.getElementById(id);
+          if (!btn) return;
+          const mode = trackBtns[id];
+          if (mode === selected) {
+            btn.className = 'py-1 px-1.5 rounded bg-emerald-600/40 text-emerald-300 border border-emerald-500 font-bold shadow-[0_0_10px_rgba(16,185,129,0.3)] cursor-pointer';
+          } else {
+            btn.className = 'py-1 px-1.5 rounded bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer';
+          }
+        });
+      };
+      Object.keys(trackBtns).forEach((id) => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.addEventListener('click', () => {
+            soundEngine.init();
+            const mode = trackBtns[id];
+            soundEngine.setTrackMode(mode);
+            updateTrackButtonsUI(mode);
+          });
+        }
       });
       document.getElementById('btnIntel').addEventListener('click', () => toggleIntelModal());
       document.getElementById('btnCloseIntel').addEventListener('click', () => toggleIntelModal(false));
@@ -3604,6 +4110,18 @@
         }
         heroMesh.userData.matSilver.color.set(params.colorBody);
         heroMesh.userData.matRed.color.set(params.colorAccent);
+        if (document.getElementById('ctrlBgmVolume')) {
+          document.getElementById('ctrlBgmVolume').value = 65;
+          document.getElementById('valBgmVolume').textContent = '65%';
+          soundEngine.setBgmVolume(0.65);
+        }
+        if (document.getElementById('ctrlSfxVolume')) {
+          document.getElementById('ctrlSfxVolume').value = 80;
+          document.getElementById('valSfxVolume').textContent = '80%';
+          soundEngine.setSfxVolume(0.80);
+        }
+        soundEngine.setTrackMode('AUTO');
+        updateTrackButtonsUI('AUTO');
         rebuildCosmosWorld();
         syncEnemies();
         updateViewUI();
@@ -3624,7 +4142,7 @@
       bindBtn('actEject', 'click', () => { soundEngine.init(); triggerLightTransform(); });
 
       updateDemoUI();
-      window.__gameDebug = { player, pointer, projectiles, launchGame, returnToTitle, fireUltraSlash, triggerBarrelRoll, getGameState: () => gameState };
+      window.__gameDebug = { soundEngine, player, pointer, projectiles, launchGame, returnToTitle, fireUltraSlash, triggerBarrelRoll, getGameState: () => gameState };
 
       // ==========================================
       // 11. MAIN ANIMATION LOOP
