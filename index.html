@@ -353,8 +353,8 @@
             </div>
             
             <div class="flex-1 min-w-0 text-left">
-              <div id="titleDemoPhaseText" class="text-slate-200 font-medium text-[10px] sm:text-[11px] truncate" title="幕 1/3: 奥特曼 14 层体素全向特写与结构剖析">
-                幕 1/3: 奥特曼 14 层体素全向特写与结构剖析
+              <div id="titleDemoPhaseText" class="text-slate-200 font-medium text-[10px] sm:text-[11px] truncate" title="幕 1/3: 高斯奥特曼 16 层微体素全向特写与精细结构剖析">
+                幕 1/3: 高斯奥特曼 16 层微体素全向特写与精细结构剖析
               </div>
             </div>
 
@@ -1680,15 +1680,25 @@
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(60, 1, 0.5, 4200);
 
-      // Lighting for crisp 3D voxel normals & metallic glints
-      const ambientLight = new THREE.AmbientLight(0x475569, 1.35);
+      // Lighting Rig for High-Fidelity 3D Micro-Voxel Normals & Brushed Metal Glints
+      const ambientLight = new THREE.AmbientLight(0x1e293b, 1.25);
       scene.add(ambientLight);
-      const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.75);
-      sunLight.position.set(180, 260, -220);
+      // Key Sun Light: Crisp warm stellar illumination
+      const sunLight = new THREE.DirectionalLight(0xfff7ed, 2.2);
+      sunLight.position.set(220, 280, -200);
       scene.add(sunLight);
-      const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.75);
-      rimLight.position.set(-160, -120, 140);
-      scene.add(rimLight);
+      // Fill Light: Soft Cosmic Indigo bounce from deep space
+      const fillLight = new THREE.DirectionalLight(0x312e81, 0.95);
+      fillLight.position.set(-140, -90, -160);
+      scene.add(fillLight);
+      // Upper Rim Light: Electric Cyan razor glints on metallic voxel bevels & shoulders
+      const rimLightUpper = new THREE.DirectionalLight(0x38bdf8, 2.1);
+      rimLightUpper.position.set(-180, 160, 220);
+      scene.add(rimLightUpper);
+      // Lower Rim Light: Warm Rose/Gold contour separation from cosmic void
+      const rimLightLower = new THREE.DirectionalLight(0xf43f5e, 0.9);
+      rimLightLower.position.set(140, -160, 180);
+      scene.add(rimLightLower);
 
       // Offscreen RenderTargets for Selective Bloom + Pixelation + Dithering + AA
       let rtScene = new THREE.WebGLRenderTarget(320, 180, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
@@ -1906,9 +1916,11 @@
       // ==========================================
       const skyUniforms = {
         uTime: { value: 0 },
-        uColorA: { value: new THREE.Color('#060918') },
-        uColorB: { value: new THREE.Color('#1e1b4b') },
-        uNebulaAccent: { value: new THREE.Color('#0284c7') },
+        uColorA: { value: new THREE.Color('#030712') }, // Deep Void Obsidian
+        uColorB: { value: new THREE.Color('#1e1b4b') }, // M78 Royal Nebula Violet
+        uNebulaAccent: { value: new THREE.Color('#06b6d4') }, // Cosmic Cyan
+        uNebulaWarm: { value: new THREE.Color('#e11d48') }, // Hydrogen-Alpha Warm Rose
+        uNebulaGold: { value: new THREE.Color('#f59e0b') }, // Stellar Nursery Gold
         uSeed: { value: 7.0 }
       };
 
@@ -1929,6 +1941,8 @@
           uniform vec3 uColorA;
           uniform vec3 uColorB;
           uniform vec3 uNebulaAccent;
+          uniform vec3 uNebulaWarm;
+          uniform vec3 uNebulaGold;
           uniform float uSeed;
           varying vec3 vDir;
 
@@ -1952,16 +1966,16 @@
             float a = 0.5;
             for (int i = 0; i < 4; i++) {
               v += a * noise3(p);
-              p *= 2.04;
+              p *= 2.05;
               a *= 0.5;
             }
             return v;
           }
 
-          // Anti-Aliased Analytical Continuous Starfield
-          // Solves camera rotation shimmering by using a continuous Gaussian radial falloff
+          // Anti-Aliased Analytical Multi-Spectral Continuous Starfield
+          // Continuous Gaussian radial falloff + Cross diffraction spikes for bright stars
           vec3 getStars(vec3 d, float time) {
-            vec3 p = d * 110.0;
+            vec3 p = d * 125.0;
             vec3 ip = floor(p);
             vec3 fp = fract(p);
             vec3 stepDir = step(0.5, fp) * 2.0 - 1.0;
@@ -1973,15 +1987,29 @@
                   vec3 cOff = vec3(float(x), float(y), float(z)) * stepDir;
                   vec3 cell = ip + cOff;
                   float h = hash3(cell);
-                  if (h > 0.962) {
+                  if (h > 0.958) {
                     vec3 starCenter = cOff + vec3(fract(h * 17.31), fract(h * 43.19), fract(h * 89.13));
                     vec3 diff = starCenter - fp;
                     float d2 = dot(diff, diff);
-                    float g = exp(-d2 * 36.0);
-                    if (g > 0.005) {
-                      float twinkle = 0.78 + 0.22 * sin(time * 2.6 + h * 628.0);
-                      vec3 sCol = mix(vec3(0.85, 0.95, 1.0), vec3(1.0, 0.88, 0.6), fract(h * 5.0));
-                      stars += sCol * (g * twinkle * (0.8 + 1.4 * fract(h * 57.0)));
+                    float g = exp(-d2 * 38.0);
+                    if (g > 0.004) {
+                      float twinkle = 0.78 + 0.22 * sin(time * 2.8 + h * 628.0);
+                      // Spectral classifications: O/B Ice Blue, A Diamond White, G Solar Gold, M Ruby Red
+                      vec3 sCol = vec3(1.0);
+                      float classH = fract(h * 11.3);
+                      if (classH < 0.35) sCol = vec3(0.75, 0.88, 1.0); // B Blue Giant
+                      else if (classH < 0.65) sCol = vec3(1.0, 0.98, 0.92); // A White
+                      else if (classH < 0.88) sCol = vec3(1.0, 0.85, 0.55); // G Yellow Sun
+                      else sCol = vec3(1.0, 0.55, 0.45); // M Red Dwarf
+
+                      stars += sCol * (g * twinkle * (0.8 + 1.5 * fract(h * 57.0)));
+
+                      // Cross diffraction spikes on the brightest 1.5% of stars
+                      if (h > 0.985) {
+                        float crossX = exp(-abs(diff.y) * 90.0) * exp(-diff.x * diff.x * 12.0);
+                        float crossY = exp(-abs(diff.x) * 90.0) * exp(-diff.y * diff.y * 12.0);
+                        stars += sCol * (crossX + crossY) * (twinkle * 0.75);
+                      }
                     }
                   }
                 }
@@ -1992,13 +2020,37 @@
 
           void main() {
             vec3 d = normalize(vDir);
-            float n1 = fbm(d * 2.4 + vec3(uSeed * 0.37));
-            float n2 = fbm(d * 5.2 - vec3(uSeed * 0.19));
-            float band = smoothstep(0.32, 0.85, n1 * 0.7 + n2 * 0.3);
-            vec3 col = mix(uColorA, uColorB, band);
-            col += uNebulaAccent * pow(band, 2.4) * 0.55;
 
-            // Add smooth continuous starfield
+            // Domain-warped cosmic turbulence for fibrous nebula filaments
+            vec3 warpedD = d + vec3(
+              noise3(d * 3.2 + vec3(uSeed * 0.17, 1.4, 3.8)),
+              noise3(d * 3.2 + vec3(4.2, uSeed * 0.23, 1.9)),
+              noise3(d * 3.2 + vec3(2.1, 7.3, uSeed * 0.31))
+            ) * 0.38;
+
+            // Celestial Galactic Ribbon (Milky Way / M78 celestial plane)
+            float galPlane = dot(d, normalize(vec3(0.55, 0.78, 0.28)));
+            float galBand = exp(-pow(galPlane * 2.8, 2.0));
+
+            float n1 = fbm(warpedD * 2.5 + vec3(uSeed * 0.37));
+            float n2 = fbm(warpedD * 5.4 - vec3(uSeed * 0.19));
+            float darkDust = fbm(d * 7.8 + vec3(uSeed * 0.63)); // Interstellar dark dust lanes
+
+            float nebMask = smoothstep(0.28, 0.86, n1 * 0.62 + n2 * 0.38 + galBand * 0.32);
+            nebMask *= smoothstep(0.72, 0.30, darkDust); // Carve dark absorption rift lanes
+
+            vec3 col = mix(uColorA, uColorB, nebMask);
+            col += uNebulaAccent * pow(nebMask, 2.2) * 0.65;
+            col += uNebulaWarm * pow(n2 * nebMask, 2.6) * 0.52;
+            col += uNebulaGold * pow(n1 * galBand, 3.0) * 0.45;
+
+            // M78 Stellar Nursery luminous core in deep sky
+            vec3 coreDir = normalize(vec3(0.65, 0.42, -0.62));
+            float coreDist = length(d - coreDir);
+            float coreGlow = exp(-coreDist * coreDist * 24.0);
+            col += vec3(0.35, 0.75, 1.0) * coreGlow * 0.95;
+
+            // Add smooth continuous multi-temperature starfield
             col += getStars(d, uTime);
 
             gl_FragColor = vec4(col, 1.0);
@@ -2008,12 +2060,99 @@
       const skyDome = new THREE.Mesh(skyGeo, skyMat);
       scene.add(skyDome);
 
-      // Procedural Planet Shader Material Generator (Terran, Gas Giant, Volcanic, Ice)
+      // ==========================================
+      // GPU-ACCELERATED VOLUMETRIC STARDUST SYSTEM
+      // 1,400 Micro-Crystalline Space Dust Particles
+      // Infinitely wraps around camera with true 3D flight parallax!
+      // ==========================================
+      const STARDUST_COUNT = 1400;
+      const stardustGeo = new THREE.BufferGeometry();
+      const stardustPos = new Float32Array(STARDUST_COUNT * 3);
+      const stardustCol = new Float32Array(STARDUST_COUNT * 3);
+      const stardustSize = new Float32Array(STARDUST_COUNT);
+
+      const dustColorPalette = [
+        new THREE.Color(0x38bdf8), // Cyan Glint
+        new THREE.Color(0xa78bfa), // Violet Glint
+        new THREE.Color(0xfde047), // Solar Gold Glint
+        new THREE.Color(0xf472b6), // Rose Nebula Glint
+        new THREE.Color(0xffffff)  // Pure Diamond Glint
+      ];
+
+      for (let i = 0; i < STARDUST_COUNT; i++) {
+        stardustPos[i * 3 + 0] = (Math.random() - 0.5) * 800;
+        stardustPos[i * 3 + 1] = (Math.random() - 0.5) * 800;
+        stardustPos[i * 3 + 2] = (Math.random() - 0.5) * 800;
+
+        const c = dustColorPalette[Math.floor(Math.random() * dustColorPalette.length)];
+        stardustCol[i * 3 + 0] = c.r;
+        stardustCol[i * 3 + 1] = c.g;
+        stardustCol[i * 3 + 2] = c.b;
+        stardustSize[i] = 1.4 + Math.random() * 2.8;
+      }
+
+      stardustGeo.setAttribute('position', new THREE.BufferAttribute(stardustPos, 3));
+      stardustGeo.setAttribute('aColor', new THREE.BufferAttribute(stardustCol, 3));
+      stardustGeo.setAttribute('aSize', new THREE.BufferAttribute(stardustSize, 1));
+
+      const stardustUniforms = {
+        uCamPos: { value: new THREE.Vector3() },
+        uBoxSize: { value: 800.0 },
+        uTime: { value: 0 }
+      };
+
+      const stardustMat = new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        uniforms: stardustUniforms,
+        vertexShader: `
+          uniform vec3 uCamPos;
+          uniform float uBoxSize;
+          uniform float uTime;
+          attribute vec3 aColor;
+          attribute float aSize;
+          varying vec3 vColor;
+          varying float vAlpha;
+          void main() {
+            vec3 rel = position - uCamPos;
+            vec3 wrapped = mod(rel + uBoxSize * 0.5, uBoxSize) - uBoxSize * 0.5;
+            vec3 worldPos = uCamPos + wrapped;
+            vec4 mvPos = modelViewMatrix * vec4(worldPos, 1.0);
+            gl_Position = projectionMatrix * mvPos;
+
+            float dist = max(-mvPos.z, 1.0);
+            gl_PointSize = clamp(aSize * (290.0 / dist), 1.5, 7.5);
+
+            float dCenter = length(wrapped);
+            float fade = smoothstep(uBoxSize * 0.48, uBoxSize * 0.22, dCenter);
+            float tw = 0.75 + 0.25 * sin(uTime * 3.2 + position.x * 0.12 + position.z * 0.12);
+            vColor = aColor * tw;
+            vAlpha = fade * 0.85;
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vColor;
+          varying float vAlpha;
+          void main() {
+            vec2 coord = gl_PointCoord - vec2(0.5);
+            float r2 = dot(coord, coord);
+            if (r2 > 0.25) discard;
+            float glow = exp(-r2 * 18.0);
+            gl_FragColor = vec4(vColor, glow * vAlpha);
+          }
+        `
+      });
+
+      const stardustMesh = new THREE.Points(stardustGeo, stardustMat);
+      scene.add(stardustMesh);
+
+      // Procedural Planet Shader Material Generator (Terran with night-side city grid, Gas Giant, Volcanic, Ice)
       function createPlanetShaderMaterial(type, seedVal) {
         const palettes = {
-          terran: { c1: '#0369a1', c2: '#22c55e', c3: '#f8fafc', rim: '#38bdf8', emissive: 0.0 },
+          terran: { c1: '#0369a1', c2: '#15803d', c3: '#f8fafc', rim: '#38bdf8', emissive: 0.0 },
           gas:    { c1: '#9a3412', c2: '#fbbf24', c3: '#fed7aa', rim: '#f97316', emissive: 0.08 },
-          lava:   { c1: '#1e1b18', c2: '#7f1d1d', c3: '#fb923c', rim: '#f97316', emissive: 1.0 },
+          lava:   { c1: '#1c1917', c2: '#7f1d1d', c3: '#fb923c', rim: '#f97316', emissive: 1.0 },
           ice:    { c1: '#0c4a6e', c2: '#7dd3fc', c3: '#f0f9ff', rim: '#a5f3fc', emissive: 0.15 }
         };
         const pal = palettes[type] || palettes.terran;
@@ -2022,21 +2161,23 @@
           uniforms: {
             uTime: { value: 0 },
             uSeed: { value: seedVal },
-            uMode: { value: type === 'gas' ? 1.0 : (type === 'lava' ? 2.0 : 0.0) },
+            uMode: { value: type === 'gas' ? 1.0 : (type === 'lava' ? 2.0 : (type === 'ice' ? 3.0 : 0.0)) },
             uEmissive: { value: pal.emissive },
             uCol1: { value: new THREE.Color(pal.c1) },
             uCol2: { value: new THREE.Color(pal.c2) },
             uCol3: { value: new THREE.Color(pal.c3) },
             uRim:  { value: new THREE.Color(pal.rim) },
-            uSunDir: { value: new THREE.Vector3(0.55, 0.7, -0.45).normalize() }
+            uSunDir: { value: new THREE.Vector3(220, 280, -200).normalize() }
           },
           vertexShader: `
             varying vec3 vNormalWorld;
             varying vec3 vPosLocal;
             varying vec3 vViewDir;
+            varying vec3 vWorldPos;
             void main() {
               vPosLocal = normalize(position);
               vec4 worldPos = modelMatrix * vec4(position, 1.0);
+              vWorldPos = worldPos.xyz;
               vNormalWorld = normalize(mat3(modelMatrix) * normal);
               vViewDir = normalize(cameraPosition - worldPos.xyz);
               gl_Position = projectionMatrix * viewMatrix * worldPos;
@@ -2055,6 +2196,7 @@
             varying vec3 vNormalWorld;
             varying vec3 vPosLocal;
             varying vec3 vViewDir;
+            varying vec3 vWorldPos;
 
             float hash(vec3 p) {
               p = fract(p * 0.3183099 + 0.1);
@@ -2081,35 +2223,113 @@
               vec3 p = vPosLocal;
               float n = 0.0;
               if (uMode > 0.5 && uMode < 1.5) {
-                // Gas giant banded turbulence
-                float warp = fbm(p * 3.5 + vec3(uSeed));
-                n = sin((p.y * 12.0 + warp * 4.5)) * 0.5 + 0.5;
-              } else if (uMode >= 1.5) {
+                // Gas giant banded turbulence with Jovian vortex storm
+                float warp = fbm(p * 3.6 + vec3(uSeed));
+                n = sin((p.y * 14.0 + warp * 4.8)) * 0.5 + 0.5;
+                // Great storm spot
+                vec3 spotDir = normalize(vec3(0.7, -0.3, 0.6));
+                float spotDist = length(p - spotDir);
+                float spot = exp(-spotDist * spotDist * 32.0);
+                n = mix(n, 0.95, spot * 0.85);
+              } else if (uMode >= 1.5 && uMode < 2.5) {
                 // Volcanic magma fissures
                 float base = fbm(p * 4.0 + vec3(uSeed));
                 n = 1.0 - abs(base * 2.0 - 1.0);
                 n = pow(n, 3.2);
               } else {
-                // Terran / Ice continents
-                n = fbm(p * 3.2 + vec3(uSeed * 1.3));
+                // Terran continents & cloud swirl
+                n = fbm(p * 3.4 + vec3(uSeed * 1.3));
               }
 
-              vec3 surf = mix(uCol1, uCol2, smoothstep(0.32, 0.62, n));
+              vec3 surf = mix(uCol1, uCol2, smoothstep(0.30, 0.62, n));
               surf = mix(surf, uCol3, smoothstep(0.68, 0.92, n));
 
-              float diff = max(dot(vNormalWorld, uSunDir), 0.12);
-              float fresnel = pow(1.0 - max(dot(vNormalWorld, vViewDir), 0.0), 3.0);
+              float sunDot = dot(vNormalWorld, uSunDir);
+              float diff = max(sunDot, 0.10);
+              float fresnel = pow(1.0 - max(dot(vNormalWorld, vViewDir), 0.0), 3.2);
 
               vec3 finalCol = surf * diff;
+
+              // Terran planet night-side glowing alien civilization energy grid
+              if (uMode < 0.5) {
+                float night = smoothstep(0.12, -0.25, sunDot);
+                float cityNoise = fbm(p * 18.0 + vec3(uSeed * 0.7));
+                float cityLights = smoothstep(0.66, 0.88, cityNoise);
+                vec3 cityCol = mix(vec3(0.2, 0.85, 1.0), vec3(1.0, 0.75, 0.2), fract(cityNoise * 4.3));
+                finalCol += cityCol * cityLights * night * 1.85;
+              }
+
               if (uEmissive > 0.5) {
                 // Glowing magma cracks bypass shadow & trigger Selective Bloom
-                finalCol += uCol3 * smoothstep(0.65, 0.95, n) * 1.45;
+                finalCol += uCol3 * smoothstep(0.65, 0.95, n) * 1.6;
               }
-              finalCol += uRim * fresnel * 0.85;
+              finalCol += uRim * fresnel * 0.95;
               gl_FragColor = vec4(finalCol, 1.0);
             }
           `
         });
+      }
+
+      // High-Fidelity Planetary Ring Generator with Cassini Division & True Planetary Cast Shadow
+      function createPlanetaryRingMesh(planetMesh, planetRadius, sunPos) {
+        const innerR = planetRadius * 1.35;
+        const outerR = planetRadius * 2.45;
+        const ringGeo = new THREE.RingGeometry(innerR, outerR, 64);
+        const ringMat = new THREE.ShaderMaterial({
+          side: THREE.DoubleSide,
+          transparent: true,
+          depthWrite: false,
+          uniforms: {
+            uInnerR: { value: innerR },
+            uOuterR: { value: outerR },
+            uPlanetRadius: { value: planetRadius },
+            uPlanetPos: { value: planetMesh.position },
+            uSunDir: { value: sunPos.clone().normalize() }
+          },
+          vertexShader: `
+            varying vec3 vWorldPos;
+            varying vec2 vLocalPos;
+            void main() {
+              vLocalPos = position.xy;
+              vec4 wp = modelMatrix * vec4(position, 1.0);
+              vWorldPos = wp.xyz;
+              gl_Position = projectionMatrix * viewMatrix * wp;
+            }
+          `,
+          fragmentShader: `
+            uniform float uInnerR;
+            uniform float uOuterR;
+            uniform float uPlanetRadius;
+            uniform vec3 uPlanetPos;
+            uniform vec3 uSunDir;
+            varying vec3 vWorldPos;
+            varying vec2 vLocalPos;
+            void main() {
+              float r = length(vLocalPos);
+              if (r < uInnerR || r > uOuterR) discard;
+              float t = (r - uInnerR) / (uOuterR - uInnerR);
+
+              // Cassini division gap between ring A and ring B
+              float cassini = 1.0 - smoothstep(0.48, 0.52, t) * smoothstep(0.58, 0.54, t);
+              float fineBanding = sin(t * 140.0) * 0.15 + sin(t * 280.0) * 0.08 + 0.82;
+
+              // Calculate true spherical planetary cast shadow across the ring plane
+              vec3 toSun = normalize(uSunDir);
+              vec3 pToRing = vWorldPos - uPlanetPos;
+              float dAlongSun = dot(pToRing, -toSun); // Distance behind planet along shadow axis
+              float perpDist = length(pToRing - (-toSun) * dAlongSun);
+              float shadow = (dAlongSun > 0.0 && perpDist < uPlanetRadius * 1.02) ? 0.08 : 1.0;
+
+              vec3 ringCol = mix(vec3(0.98, 0.88, 0.72), vec3(0.68, 0.85, 0.98), t);
+              gl_FragColor = vec4(ringCol * fineBanding * shadow, 0.58 * cassini * shadow);
+            }
+          `
+        });
+        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+        ringMesh.rotation.x = Math.PI * 0.44;
+        ringMesh.rotation.y = 0.22;
+        planetMesh.add(ringMesh);
+        return ringMesh;
       }
 
       const cosmosGroup = new THREE.Group();
@@ -2132,53 +2352,74 @@
         asteroids.length = 0;
 
         const rng = { val: params.worldSeed * 98765 + 1337 };
-        const types = ['terran', 'gas', 'lava', 'ice'];
 
-        // Build diverse Planets of varying sizes, morphologies, & rings
-        for (let i = 0; i < params.planetCount; i++) {
+        // 1. The Sovereign Monarch of M78 (Majestic Focal Ringed Gas Giant)
+        // Positioned majestically in the high-angle vista for cinematic backdrop
+        const monarchRadius = 135;
+        const monarchGeo = new THREE.IcosahedronGeometry(monarchRadius, 4);
+        const monarchMat = createPlanetShaderMaterial('gas', 42.0);
+        const monarchMesh = new THREE.Mesh(monarchGeo, monarchMat);
+        monarchMesh.position.set(-820, 260, -1350);
+        createPlanetaryRingMesh(monarchMesh, monarchRadius, sunLight.position);
+        cosmosGroup.add(monarchMesh);
+        planets.push({
+          mesh: monarchMesh,
+          mat: monarchMat,
+          radius: monarchRadius,
+          rotSpeed: 0.04
+        });
+
+        // 2. The Luminous Terrestrial Super-Earth (Night-side civilization energy grid)
+        const terraRadius = 68;
+        const terraGeo = new THREE.IcosahedronGeometry(terraRadius, 3);
+        const terraMat = createPlanetShaderMaterial('terran', 19.5);
+        const terraMesh = new THREE.Mesh(terraGeo, terraMat);
+        terraMesh.position.set(920, -180, -960);
+        cosmosGroup.add(terraMesh);
+        planets.push({
+          mesh: terraMesh,
+          mat: terraMat,
+          radius: terraRadius,
+          rotSpeed: -0.06
+        });
+
+        // 3. Build diverse celestial worlds spread throughout the cosmos
+        const types = ['lava', 'ice', 'gas', 'terran'];
+        const secondaryCount = Math.max(2, params.planetCount - 2);
+
+        for (let i = 0; i < secondaryCount; i++) {
           const pType = types[i % types.length];
-          const radius = pType === 'gas' ? (75 + seededRandom(rng) * 70) : (28 + seededRandom(rng) * 48);
+          const radius = pType === 'gas' ? (70 + seededRandom(rng) * 65) : (26 + seededRandom(rng) * 44);
           const geo = new THREE.IcosahedronGeometry(radius, pType === 'gas' ? 4 : 3);
-          const mat = createPlanetShaderMaterial(pType, seededRandom(rng) * 40);
+          const mat = createPlanetShaderMaterial(pType, seededRandom(rng) * 50);
           const mesh = new THREE.Mesh(geo, mat);
 
-          const ang = (i / params.planetCount) * Math.PI * 2 + seededRandom(rng) * 0.5;
-          const dist = 280 + seededRandom(rng) * 1150;
-          const yOff = (seededRandom(rng) - 0.5) * 340;
+          const ang = (i / secondaryCount) * Math.PI * 2 + seededRandom(rng) * 0.6;
+          const dist = 320 + seededRandom(rng) * 1150;
+          const yOff = (seededRandom(rng) - 0.5) * 380;
           mesh.position.set(Math.cos(ang) * dist, yOff, Math.sin(ang) * dist);
           cosmosGroup.add(mesh);
 
-          // Add Planetary Rings to Gas Giants or select worlds
-          if (pType === 'gas' || seededRandom(rng) > 0.72) {
-            const ringGeo = new THREE.RingGeometry(radius * 1.32, radius * 2.15, 48);
-            const ringMat = new THREE.MeshBasicMaterial({
-              color: pType === 'gas' ? 0xfed7aa : 0x7dd3fc,
-              side: THREE.DoubleSide,
-              transparent: true,
-              opacity: 0.42
-            });
-            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-            ringMesh.rotation.x = Math.PI * 0.42;
-            ringMesh.rotation.y = (seededRandom(rng) - 0.5) * 0.8;
-            mesh.add(ringMesh);
+          if (pType === 'gas' && seededRandom(rng) > 0.4) {
+            createPlanetaryRingMesh(mesh, radius, sunLight.position);
           }
 
           planets.push({
             mesh,
             mat,
             radius,
-            rotSpeed: (seededRandom(rng) - 0.5) * 0.18
+            rotSpeed: (seededRandom(rng) - 0.5) * 0.16
           });
         }
 
-        // Build Asteroid Field using InstancedMesh for crisp 60fps performance
-        const astCount = Math.round(params.asteroidsDensity * 260);
+        // 4. Build Faceted Asteroid Belt with Mineral Specular Glints
+        const astCount = Math.round(params.asteroidsDensity * 280);
         if (astCount > 0) {
           const astGeo = new THREE.DodecahedronGeometry(1, 0);
           const astMat = new THREE.MeshStandardMaterial({
             color: 0x64748b,
-            roughness: 0.85,
-            metalness: 0.15,
+            roughness: 0.75,
+            metalness: 0.35,
             flatShading: true
           });
           const astInst = new THREE.InstancedMesh(astGeo, astMat, astCount);
@@ -2186,11 +2427,11 @@
 
           for (let i = 0; i < astCount; i++) {
             const ang = seededRandom(rng) * Math.PI * 2;
-            const dist = 120 + seededRandom(rng) * 1200;
+            const dist = 140 + seededRandom(rng) * 1250;
             const x = Math.cos(ang) * dist;
             const z = Math.sin(ang) * dist;
-            const y = (seededRandom(rng) - 0.5) * 260;
-            const sx = 3 + seededRandom(rng) * 11;
+            const y = (seededRandom(rng) - 0.5) * 280;
+            const sx = 3.5 + seededRandom(rng) * 12;
             const sy = sx * (0.6 + seededRandom(rng) * 0.7);
             const sz = sx * (0.6 + seededRandom(rng) * 0.7);
 
@@ -2208,80 +2449,135 @@
       // ==========================================
       // 5. 3D VOXEL STACK BUILDERS (ULTRAMAN & KAIJU)
       // ==========================================
-      // Builds a layered 3D Voxel Stack Group (14 horizontal slices along local Y)
-      // So rotating in 3D is 100% solid AND `sliceSpacing` / `explodeSlices` separates the 14 slices!
+      // Builds a layered 3D Voxel Stack Group (16 horizontal slices along local Y)
+      // High-Fidelity Micro-Voxel Sculpting for Ultraman Cosmos & Kaiju
       const VOXEL_SIZE = 1.05;
       const voxelBoxGeo = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
 
       function buildUltramanVoxelGroup() {
         const root = new THREE.Group();
         const slices = [];
-        const NUM_SLICES = 14;
+        const NUM_SLICES = 16;
 
-        // Materials
-        const matSilver = new THREE.MeshStandardMaterial({ color: params.colorBody, metalness: 0.45, roughness: 0.3 });
-        const matRed = new THREE.MeshStandardMaterial({ color: params.colorAccent, metalness: 0.25, roughness: 0.35 });
-        const matEye = new THREE.MeshBasicMaterial({ color: 0xfffbeb }); // Bright emissive -> Selective Bloom!
+        // PBR High-Fidelity Materials:
+        // 1. Quicksilver / Titanium (Brushed metal specular sheen)
+        const matSilver = new THREE.MeshStandardMaterial({
+          color: params.colorBody,
+          metalness: 0.68,
+          roughness: 0.22
+        });
+        // 2. High-Gloss Heroic Crimson (High saturation ceramic finish)
+        const matRed = new THREE.MeshStandardMaterial({
+          color: params.colorAccent,
+          metalness: 0.18,
+          roughness: 0.26
+        });
+        // 3. Cosmos Luna Azure Blue (Iconic Ultraman Cosmos royal blue)
+        const matBlue = new THREE.MeshStandardMaterial({
+          color: 0x0284c7,
+          metalness: 0.32,
+          roughness: 0.24
+        });
+        // 4. Solar Corona Gold inlays
+        const matGold = new THREE.MeshStandardMaterial({
+          color: 0xf59e0b,
+          metalness: 0.78,
+          roughness: 0.20
+        });
+        // 5. Almond Light Eyes (Luminous core)
+        const matEye = new THREE.MeshBasicMaterial({ color: 0xfffef0 });
+        // 6. Warm Amber Outer Eye Trim
+        const matEyeRim = new THREE.MeshBasicMaterial({ color: 0xfde047 });
+        // 7. Faceted Color Timer Crystal (Brilliant Cyan Gem Core)
         const matTimer = new THREE.MeshBasicMaterial({ color: params.colorTimer });
+        // 8. Color Timer Raised Metallic Bezel Frame
+        const matTimerBezel = new THREE.MeshStandardMaterial({
+          color: 0xf1f5f9,
+          metalness: 0.85,
+          roughness: 0.15
+        });
 
-        // Ultraman flying pose along -Z (head at z = -15, boots at z = +16)
-        // Grid: x in [-9..9], z in [-16..16], y (slice) in [0..13]
+        // Ultraman Cosmos flying pose along -Z (head at z = -14, boots at z = +17)
+        // Grid: x in [-9..9], z in [-17..17], y (slice) in [0..15]
         for (let s = 0; s < NUM_SLICES; s++) {
           const sliceGroup = new THREE.Group();
-          sliceGroup.userData.baseY = (s - 6.5) * VOXEL_SIZE;
+          sliceGroup.userData.baseY = (s - 7.5) * VOXEL_SIZE;
           sliceGroup.position.y = sliceGroup.userData.baseY;
 
-          for (let z = -16; z <= 16; z++) {
+          for (let z = -17; z <= 17; z++) {
             for (let x = -9; x <= 9; x++) {
               const ax = Math.abs(x);
               let mat = null;
 
-              // 1. Head & Helmet Crest (z: -13..-8, s: 4..12)
-              if (z >= -13 && z <= -8 && s >= 4 && s <= 11) {
-                const headR = 2.6 - Math.abs(z + 10.5) * 0.45 - Math.abs(s - 7.5) * 0.35;
-                if (ax <= headR) {
+              // 1. Aerodynamic Head Crest & Curved Mask (z: -14..-8, s: 5..15)
+              if (z >= -14 && z <= -8 && s >= 5 && s <= 15) {
+                // Central Aerodynamic Silver Crest Fin (Signature Cosmos Fin)
+                if (ax === 0 && s >= 11 && s <= 15 && z >= -14 && z <= -8) {
                   mat = matSilver;
-                  // Glowing Almond Eyes
-                  if (z <= -11 && s >= 7 && s <= 8 && ax >= 1 && ax <= 2) {
-                    mat = matEye;
+                } else if (ax <= 2 && s >= 7 && s <= 13) {
+                  const headR = 2.4 - Math.abs(z + 11.0) * 0.42 - Math.abs(s - 9.5) * 0.32;
+                  if (ax <= headR) {
+                    mat = matSilver;
+                    // Sculpted Almond Glowing Eyes with warm gradient trim
+                    if (z >= -13 && z <= -11 && s >= 8 && s <= 10) {
+                      if (ax === 1) mat = matEye; // Luminous core
+                      else if (ax === 2) mat = matEyeRim; // Warm amber rim
+                    }
                   }
-                }
-              }
-              // Iconic Silver Head Crest (Fin)
-              if (z >= -12 && z <= -7 && s >= 10 && s <= 13 && ax === 0) {
-                mat = matSilver;
-              }
-
-              // 2. Torso & Classic Red/Silver Markings (z: -7..4, s: 3..10)
-              if (!mat && z >= -7 && z <= 4 && s >= 3 && s <= 10) {
-                const torsoW = z < -1 ? 3.5 : 2.6;
-                const torsoH = Math.abs(s - 6.5);
-                if (ax <= torsoW && torsoH <= 3.2) {
-                  // Red chest & shoulder patterns
-                  const isRedPattern = (z <= -3 && ax >= 1) || (z >= 0 && z <= 2 && ax >= 2) || (s >= 9 && ax <= 2);
-                  mat = isRedPattern ? matRed : matSilver;
-
-                  // Glowing Color Timer on chest center (bottom/front side s=3..4, z=-5..-4)
-                  if (s <= 4 && z >= -5 && z <= -4 && ax <= 1) {
-                    mat = matTimer;
-                  }
+                } else if (ax <= 1 && s >= 5 && s <= 7 && z >= -11 && z <= -8) {
+                  // Tapered Jawline & Silver Chin
+                  mat = matSilver;
                 }
               }
 
-              // 3. Forward-Outstretched Flying Arms & Red Gloves (z: -16..-5, s: 5..8)
-              if (!mat && z >= -16 && z <= -5 && s >= 5 && s <= 8) {
-                // Left/Right arms stretching straight ahead!
+              // 2. Cosmos Chest Armor & Dynamic Chevron Energy Markings (z: -7..4, s: 3..12)
+              if (!mat && z >= -7 && z <= 4 && s >= 3 && s <= 12) {
+                const torsoW = z < -1 ? 3.8 : 2.8;
+                const torsoH = Math.abs(s - 7.0);
+                if (ax <= torsoW && torsoH <= 3.8) {
+                  // Color Timer: Faceted Diamond Cyan Crystal + Raised Metallic Bezel Frame
+                  if (s >= 4 && s <= 5 && z >= -5 && z <= -4 && ax === 0) {
+                    mat = matTimer; // Brilliant crystal core
+                  } else if (s >= 3 && s <= 6 && z >= -6 && z <= -3 && ax <= 1) {
+                    mat = matTimerBezel; // Metallic raised bezel ring
+                  } else {
+                    // Cosmos Signature Luna Azure Blue & Radiant Crimson Flow Curves
+                    const isCosmosBlue = (z >= -6 && z <= -1 && (ax === 2 || ax === 3)) || (s >= 10 && ax === 2);
+                    const isRedBand = (z >= -4 && z <= 2 && ax <= 2 && !isCosmosBlue) || (z >= 0 && z <= 3 && ax >= 2);
+                    const isGoldInlay = (z === -3 && ax === 1 && s >= 7 && s <= 9);
+
+                    if (isGoldInlay) mat = matGold;
+                    else if (isCosmosBlue) mat = matBlue;
+                    else if (isRedBand) mat = matRed;
+                    else mat = matSilver;
+                  }
+                }
+              }
+
+              // 3. Outstretched Fists, Forearm Gauntlets & Red Cuffs (z: -17..-5, s: 6..10)
+              if (!mat && z >= -17 && z <= -5 && s >= 6 && s <= 10) {
+                // Flying fists stretched straight forward!
                 if ((x >= 3 && x <= 4) || (x <= -3 && x >= -4)) {
-                  if (s >= 6 && s <= 7) {
-                    mat = z <= -13 ? matRed : matSilver; // Red gloves at front fists
+                  if (z <= -14) {
+                    mat = matSilver; // Clenched silver knuckles at front tip
+                  } else if (z <= -11) {
+                    mat = matRed; // Red wrist cuffs
+                  } else if (z <= -7) {
+                    mat = (s >= 8) ? matBlue : matSilver; // Vambraces with blue accent
                   }
                 }
               }
 
-              // 4. Legs & Red Boots extending backward (z: 5..15, s: 4..8)
-              if (!mat && z >= 5 && z <= 15 && s >= 4 && s <= 8) {
-                if (ax >= 1 && ax <= 2 && s >= 5 && s <= 7) {
-                  mat = z >= 11 ? matRed : matSilver;
+              // 4. Streamlined Flight Legs & Red Aerodynamic Boots (z: 5..17, s: 4..10)
+              if (!mat && z >= 5 && z <= 17 && s >= 4 && s <= 10) {
+                if (ax >= 1 && ax <= 2 && s >= 5 && s <= 8) {
+                  if (z >= 14) {
+                    mat = matRed; // Aerodynamic red flight boots
+                  } else if (z >= 11) {
+                    mat = (s >= 7) ? matBlue : matSilver; // Calves with blue stripes
+                  } else {
+                    mat = (ax === 2) ? matRed : matSilver; // Thighs with red racing stripes
+                  }
                 }
               }
 
@@ -2299,26 +2595,31 @@
         root.userData.slices = slices;
         root.userData.matSilver = matSilver;
         root.userData.matRed = matRed;
+        root.userData.matBlue = matBlue;
+        root.userData.matGold = matGold;
         root.userData.matTimer = matTimer;
         return root;
       }
 
-      // Build 3 distinct Space Kaiju Voxel Blueprints
+      // Build 3 distinct Space Kaiju Voxel Blueprints with Enhanced Carapace & Glow
       function buildKaijuVoxelGroup(variant) {
         const root = new THREE.Group();
         const slices = [];
         const NUM_SLICES = 14;
 
         const palettes = [
-          { shell: 0x312e81, belly: 0x6366f1, horn: 0xe11d48, glow: 0xfacc15 }, // Baltan/Gomora Space Beast
-          { shell: 0x18181b, belly: 0x52525b, horn: 0xf59e0b, glow: 0xf97316 }, // Zetton-style Armored Kaiju
-          { shell: 0x450a0a, belly: 0x991b1b, horn: 0x38bdf8, glow: 0x22d3ee }  // Crystal Magma Kaiju
+          // Baltan/Space Beast: Iridescent Deep Navy Chitin + Cyan Glow
+          { shell: 0x1e1b4b, belly: 0x3730a3, horn: 0xf43f5e, glow: 0x38bdf8, metal: 0.45, rough: 0.35 },
+          // Zetton-style Armored Titan: Obsidian Alloy Plate + Solar Flame Core
+          { shell: 0x09090b, belly: 0x27272a, horn: 0xf59e0b, glow: 0xf97316, metal: 0.72, rough: 0.28 },
+          // Crystal Magma Kaiju: Volcanic Basalt + Luminous Plasma Vents
+          { shell: 0x1c1917, belly: 0x7f1d1d, horn: 0x38bdf8, glow: 0x22d3ee, metal: 0.35, rough: 0.45 }
         ];
         const pal = palettes[variant % palettes.length];
 
-        const matShell = new THREE.MeshStandardMaterial({ color: pal.shell, roughness: 0.65, metalness: 0.2 });
-        const matBelly = new THREE.MeshStandardMaterial({ color: pal.belly, roughness: 0.55 });
-        const matHorn  = new THREE.MeshStandardMaterial({ color: pal.horn, roughness: 0.4 });
+        const matShell = new THREE.MeshStandardMaterial({ color: pal.shell, roughness: pal.rough, metalness: pal.metal });
+        const matBelly = new THREE.MeshStandardMaterial({ color: pal.belly, roughness: pal.rough * 0.9, metalness: pal.metal * 0.5 });
+        const matHorn  = new THREE.MeshStandardMaterial({ color: pal.horn, roughness: 0.25, metalness: 0.55 });
         const matGlow  = new THREE.MeshBasicMaterial({ color: pal.glow });
 
         for (let s = 0; s < NUM_SLICES; s++) {
@@ -2377,17 +2678,17 @@
         return root;
       }
 
-      // Build Epic Chaos Overlord Voxel Blueprint (Boss)
+      // Build Epic Chaos Overlord Voxel Blueprint (Boss) with Mirror Obsidian Armor
       function buildBossVoxelGroup() {
         const root = new THREE.Group();
         const slices = [];
         const NUM_SLICES = 18;
 
-        const matArmor = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.45, metalness: 0.65 });
-        const matPlate = new THREE.MeshStandardMaterial({ color: 0x27272a, roughness: 0.35, metalness: 0.4 });
-        const matHorn  = new THREE.MeshStandardMaterial({ color: 0x7f1d1d, roughness: 0.35 });
+        const matArmor = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.32, metalness: 0.75 });
+        const matPlate = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.28, metalness: 0.55 });
+        const matHorn  = new THREE.MeshStandardMaterial({ color: 0x881337, roughness: 0.25, metalness: 0.45 });
         const matGlow  = new THREE.MeshBasicMaterial({ color: 0xf43f5e }); // Bright emissive crimson
-        const matCore  = new THREE.MeshBasicMaterial({ color: 0xfacc15 }); // Gold-orange chaos reactor
+        const matCore  = new THREE.MeshBasicMaterial({ color: 0xfbbf24 }); // Gold-orange chaos reactor
 
         for (let s = 0; s < NUM_SLICES; s++) {
           const sliceGroup = new THREE.Group();
@@ -2537,7 +2838,7 @@
         const d2 = document.getElementById('dotDemo2');
 
         const descriptions = [
-          '幕 1/3: 奥特曼 14 层体素全向特写与结构剖析',
+          '幕 1/3: 高斯奥特曼 16 层微体素全向特写与精细结构剖析',
           '幕 2/3: 空间空战巡航、八分光轮与斯派修姆贯穿光线演示',
           '幕 3/3: 混沌灭世魔兽 (Chaos Overlord) 巨翼与暗核危机'
         ];
@@ -2618,12 +2919,18 @@
           }
         }
 
-        // Rotate cosmos sky & planets slowly
+        // Rotate cosmos sky, volumetric stardust & planets slowly
         skyDome.position.copy(camera.position);
         skyUniforms.uTime.value = performance.now() * 0.001;
+        if (typeof stardustMat !== 'undefined' && stardustMat) {
+          stardustMat.uniforms.uCamPos.value.copy(camera.position);
+          stardustMat.uniforms.uTime.value = performance.now() * 0.001;
+        }
         for (let i = 0; i < planets.length; i++) {
           planets[i].mesh.rotation.y += planets[i].rotSpeed * dt * 0.5;
-          planets[i].mat.uniforms.uTime.value = performance.now() * 0.001;
+          if (planets[i].mat && planets[i].mat.uniforms && planets[i].mat.uniforms.uTime) {
+            planets[i].mat.uniforms.uTime.value = performance.now() * 0.001;
+          }
         }
 
         // Update peeling debris & particles during demo
@@ -3696,12 +4003,18 @@
 
         soundEngine.update((player.speed - 50) / 150, player.boosting, player.hull <= 2, isPaused);
 
-        // Rotate Planets & Keep SkyDome centered on camera (pure celestial sphere)
+        // Rotate Planets & Keep SkyDome and Volumetric Stardust centered on camera
         skyDome.position.copy(camera.position);
         skyUniforms.uTime.value = performance.now() * 0.001;
+        if (typeof stardustMat !== 'undefined' && stardustMat) {
+          stardustMat.uniforms.uCamPos.value.copy(camera.position);
+          stardustMat.uniforms.uTime.value = performance.now() * 0.001;
+        }
         for (let i = 0; i < planets.length; i++) {
           planets[i].mesh.rotation.y += planets[i].rotSpeed * dt;
-          planets[i].mat.uniforms.uTime.value = performance.now() * 0.001;
+          if (planets[i].mat && planets[i].mat.uniforms && planets[i].mat.uniforms.uTime) {
+            planets[i].mat.uniforms.uTime.value = performance.now() * 0.001;
+          }
         }
 
         // Update Kaiju Enemies, Boss AI & Lock-on Detection (Standoff & Jousting Flight Model)
@@ -4366,17 +4679,23 @@
         });
 
         if (params.nebulaMode === 'solar') {
-          skyUniforms.uColorA.value.set('#1a0b0e');
-          skyUniforms.uColorB.value.set('#431407');
+          skyUniforms.uColorA.value.set('#120708');
+          skyUniforms.uColorB.value.set('#3b0764');
           skyUniforms.uNebulaAccent.value.set('#f97316');
+          skyUniforms.uNebulaWarm.value.set('#ef4444');
+          skyUniforms.uNebulaGold.value.set('#fde047');
         } else if (params.nebulaMode === 'void') {
-          skyUniforms.uColorA.value.set('#02040a');
+          skyUniforms.uColorA.value.set('#020408');
           skyUniforms.uColorB.value.set('#0f172a');
-          skyUniforms.uNebulaAccent.value.set('#334155');
+          skyUniforms.uNebulaAccent.value.set('#38bdf8');
+          skyUniforms.uNebulaWarm.value.set('#6366f1');
+          skyUniforms.uNebulaGold.value.set('#94a3b8');
         } else {
-          skyUniforms.uColorA.value.set('#060918');
+          skyUniforms.uColorA.value.set('#030712');
           skyUniforms.uColorB.value.set('#1e1b4b');
-          skyUniforms.uNebulaAccent.value.set('#0284c7');
+          skyUniforms.uNebulaAccent.value.set('#06b6d4');
+          skyUniforms.uNebulaWarm.value.set('#e11d48');
+          skyUniforms.uNebulaGold.value.set('#f59e0b');
         }
       }
 
@@ -4467,7 +4786,7 @@
 
       function replayStackIntro() {
         player.stackIntroProgress = 0.0;
-        showBanner('✨ 14层 3D 体素切片逐层合体演示', 'bg-cyan-400 text-slate-950');
+        showBanner('✨ 16层 3D 微体素切片逐层合体演示', 'bg-cyan-400 text-slate-950');
       }
       const btnIntro = document.getElementById('btnTriggerStackIntro');
       if (btnIntro) btnIntro.addEventListener('click', replayStackIntro);
@@ -4652,7 +4971,25 @@
       bindBtn('actEject', 'click', () => { soundEngine.init(); triggerLightTransform(); });
 
       updateDemoUI();
-      window.__gameDebug = { soundEngine, player, pointer, projectiles, enemies, launchGame, returnToTitle, fireUltraSlash, fireSpaciumSalvo, triggerBarrelRoll, spawnBoss, getGameState: () => gameState };
+      window.__gameDebug = {
+        soundEngine,
+        player,
+        pointer,
+        projectiles,
+        enemies,
+        heroMesh,
+        planets,
+        stardustMesh,
+        stardustGeo,
+        skyUniforms,
+        launchGame,
+        returnToTitle,
+        fireUltraSlash,
+        fireSpaciumSalvo,
+        triggerBarrelRoll,
+        spawnBoss,
+        getGameState: () => gameState
+      };
 
       // ==========================================
       // 11. MAIN ANIMATION LOOP
