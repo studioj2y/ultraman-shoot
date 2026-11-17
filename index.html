@@ -658,10 +658,18 @@
 
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
-              <label for="ctrlPixelSize" class="text-slate-300">Render pixel size (像素化)</label>
-              <span id="valPixelSize" class="text-slate-400">2</span>
+              <label for="ctrlPixelSize" class="text-slate-300">Render Resolution (像素化解析度)</label>
+              <span id="valPixelSize" class="text-slate-400">1 (高清锐利)</span>
             </div>
-            <input id="ctrlPixelSize" type="range" min="1" max="5" step="1" value="2" class="w-full" />
+            <input id="ctrlPixelSize" type="range" min="1" max="4" step="1" value="1" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlSharpness" class="text-slate-300" title="CAS 动态自适应边缘对比度锐化，消除一切模糊">Edge Sharpness (CAS 锐利度)</label>
+              <span id="valSharpness" class="text-slate-400">0.65</span>
+            </div>
+            <input id="ctrlSharpness" type="range" min="0.0" max="1.0" step="0.05" value="0.65" class="w-full" />
           </div>
 
           <div class="flex items-center justify-between pt-1">
@@ -963,7 +971,8 @@
       const DEFAULT_PARAMS = {
         heroScale: 1.0,
         sliceSpacing: 1.0,
-        pixelSize: 2,
+        pixelSize: 1,
+        sharpness: 0.65,
         explodeSlices: false,
         view: 'chase',
         viewChange: 1.2,
@@ -1024,61 +1033,69 @@
         bpm: 122,
 
         // Note data tables (64 steps = 4 bars of 16th notes)
+        // 1. TITLE: 《光之黎明·英雄序曲》 (128 BPM · D Minor / Dorian 雄壮史诗特摄序曲)
         titleArp: [
-          52, 55, 59, 64, 59, 55, 52, 59, 52, 55, 59, 64, 59, 55, 59, 62,
-          48, 52, 55, 60, 55, 52, 48, 55, 48, 52, 55, 60, 55, 52, 55, 59,
-          50, 54, 57, 62, 57, 54, 50, 57, 50, 54, 57, 62, 57, 54, 57, 60,
-          47, 51, 54, 59, 54, 51, 47, 54, 47, 51, 54, 59, 57, 54, 51, 54
+          50, 53, 57, 62, 57, 53, 50, 57, 50, 53, 57, 62, 60, 57, 53, 57,
+          46, 50, 53, 58, 53, 50, 46, 53, 46, 50, 53, 58, 57, 53, 50, 53,
+          43, 46, 50, 55, 50, 46, 48, 52, 55, 60, 55, 52, 48, 55, 52, 48,
+          45, 49, 52, 57, 52, 49, 45, 52, 45, 49, 52, 57, 55, 52, 49, 52
         ],
         titleBass: [
-          40, 0, 40, 0, 40, 0, 40, 47, 40, 0, 40, 0, 40, 0, 43, 45,
-          36, 0, 36, 0, 36, 0, 36, 43, 36, 0, 36, 0, 36, 0, 40, 41,
-          38, 0, 38, 0, 38, 0, 38, 45, 38, 0, 38, 0, 38, 0, 41, 43,
-          35, 0, 35, 0, 35, 0, 35, 42, 35, 0, 35, 0, 35, 38, 40, 42
+          38, 0, 38, 50, 0, 38, 50, 0, 38, 0, 38, 41, 0, 43, 45, 0,
+          34, 0, 34, 46, 0, 34, 46, 0, 34, 0, 34, 38, 0, 41, 45, 0,
+          31, 0, 31, 43, 0, 31, 43, 0, 36, 0, 36, 48, 0, 43, 47, 0,
+          33, 0, 33, 45, 0, 33, 45, 0, 33, 33, 37, 40, 43, 45, 48, 50
         ],
         titleMelody: {
-          0: [71, 5], 6: [74, 2], 8: [76, 5], 14: [74, 2],
-          16: [71, 5], 22: [69, 2], 24: [67, 5], 30: [69, 2],
-          32: [71, 5], 38: [74, 2], 40: [69, 5], 46: [67, 2],
-          48: [64, 11], 60: [67, 2], 62: [69, 2]
+          0: [62, 5], 6: [65, 2], 8: [69, 5], 14: [72, 2],
+          16: [74, 5], 22: [72, 2], 24: [70, 5], 30: [72, 2],
+          32: [74, 5], 38: [76, 2], 40: [77, 5], 46: [76, 2],
+          48: [74, 6], 56: [73, 2], 58: [74, 2], 60: [76, 2], 62: [77, 2]
         },
 
+        // 2. BATTLE: 《宇宙决战·红莲狂飙》 (142 BPM · D Minor 激昂热血特摄决战主题曲)
+        // 铁蹄推进十六分音符疾走贝斯 + 激昂双重失谐厚重铜管号角高飞
         battleArp: [
-          57, 60, 64, 69, 64, 60, 57, 64, 57, 60, 64, 69, 64, 60, 64, 67,
-          53, 57, 60, 65, 60, 57, 53, 60, 53, 57, 60, 65, 60, 57, 60, 64,
-          55, 59, 62, 67, 62, 59, 55, 62, 55, 59, 62, 67, 62, 59, 62, 65,
-          52, 56, 59, 64, 59, 56, 52, 59, 52, 56, 59, 64, 62, 59, 56, 59
+          62, 65, 69, 74, 69, 65, 62, 69, 62, 65, 69, 74, 72, 69, 65, 69,
+          58, 62, 65, 70, 65, 62, 58, 65, 58, 62, 65, 70, 69, 65, 62, 65,
+          60, 64, 67, 72, 67, 64, 60, 67, 60, 64, 67, 72, 71, 67, 64, 67,
+          57, 61, 64, 69, 64, 61, 57, 64, 57, 61, 64, 69, 67, 64, 61, 64
         ],
         battleBass: [
-          45, 0, 45, 57, 0, 45, 57, 0, 45, 0, 45, 57, 0, 45, 43, 44,
-          41, 0, 41, 53, 0, 41, 53, 0, 41, 0, 41, 53, 0, 41, 39, 40,
-          43, 0, 43, 55, 0, 43, 55, 0, 43, 0, 43, 55, 0, 43, 42, 41,
-          40, 0, 40, 52, 0, 40, 52, 0, 40, 0, 40, 52, 0, 40, 43, 44
+          38, 38, 38, 50, 38, 38, 50, 38, 38, 38, 41, 38, 43, 38, 45, 48,
+          34, 34, 34, 46, 34, 34, 46, 34, 34, 34, 38, 34, 41, 34, 45, 46,
+          36, 36, 36, 48, 36, 36, 48, 36, 36, 36, 40, 36, 43, 36, 47, 48,
+          33, 33, 33, 45, 33, 33, 45, 33, 33, 33, 37, 33, 40, 43, 45, 46
         ],
         battleMelody: {
-          0: [76, 3], 4: [79, 2], 6: [81, 2], 8: [76, 5], 14: [74, 2],
-          16: [72, 3], 20: [74, 2], 22: [76, 2], 24: [74, 5], 30: [72, 2],
-          32: [71, 3], 36: [74, 2], 38: [79, 2], 40: [78, 5], 46: [76, 2],
-          48: [76, 7], 56: [71, 2], 58: [72, 2], 60: [74, 2], 62: [76, 2]
+          // Bar 1 (Dm): 英雄号角五度破空跃升至高音 D5!
+          0: [62, 3], 4: [69, 2], 6: [74, 5], 12: [72, 2], 14: [69, 2],
+          // Bar 2 (Bb): 宏大开阔英雄转调与攀升
+          16: [77, 4], 20: [76, 2], 22: [74, 4], 26: [77, 3], 30: [79, 2],
+          // Bar 3 (C): 切分战意推进
+          32: [79, 4], 36: [77, 2], 38: [76, 4], 42: [74, 2], 44: [72, 4],
+          // Bar 4 (A7): 高潮辉煌铜管冲锋收束
+          48: [81, 6], 54: [79, 2], 56: [77, 2], 58: [76, 2], 60: [73, 2], 62: [74, 2]
         },
 
+        // 3. BOSS: 《混沌劫灭·灭世魔兽》 (154 BPM · D Phrygian 末日危机与绝对强敌)
         bossArp: [
-          62, 65, 69, 74, 69, 65, 62, 65, 62, 65, 69, 74, 73, 69, 65, 68,
-          58, 62, 65, 70, 65, 62, 58, 62, 58, 62, 65, 70, 69, 65, 62, 65,
-          55, 58, 62, 67, 62, 58, 55, 58, 55, 58, 62, 67, 65, 62, 58, 62,
-          57, 61, 64, 69, 64, 61, 57, 61, 57, 61, 64, 69, 68, 65, 64, 61
+          50, 53, 56, 62, 56, 53, 50, 56, 51, 54, 57, 63, 57, 54, 51, 57,
+          50, 53, 56, 62, 56, 53, 50, 56, 56, 53, 50, 56, 57, 54, 51, 57,
+          43, 46, 50, 55, 50, 46, 44, 47, 51, 56, 51, 47, 44, 51, 47, 44,
+          45, 49, 52, 57, 52, 49, 51, 55, 58, 63, 58, 55, 57, 54, 51, 54
         ],
         bossBass: [
-          38, 38, 0, 38, 38, 0, 38, 38, 38, 38, 0, 38, 38, 38, 37, 36,
-          34, 34, 0, 34, 34, 0, 34, 34, 34, 34, 0, 34, 34, 34, 35, 36,
-          31, 31, 0, 31, 31, 0, 31, 31, 31, 31, 0, 31, 31, 31, 33, 35,
-          33, 33, 0, 33, 33, 0, 33, 33, 33, 33, 33, 33, 37, 37, 37, 37
+          38, 38, 38, 38, 39, 39, 39, 39, 38, 38, 44, 44, 43, 43, 40, 40,
+          39, 39, 39, 39, 38, 38, 38, 38, 44, 44, 43, 43, 40, 40, 39, 39,
+          31, 31, 31, 31, 32, 32, 32, 32, 31, 31, 43, 43, 44, 44, 43, 43,
+          33, 33, 33, 33, 33, 33, 33, 33, 39, 39, 39, 39, 45, 45, 45, 45
         ],
         bossMelody: {
-          0: [74, 3], 4: [77, 2], 6: [80, 2], 8: [81, 5], 14: [79, 2],
-          16: [77, 3], 20: [74, 2], 22: [77, 2], 24: [76, 5], 30: [73, 2],
-          32: [74, 3], 36: [79, 2], 38: [77, 2], 40: [76, 5], 46: [74, 2],
-          48: [73, 7], 56: [76, 2], 58: [79, 2], 60: [81, 2], 62: [85, 2]
+          0: [74, 3], 4: [75, 2], 6: [74, 2], 8: [80, 5], 14: [79, 2],
+          16: [77, 3], 20: [75, 2], 22: [74, 2], 24: [75, 5], 30: [77, 2],
+          32: [79, 3], 36: [80, 2], 38: [82, 2], 40: [80, 5], 46: [79, 2],
+          48: [81, 6], 56: [80, 2], 58: [79, 2], 60: [75, 2], 62: [74, 2]
         },
 
         init() {
@@ -1118,7 +1135,7 @@
             this.bgmFilter.Q.setValueAtTime(1.0, this.ctx.currentTime);
 
             this.bgmGain = this.ctx.createGain();
-            this.bgmGain.gain.setValueAtTime(this.bgmMuted ? 0 : this.bgmVolume * 0.42, this.ctx.currentTime);
+            this.bgmGain.gain.setValueAtTime(this.bgmMuted ? 0 : this.bgmVolume * 0.45, this.ctx.currentTime);
 
             this.bgmFilter.connect(this.bgmGain);
             this.bgmGain.connect(this.masterGain);
@@ -1177,7 +1194,7 @@
         toggleBGM() {
           this.bgmMuted = !this.bgmMuted;
           if (this.bgmGain && this.ctx) {
-            this.bgmGain.gain.setTargetAtTime(this.bgmMuted ? 0 : this.bgmVolume * 0.42, this.ctx.currentTime, 0.05);
+            this.bgmGain.gain.setTargetAtTime(this.bgmMuted ? 0 : this.bgmVolume * 0.45, this.ctx.currentTime, 0.05);
           }
           const txt = document.getElementById('txtBgmStatus');
           if (txt) txt.textContent = this.bgmMuted ? 'BGM: OFF' : 'BGM: ON';
@@ -1195,7 +1212,7 @@
         setBgmVolume(val) {
           this.bgmVolume = Math.max(0, Math.min(1, val));
           if (this.bgmGain && this.ctx && !this.bgmMuted) {
-            this.bgmGain.gain.setTargetAtTime(this.bgmVolume * 0.42, this.ctx.currentTime, 0.05);
+            this.bgmGain.gain.setTargetAtTime(this.bgmVolume * 0.45, this.ctx.currentTime, 0.05);
           }
         },
 
@@ -1227,97 +1244,122 @@
           if (mode === 'OFF') return;
 
           if (mode === 'TITLE') {
-            this.bpm = 122;
-            if (step % 8 === 0) this.playKick(t, 0.28);
-            if (step % 16 === 4 || step % 16 === 12) this.playSnare(t, 0.15, 150);
-            if (step % 2 === 0) this.playHat(t, (step % 4 === 2 ? 0.05 : 0.025), false);
+            this.bpm = 128;
+            const titleKicks = [0, 6, 8, 14, 16, 22, 24, 30, 32, 38, 40, 46, 48, 54, 56, 62];
+            if (titleKicks.includes(step)) this.playKick(t, 0.36);
+            if (step % 8 === 4) this.playSnare(t, 0.22, 175);
+            if (step % 16 === 14 || step % 16 === 15) this.playSnare(t, 0.14, 230);
+            this.playHat(t, (step % 4 === 2 ? 0.06 : 0.03), false);
+
+            if (step === 0) this.playBrassStab(t, 50, 0.22);
+            else if (step === 16) this.playBrassStab(t, 46, 0.22);
+            else if (step === 32) this.playBrassStab(t, 43, 0.22);
+            else if (step === 48) this.playBrassStab(t, 45, 0.24);
+
             const b = this.titleBass[step];
-            if (b) this.playBass(t, b, 0.13, 0.26);
+            if (b) this.playBass(t, b, 0.12, 0.32);
             const a = this.titleArp[step];
             if (a) this.playArp(t, a, 0.08, 0.12);
             const m = this.titleMelody[step];
             if (m) {
-              const durSec = m[1] * (60 / this.bpm / 4) * 0.95;
-              this.playLead(t, m[0], durSec, 0.22);
+              const durSec = m[1] * (60 / this.bpm / 4) * 0.94;
+              this.playLead(t, m[0], durSec, 0.26);
             }
           } else if (mode === 'BATTLE') {
-            this.bpm = 136;
-            if (step % 4 === 0) this.playKick(t, 0.38);
-            if (step % 8 === 4) this.playSnare(t, 0.24, 185);
-            if (step % 4 === 2) this.playHat(t, 0.08, true);
-            else this.playHat(t, 0.035, false);
+            this.bpm = 142;
+            // 疾走双底鼓推进律动 (Galloping Battle Double Kicks)
+            const battleKicks = [0, 3, 6, 8, 11, 14, 16, 19, 22, 24, 27, 30, 32, 35, 38, 40, 43, 46, 48, 51, 54, 56, 59, 62];
+            if (battleKicks.includes(step)) this.playKick(t, 0.42);
+            if (step % 8 === 4) this.playSnare(t, 0.28, 195);
+            // 小节末军鼓快速滚奏加花 (Ghost Snare Fills)
+            if (step === 14 || step === 15 || step === 30 || step === 31 || step === 46 || step === 47 || step === 62 || step === 63) {
+              this.playSnare(t, 0.18, 245);
+            }
+            this.playHat(t, (step % 4 === 2 ? 0.08 : (step % 2 === 0 ? 0.045 : 0.025)), step % 8 === 6);
+
+            // 小节重音战意强力和弦切音 (Power Brass Stabs)
+            if (step === 0) this.playBrassStab(t, 50, 0.24);
+            else if (step === 16) this.playBrassStab(t, 46, 0.24);
+            else if (step === 32) this.playBrassStab(t, 48, 0.24);
+            else if (step === 48) this.playBrassStab(t, 45, 0.28);
+
             const b = this.battleBass[step];
-            if (b) this.playBass(t, b, 0.11, 0.30);
+            if (b) this.playBass(t, b, 0.10, 0.35);
             const a = this.battleArp[step];
-            if (a) this.playArp(t, a, 0.075, 0.13);
+            if (a) this.playArp(t, a, 0.07, 0.14);
             const m = this.battleMelody[step];
             if (m) {
               const durSec = m[1] * (60 / this.bpm / 4) * 0.92;
-              this.playLead(t, m[0], durSec, 0.24);
+              this.playLead(t, m[0], durSec, 0.28);
             }
           } else if (mode === 'BOSS') {
-            this.bpm = 148;
-            const bossKicks = [0, 2, 6, 8, 10, 14, 16, 18, 22, 24, 26, 30, 32, 34, 38, 40, 42, 46, 48, 50, 54, 56, 58];
-            if (bossKicks.includes(step)) this.playKick(t, 0.42);
-            if (step % 8 === 4) this.playSnare(t, 0.28, 210);
-            if (step >= 60) this.playSnare(t, 0.24, 240);
-            this.playHat(t, (step % 2 === 0 ? 0.06 : 0.03), false);
+            this.bpm = 154;
+            const bossKicks = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62];
+            if (bossKicks.includes(step)) this.playKick(t, 0.44);
+            if (step % 8 === 4) this.playSnare(t, 0.32, 220);
+            if (step >= 56) this.playSnare(t, 0.24, 260);
+            this.playHat(t, (step % 2 === 0 ? 0.07 : 0.04), false);
+
+            if (step === 0 || step === 16 || step === 32 || step === 48) {
+              this.playBrassStab(t, 50, 0.26);
+            }
+
             const b = this.bossBass[step];
-            if (b) this.playBass(t, b, 0.09, 0.34);
+            if (b) this.playBass(t, b, 0.08, 0.38);
             const a = this.bossArp[step];
-            if (a) this.playArp(t, a, 0.07, 0.15);
+            if (a) this.playArp(t, a, 0.065, 0.16);
             const m = this.bossMelody[step];
             if (m) {
               const durSec = m[1] * (60 / this.bpm / 4) * 0.90;
-              this.playLead(t, m[0], durSec, 0.26);
+              this.playLead(t, m[0], durSec, 0.30);
             }
           }
         },
 
         // Instrument Voices
-        playKick(t, vol = 0.35) {
+        playKick(t, vol = 0.38) {
           if (!this.ctx || this.bgmMuted) return;
           const osc = this.ctx.createOscillator();
           const g = this.ctx.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(140, t);
-          osc.frequency.exponentialRampToValueAtTime(36, t + 0.08);
+          osc.frequency.setValueAtTime(160, t);
+          osc.frequency.exponentialRampToValueAtTime(38, t + 0.075);
           g.gain.setValueAtTime(vol, t);
-          g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.095);
           osc.connect(g);
           g.connect(this.bgmFilter);
           osc.start(t);
-          osc.stop(t + 0.11);
+          osc.stop(t + 0.10);
         },
 
-        playSnare(t, vol = 0.22, tone = 180) {
+        playSnare(t, vol = 0.26, tone = 200) {
           if (!this.ctx || this.bgmMuted || !this.noiseBuffer) return;
           const noise = this.ctx.createBufferSource();
           noise.buffer = this.noiseBuffer;
           const bpf = this.ctx.createBiquadFilter();
           bpf.type = 'bandpass';
-          bpf.frequency.setValueAtTime(1100, t);
-          bpf.Q.setValueAtTime(1.4, t);
+          bpf.frequency.setValueAtTime(1400, t);
+          bpf.Q.setValueAtTime(1.8, t);
           const gN = this.ctx.createGain();
           gN.gain.setValueAtTime(vol, t);
-          gN.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+          gN.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
           noise.connect(bpf);
           bpf.connect(gN);
           gN.connect(this.bgmFilter);
           noise.start(t);
-          noise.stop(t + 0.14);
+          noise.stop(t + 0.15);
 
           const osc = this.ctx.createOscillator();
           const gT = this.ctx.createGain();
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(tone, t);
           osc.frequency.exponentialRampToValueAtTime(80, t + 0.06);
-          gT.gain.setValueAtTime(vol * 0.7, t);
-          gT.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+          gT.gain.setValueAtTime(vol * 0.75, t);
+          gT.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
           osc.connect(gT);
           gT.connect(this.bgmFilter);
           osc.start(t);
-          osc.stop(t + 0.08);
+          osc.stop(t + 0.09);
         },
 
         playHat(t, vol = 0.07, open = false) {
@@ -1326,7 +1368,7 @@
           noise.buffer = this.noiseBuffer;
           const hpf = this.ctx.createBiquadFilter();
           hpf.type = 'highpass';
-          hpf.frequency.setValueAtTime(6800, t);
+          hpf.frequency.setValueAtTime(7200, t);
           const g = this.ctx.createGain();
           g.gain.setValueAtTime(vol, t);
           const dur = open ? 0.16 : 0.035;
@@ -1338,23 +1380,61 @@
           noise.stop(t + dur + 0.01);
         },
 
-        playBass(t, midi, dur = 0.12, vol = 0.28) {
+        playBrassStab(t, rootMidi, vol = 0.22) {
+          if (!this.ctx || this.bgmMuted || !rootMidi) return;
+          const notes = [rootMidi, rootMidi + 7, rootMidi + 12]; // 强力和弦 (Root + 5th + Octave)
+          notes.forEach((m, idx) => {
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            const f = this.ctx.createBiquadFilter();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(this.m2f(m), t);
+            f.type = 'lowpass';
+            f.frequency.setValueAtTime(2800, t);
+            f.frequency.exponentialRampToValueAtTime(800, t + 0.18);
+            f.Q.setValueAtTime(2.2, t);
+            g.gain.setValueAtTime(vol * (idx === 0 ? 0.75 : 0.5), t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+            osc.connect(f);
+            f.connect(g);
+            g.connect(this.bgmFilter);
+            osc.start(t);
+            osc.stop(t + 0.22);
+          });
+        },
+
+        playBass(t, midi, dur = 0.12, vol = 0.32) {
           if (!this.ctx || this.bgmMuted || !midi) return;
-          const osc = this.ctx.createOscillator();
+          const oscSaw = this.ctx.createOscillator();
+          const oscSub = this.ctx.createOscillator();
           const f = this.ctx.createBiquadFilter();
           const g = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(this.m2f(midi), t);
+
+          const freq = this.m2f(midi);
+          oscSaw.type = 'sawtooth';
+          oscSaw.frequency.setValueAtTime(freq, t);
+
+          // 强化重低音纯正正弦波 (Deep Sub-Bass reinforcement)
+          oscSub.type = 'sine';
+          oscSub.frequency.setValueAtTime(freq, t);
+
           f.type = 'lowpass';
-          f.frequency.setValueAtTime(460, t);
-          f.Q.setValueAtTime(2.8, t);
+          f.frequency.setValueAtTime(850, t);
+          f.frequency.exponentialRampToValueAtTime(220, t + dur);
+          f.Q.setValueAtTime(3.6, t);
+
           g.gain.setValueAtTime(vol, t);
           g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-          osc.connect(f);
+
+          oscSaw.connect(f);
+          oscSub.connect(f);
           f.connect(g);
           g.connect(this.bgmFilter);
-          osc.start(t);
-          osc.stop(t + dur + 0.02);
+
+          oscSaw.start(t);
+          oscSub.start(t);
+          oscSaw.stop(t + dur + 0.02);
+          oscSub.stop(t + dur + 0.02);
         },
 
         playArp(t, midi, dur = 0.08, vol = 0.13) {
@@ -1362,10 +1442,10 @@
           const osc = this.ctx.createOscillator();
           const f = this.ctx.createBiquadFilter();
           const g = this.ctx.createGain();
-          osc.type = 'square';
+          osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(this.m2f(midi), t);
           f.type = 'lowpass';
-          f.frequency.setValueAtTime(1700, t);
+          f.frequency.setValueAtTime(2200, t);
           f.Q.setValueAtTime(2.2, t);
           g.gain.setValueAtTime(vol, t);
           g.gain.exponentialRampToValueAtTime(0.001, t + dur);
@@ -1376,37 +1456,56 @@
           osc.stop(t + dur + 0.02);
         },
 
-        playLead(t, midi, dur = 0.35, vol = 0.22) {
+        // 特摄辉煌英雄铜管主音 (Dual-Detuned Sawtooth Heroic Brass with dynamic resonant filter)
+        playLead(t, midi, dur = 0.35, vol = 0.26) {
           if (!this.ctx || this.bgmMuted || !midi) return;
-          const osc = this.ctx.createOscillator();
+          const osc1 = this.ctx.createOscillator();
+          const osc2 = this.ctx.createOscillator();
           const g = this.ctx.createGain();
           const f = this.ctx.createBiquadFilter();
 
+          // 延时英雄揉弦颤音 (Delayed Vibrato LFO)
           const lfo = this.ctx.createOscillator();
           const lfoGain = this.ctx.createGain();
-          lfo.frequency.setValueAtTime(5.8, t);
-          lfoGain.gain.setValueAtTime(6.0, t);
+          lfo.frequency.setValueAtTime(6.2, t);
+          lfoGain.gain.setValueAtTime(0, t);
+          lfoGain.gain.setValueAtTime(0, t + 0.10);
+          lfoGain.gain.linearRampToValueAtTime(8.5, t + 0.22);
           lfo.connect(lfoGain);
-          lfoGain.connect(osc.frequency);
+          lfoGain.connect(osc1.frequency);
+          lfoGain.connect(osc2.frequency);
 
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(this.m2f(midi), t);
+          const freq = this.m2f(midi);
+          osc1.type = 'sawtooth';
+          osc1.frequency.setValueAtTime(freq, t);
 
+          // 辅锯齿波轻微失谐 +0.6%，产生如交响乐铜管齐鸣的厚重宏伟音色
+          osc2.type = 'sawtooth';
+          osc2.frequency.setValueAtTime(freq * 1.006, t);
+
+          // 动态铜管滤波器包络 (开局亮丽开嗓，保持适度共鸣)
           f.type = 'lowpass';
-          f.frequency.setValueAtTime(2600, t);
+          f.frequency.setValueAtTime(1400, t);
+          f.frequency.exponentialRampToValueAtTime(3800, t + 0.035);
+          f.frequency.exponentialRampToValueAtTime(2100, t + dur * 0.7);
+          f.Q.setValueAtTime(2.6, t);
 
           g.gain.setValueAtTime(0.001, t);
-          g.gain.linearRampToValueAtTime(vol, t + 0.025);
-          g.gain.setValueAtTime(vol * 0.85, t + dur * 0.7);
+          g.gain.linearRampToValueAtTime(vol, t + 0.02);
+          g.gain.setValueAtTime(vol * 0.90, t + dur * 0.7);
           g.gain.exponentialRampToValueAtTime(0.001, t + dur);
 
-          osc.connect(f);
+          osc1.connect(f);
+          osc2.connect(f);
           f.connect(g);
           g.connect(this.bgmFilter);
+
           lfo.start(t);
-          osc.start(t);
+          osc1.start(t);
+          osc2.start(t);
           lfo.stop(t + dur + 0.05);
-          osc.stop(t + dur + 0.05);
+          osc1.stop(t + dur + 0.05);
+          osc2.stop(t + dur + 0.05);
         },
 
         update(speedRatio, boosting, criticalTimer, paused) {
@@ -1651,7 +1750,7 @@
       });
 
       // Pass 2: Final Composite
-      // Features: Subpixel AA Smooth Upscale + Optical Cross Diffraction + Bayer Ordered Dithering + Vignette
+      // Features: Subpixel AA Smooth Upscale + Contrast Adaptive Sharpening (CAS) + Optical Diffraction + Dithering
       const compositeMat = new THREE.ShaderMaterial({
         uniforms: {
           tScene: { value: null },
@@ -1659,6 +1758,7 @@
           uBloomStrength: { value: params.glow },
           uDiffraction: { value: params.diffraction },
           uDitherStrength: { value: params.ditherStrength },
+          uSharpness: { value: params.sharpness },
           uSubpixelSmooth: { value: 1.0 },
           uVignette: { value: params.vignette },
           uGrain: { value: params.filmGrain },
@@ -1676,6 +1776,7 @@
           uniform float uBloomStrength;
           uniform float uDiffraction;
           uniform float uDitherStrength;
+          uniform float uSharpness;
           uniform float uSubpixelSmooth;
           uniform float uVignette;
           uniform float uGrain;
@@ -1748,13 +1849,35 @@
             return (v / 16.0) - 0.5;
           }
 
+          // 4. Contrast Adaptive Sharpening (CAS) Filter
+          // Boosts edge micro-contrast without overshooting or halos
+          vec3 sampleSharpened(sampler2D tex, vec2 uv, vec2 res, float strength) {
+            vec3 cM = texture2D(tex, uv).rgb;
+            if (strength <= 0.005) return cM;
+            vec2 step = 1.0 / res;
+            vec3 cN = texture2D(tex, uv + vec2(0.0, step.y)).rgb;
+            vec3 cS = texture2D(tex, uv - vec2(0.0, step.y)).rgb;
+            vec3 cE = texture2D(tex, uv + vec2(step.x, 0.0)).rgb;
+            vec3 cW = texture2D(tex, uv - vec2(step.x, 0.0)).rgb;
+
+            vec3 minC = min(cM, min(min(cN, cS), min(cE, cW)));
+            vec3 maxC = max(cM, max(max(cN, cS), max(cE, cW)));
+            vec3 amp = clamp(min(minC, 2.0 - maxC) / max(maxC, 1e-4), 0.0, 1.0);
+            vec3 w = -sqrt(amp) * (strength * 0.35);
+
+            vec3 sharp = (cM + (cN + cS + cE + cW) * w) / (1.0 + 4.0 * w);
+            return clamp(sharp, 0.0, 1.0);
+          }
+
           float rand(vec2 co) {
             return fract(sin(dot(co, vec2(12.9898, 78.233)) + uTime * 7.1) * 43758.5453);
           }
 
           void main() {
-            vec2 uvScene = smoothPixelUV(vUv, uResolution, uRtResolution, uSubpixelSmooth);
-            vec3 base = texture2D(tScene, uvScene).rgb;
+            vec2 uvScene = (uRtResolution.x >= uResolution.x * 0.98 || uSubpixelSmooth < 0.5)
+              ? vUv
+              : smoothPixelUV(vUv, uResolution, uRtResolution, uSubpixelSmooth);
+            vec3 base = sampleSharpened(tScene, uvScene, uRtResolution, uSharpness);
 
             // Sample optical diffraction bloom
             vec3 bloom = sampleDiffraction(tBloom, vUv, uResolution, uDiffraction);
@@ -4001,32 +4124,36 @@
       }
 
       // ==========================================
-      // 9. RENDER & 2D HUD RETICLE OVERLAY
+      // 9. RENDER & 2D HUD RETICLE OVERLAY (HIGH-DPI & CAS SHARPNESS)
       // ==========================================
       function renderFrame() {
         const rect = glCanvas.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) return;
 
-        const W = Math.floor(rect.width);
-        const H = Math.floor(rect.height);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const cssW = rect.width;
+        const cssH = rect.height;
+        const W = Math.floor(cssW * dpr);
+        const H = Math.floor(cssH * dpr);
         const pxDiv = Math.max(1, params.pixelSize);
         const rtW = Math.max(240, Math.floor(W / pxDiv));
         const rtH = Math.max(140, Math.floor(H / pxDiv));
 
         if (glCanvas.width !== W || glCanvas.height !== H) {
           renderer.setSize(W, H, false);
-          camera.aspect = W / H;
+          camera.aspect = cssW / cssH;
           camera.updateProjectionMatrix();
           hudCanvas.width = W;
           hudCanvas.height = H;
         }
         if (rtScene.width !== rtW || rtScene.height !== rtH) {
           rtScene.setSize(rtW, rtH);
+          rtScene.texture.magFilter = (params.pixelSize > 1) ? THREE.NearestFilter : THREE.LinearFilter;
           rtBloomA.setSize(Math.max(120, Math.floor(rtW / 2)), Math.max(70, Math.floor(rtH / 2)));
           rtBloomB.setSize(Math.max(120, Math.floor(rtW / 2)), Math.max(70, Math.floor(rtH / 2)));
         }
 
-        // Pass 1: Render 3D Scene to Pixelated RenderTarget
+        // Pass 1: Render 3D Scene to RenderTarget
         renderer.setRenderTarget(rtScene);
         renderer.render(scene, camera);
 
@@ -4046,13 +4173,14 @@
         renderer.setRenderTarget(rtBloomB);
         renderer.render(postScene, postCam);
 
-        // Pass 4: Composite to Main Screen (Subpixel AA + Optical Diffraction + Bayer Dither)
+        // Pass 4: Composite to Main Screen (CAS Contrast Adaptive Sharpening + Optical Diffraction + Dither)
         postQuad.material = compositeMat;
         compositeMat.uniforms.tScene.value = rtScene.texture;
         compositeMat.uniforms.tBloom.value = rtBloomB.texture;
         compositeMat.uniforms.uBloomStrength.value = params.glow;
         compositeMat.uniforms.uDiffraction.value = params.diffraction;
         compositeMat.uniforms.uDitherStrength.value = params.ditherStrength;
+        compositeMat.uniforms.uSharpness.value = params.sharpness;
         compositeMat.uniforms.uSubpixelSmooth.value = params.subpixelSmooth ? 1.0 : 0.0;
         compositeMat.uniforms.uResolution.value.set(W, H);
         compositeMat.uniforms.uRtResolution.value.set(rtW, rtH);
@@ -4062,21 +4190,24 @@
         renderer.setRenderTarget(null);
         renderer.render(postScene, postCam);
 
-        // Draw crisp 2D HUD indicators (Lock-on box, Offscreen Kaiju/Boss arrows, QTE Dodge Ring)
+        // Draw crisp 2D HUD indicators (High-DPI Retina Scaled)
         hctx.clearRect(0, 0, W, H);
         if (gameState === 'TITLE') return; // Clean screen during cinematic title demo
+
+        hctx.save();
+        hctx.scale(dpr, dpr);
 
         for (let i = 0; i < enemies.length; i++) {
           const e = enemies[i];
           const p = e.mesh.position.clone().project(camera);
-          const sx = (p.x * 0.5 + 0.5) * W;
-          const sy = (-p.y * 0.5 + 0.5) * H;
+          const sx = (p.x * 0.5 + 0.5) * cssW;
+          const sy = (-p.y * 0.5 + 0.5) * cssH;
           const behind = p.z > 1.0;
 
-          if (behind || sx < 16 || sx > W - 16 || sy < 16 || sy > H - 16) {
-            const ang = Math.atan2(sy - H * 0.5, sx - W * 0.5) + (behind ? Math.PI : 0);
-            const ix = Math.max(16, Math.min(W - 16, W * 0.5 + Math.cos(ang) * (W * 0.46)));
-            const iy = Math.max(16, Math.min(H - 16, H * 0.5 + Math.sin(ang) * (H * 0.44)));
+          if (behind || sx < 16 || sx > cssW - 16 || sy < 16 || sy > cssH - 16) {
+            const ang = Math.atan2(sy - cssH * 0.5, sx - cssW * 0.5) + (behind ? Math.PI : 0);
+            const ix = Math.max(16, Math.min(cssW - 16, cssW * 0.5 + Math.cos(ang) * (cssW * 0.46)));
+            const iy = Math.max(16, Math.min(cssH - 16, cssH * 0.5 + Math.sin(ang) * (cssH * 0.44)));
 
             if (e.isBoss) {
               hctx.fillStyle = '#f43f5e';
@@ -4145,9 +4276,9 @@
           const ep = enemyProjectiles[i];
           const p = ep.mesh.position.clone().project(camera);
           if (p.z <= 1.0) {
-            const sx = (p.x * 0.5 + 0.5) * W;
-            const sy = (-p.y * 0.5 + 0.5) * H;
-            if (sx >= 0 && sx <= W && sy >= 0 && sy <= H) {
+            const sx = (p.x * 0.5 + 0.5) * cssW;
+            const sy = (-p.y * 0.5 + 0.5) * cssH;
+            if (sx >= 0 && sx <= cssW && sy >= 0 && sy <= cssH) {
               hctx.strokeStyle = '#f43f5e';
               hctx.lineWidth = 1.5;
               hctx.beginPath();
@@ -4160,8 +4291,8 @@
         // QTE Dual Shrinking Dodge Ring around Ultraman
         if (player.incomingActive && !player.transforming) {
           const hp = player.pos.clone().project(camera);
-          const hx = (hp.x * 0.5 + 0.5) * W;
-          const hy = (-hp.y * 0.5 + 0.5) * H;
+          const hx = (hp.x * 0.5 + 0.5) * cssW;
+          const hy = (-hp.y * 0.5 + 0.5) * cssH;
           const innerR = 38;
           const outerR = 38 + (1.0 - Math.min(1.0, player.incomingLockTimer)) * 68;
           const sweet = player.incomingLockTimer >= 0.55 && player.incomingLockTimer <= 0.98;
@@ -4173,6 +4304,8 @@
           hctx.strokeStyle = sweet ? '#22d3ee' : '#facc15';
           hctx.beginPath(); hctx.arc(hx, hy, outerR, 0, Math.PI * 2); hctx.stroke();
         }
+
+        hctx.restore();
       }
 
       // ==========================================
@@ -4267,7 +4400,8 @@
 
       bindRange('ctrlHeroScale', 'valHeroScale', 'heroScale', (v) => v.toFixed(2));
       bindRange('ctrlSliceSpacing', 'valSliceSpacing', 'sliceSpacing', (v) => v.toFixed(1));
-      bindRange('ctrlPixelSize', 'valPixelSize', 'pixelSize', (v) => String(Math.round(v)));
+      bindRange('ctrlPixelSize', 'valPixelSize', 'pixelSize', (v) => v === 1 ? '1 (高清锐利)' : `${Math.round(v)} (复古像素)`);
+      bindRange('ctrlSharpness', 'valSharpness', 'sharpness', (v) => v.toFixed(2));
       bindRange('ctrlViewChange', 'valViewChange', 'viewChange', (v) => v.toFixed(1));
       bindRange('ctrlChaseDist', 'valChaseDist', 'chaseDist', (v) => v.toFixed(1));
       bindRange('ctrlChaseHeight', 'valChaseHeight', 'chaseHeight', (v) => `${Math.round(v)}°`);
@@ -4454,7 +4588,11 @@
         document.getElementById('ctrlSliceSpacing').value = params.sliceSpacing;
         document.getElementById('valSliceSpacing').textContent = params.sliceSpacing.toFixed(1);
         document.getElementById('ctrlPixelSize').value = params.pixelSize;
-        document.getElementById('valPixelSize').textContent = String(params.pixelSize);
+        document.getElementById('valPixelSize').textContent = params.pixelSize === 1 ? '1 (高清锐利)' : String(params.pixelSize);
+        if (document.getElementById('ctrlSharpness')) {
+          document.getElementById('ctrlSharpness').value = params.sharpness;
+          document.getElementById('valSharpness').textContent = params.sharpness.toFixed(2);
+        }
         document.getElementById('ctrlEnemyCount').value = params.enemyCount;
         document.getElementById('valEnemyCount').textContent = String(params.enemyCount);
         if (document.getElementById('ctrlEngagementDist')) {
