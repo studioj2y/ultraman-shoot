@@ -481,7 +481,7 @@
           </li>
           <li id="tutCombat" class="flex items-center gap-2 text-slate-300">
             <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
-            <span>右键发射八分光轮 · M 斯派修姆齐射</span>
+            <span>右键八分光轮 · 中键/M 斯派修姆贯穿光线</span>
           </li>
         </ul>
       </div>
@@ -498,7 +498,7 @@
           </div>
           <div class="h-6 w-px bg-slate-800"></div>
           <div>
-            <div class="text-[10px] text-slate-400 uppercase mb-1">SPACIUM BEAM (M)</div>
+            <div class="text-[10px] text-slate-400 uppercase mb-1">SPACIUM BEAM (M/MID)</div>
             <div id="hudMissileBars" class="flex items-center gap-1">
               <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
               <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
@@ -525,8 +525,8 @@
         <button id="actCannon" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-sky-500/20 hover:bg-sky-500/35 text-sky-300 border border-sky-500/40 backdrop-blur-sm active:scale-95 transition">
           💫 光轮 (右键/RB)
         </button>
-        <button id="actMissile" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-rose-500/20 hover:bg-rose-500/35 text-rose-300 border border-rose-500/40 backdrop-blur-sm active:scale-95 transition">
-          ⚡ 光线 (M/Y键)
+        <button id="actMissile" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-cyan-500/20 hover:bg-cyan-500/35 text-cyan-200 border border-cyan-400/50 backdrop-blur-sm active:scale-95 transition">
+          ⚡ 斯派修姆 (M/中键)
         </button>
         <button id="actEject" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-slate-900/85 hover:bg-amber-900/50 text-amber-300 border border-slate-700 backdrop-blur-sm active:scale-95 transition">
           ✨ 光球变身 (E)
@@ -580,8 +580,8 @@
                 <li>• 鼠标/左摇杆/WASD：空间转向俯仰</li>
                 <li>• 单击左键/B键/R：螺旋翻滚闪避</li>
                 <li>• 按住Shift/RT/左键：超光速推进</li>
-                <li>• 右键/RB/C：八分光轮连射</li>
-                <li>• M键/Y键：斯派修姆追踪齐射</li>
+                <li>• 右键/RB/C：八分光轮 (高速旋转锯齿能量环)</li>
+                <li>• 中键/M键/Y键：斯派修姆贯穿光线 (十字姿态·超聚能电浆)</li>
                 <li>• Space/View键：三视角循环切换</li>
                 <li>• 移动端：左侧摇杆 + 右侧大圆触键</li>
               </ul>
@@ -589,7 +589,7 @@
             <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
               <div class="text-amber-400 font-bold mb-1.5">⚡ DODGE & COUNTER</div>
               <p class="text-slate-300 text-[11px] leading-relaxed">
-                怪兽发射追踪火球或 Boss 蓄力锁定时，出现<strong>双色收缩圆环</strong>。在两环重合瞬间横滚（单击或 R/B键），触发 <strong>1.3秒子弹时间</strong>并自动齐射 <strong>3道追踪光弹</strong>与手柄触觉震动反击！
+                怪兽发射追踪火球或 Boss 蓄力锁定时，出现<strong>双色收缩圆环</strong>。在两环重合瞬间横滚（单击或 R/B键），触发 <strong>1.3秒子弹时间</strong>并自动爆发 <strong>斯派修姆贯穿光线齐射</strong>与手柄触觉震动反击！
               </p>
             </div>
             <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
@@ -760,6 +760,14 @@
               <span id="valEnemyCount" class="text-slate-400">4</span>
             </div>
             <input id="ctrlEnemyCount" type="range" min="0" max="8" step="1" value="4" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlEngagementDist" class="text-slate-300">Standoff Dist (交锋距离 m)</label>
+              <span id="valEngagementDist" class="text-slate-400">900m</span>
+            </div>
+            <input id="ctrlEngagementDist" type="range" min="500" max="1600" step="50" value="900" class="w-full" />
           </div>
 
           <div class="space-y-1">
@@ -967,6 +975,7 @@
         bankAngle: 52,
         steerWithPointer: true,
         enemyCount: 4,
+        engagementDist: 900,
         dodgeSlowMo: 1.3,
         enemiesAttack: true,
         nebulaMode: 'nebula', // 'nebula' | 'solar' | 'void'
@@ -2395,6 +2404,7 @@
       let demoPhase = 0; // 0: Hero 3D showcase, 1: Space Flight & Weapon Demo, 2: Chaos Boss Spectacle
       let demoTimer = 0;
       let demoShootTimer = 0;
+      let demoShotCount = 0;
       let demoBossMesh = null;
 
       function updateDemoUI() {
@@ -2405,7 +2415,7 @@
 
         const descriptions = [
           '幕 1/3: 奥特曼 14 层体素全向特写与结构剖析',
-          '幕 2/3: 空间空战巡航、八分光轮与体素受击剥离粒子',
+          '幕 2/3: 空间空战巡航、八分光轮与斯派修姆贯穿光线演示',
           '幕 3/3: 混沌灭世魔兽 (Chaos Overlord) 巨翼与暗核危机'
         ];
         if (textEl) textEl.textContent = descriptions[demoPhase];
@@ -2511,7 +2521,15 @@
         for (let i = projectiles.length - 1; i >= 0; i--) {
           const p = projectiles[i];
           p.mesh.position.addScaledVector(p.vel, dt);
-          if (!p.isBeam) p.mesh.rotation.y += dt * 22;
+          if (p.isSlash) {
+            p.mesh.rotation.z += dt * 55;
+          } else if (p.isBeamStream && p.mesh.userData && p.mesh.userData.coils) {
+            p.mesh.userData.coils.forEach((c, idx) => {
+              c.rotation.z += dt * (idx % 2 === 0 ? 14 : -14);
+            });
+          } else if (!p.isBeam) {
+            p.mesh.rotation.y += dt * 22;
+          }
           p.life -= dt;
           if (p.life <= 0) { scene.remove(p.mesh); projectiles.splice(i, 1); }
         }
@@ -2555,18 +2573,45 @@
           camera.position.copy(player.pos).add(camOffset);
           camera.lookAt(player.pos.clone().add(new THREE.Vector3(-10, 0, -50)));
 
-          // Auto demonstration shots
+          // Auto demonstration shots: alternate between Ultra Slash sawblade and Spacium Beam stream
           demoShootTimer -= dt;
           if (demoShootTimer <= 0) {
-            demoShootTimer = 1.75;
-            soundEngine.playSlash();
-            const mesh = new THREE.Mesh(projGeoSlash, projMatSlash);
-            mesh.position.copy(player.pos).add(new THREE.Vector3(0, 0, -16));
-            scene.add(mesh);
-            projectiles.push({ mesh, vel: new THREE.Vector3(0, 0, -420), life: 1.8, isBeam: false });
+            demoShootTimer = 1.6;
+            demoShotCount = (demoShotCount || 0) + 1;
+            const shootSpacium = (demoShotCount % 3 === 0);
+            const shootFwd = new THREE.Vector3(0, 0, -1);
 
-            // Spawn hit sparks in front
-            spawnHitSparks(player.pos.clone().add(new THREE.Vector3(0, 0, -90)), 0x38bdf8, false);
+            if (shootSpacium) {
+              soundEngine.playBeamCharge();
+              soundEngine.playSpacium();
+              spawnSpaciumCrossFlare(player.pos, shootFwd);
+              const beamMesh = createSpaciumBeamMesh();
+              beamMesh.position.copy(player.pos).add(new THREE.Vector3(0, 0, -45));
+              beamMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), shootFwd);
+              scene.add(beamMesh);
+              projectiles.push({
+                mesh: beamMesh,
+                vel: shootFwd.clone().multiplyScalar(1080),
+                life: 1.8,
+                isSlash: false,
+                isBeamStream: true
+              });
+              spawnHitSparks(player.pos.clone().add(new THREE.Vector3(0, 0, -160)), 0x38bdf8, true);
+            } else {
+              soundEngine.playSlash();
+              const slashMesh = createUltraSlashMesh();
+              slashMesh.position.copy(player.pos).add(new THREE.Vector3(0, 0, -16));
+              slashMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), shootFwd);
+              scene.add(slashMesh);
+              projectiles.push({
+                mesh: slashMesh,
+                vel: shootFwd.clone().multiplyScalar(850),
+                life: 1.8,
+                isSlash: true,
+                isBeamStream: false
+              });
+              spawnHitSparks(player.pos.clone().add(new THREE.Vector3(0, 0, -120)), 0x7dd3fc, false);
+            }
           }
 
         } else if (demoPhase === 2) {
@@ -2672,26 +2717,35 @@
 
       function syncEnemies() {
         if (waveState.bossActive) return; // Boss 战斗时不补充杂兵
+        const baseDist = params.engagementDist || 900;
         while (enemies.length < params.enemyCount) {
           const idx = enemies.length;
           const mesh = buildKaijuVoxelGroup(idx);
-          const ang = Math.random() * Math.PI * 2;
-          const dist = 260 + Math.random() * 340;
+          const ang = player.yaw + (Math.random() - 0.5) * 2.2 + Math.PI; // 750m~1400m 前方/两翼纵深部署
+          const dist = baseDist * (0.85 + Math.random() * 0.5);
           mesh.position.set(
-            player.pos.x + Math.cos(ang) * dist,
-            player.pos.y + (Math.random() - 0.5) * 140,
-            player.pos.z + Math.sin(ang) * dist
+            player.pos.x + Math.sin(ang) * dist,
+            player.pos.y + (Math.random() - 0.5) * 160,
+            player.pos.z + Math.cos(ang) * dist
           );
-          mesh.scale.setScalar(1.35);
+          mesh.scale.setScalar(1.65);
           scene.add(mesh);
+          const baseSpd = 78 + Math.random() * 20 + (waveState.wave - 1) * 6;
           enemies.push({
             mesh,
             isBoss: false,
             yaw: Math.random() * Math.PI * 2,
             roll: 0,
-            speed: 74 + Math.random() * 18 + (waveState.wave - 1) * 6,
+            pitch: 0,
+            speed: baseSpd,
+            baseSpeed: baseSpd,
             hp: 3,
-            attackCooldown: 3.5 + Math.random() * 4.5
+            maxHp: 3,
+            attackCooldown: 3.5 + Math.random() * 4.5,
+            aiState: 'ATTACK_RUN',
+            stateTimer: 6.0 + Math.random() * 3.0,
+            weaveSeed: Math.random() * 100,
+            breakawayDir: Math.random() > 0.5 ? 1 : -1
           });
         }
         while (enemies.length > params.enemyCount) {
@@ -2739,10 +2793,10 @@
         camState.shake = 18;
 
         const bossMesh = buildBossVoxelGroup();
-        bossMesh.scale.setScalar(2.3);
+        bossMesh.scale.setScalar(3.2);
 
         const fwd = getHeroForwardVec();
-        bossMesh.position.copy(player.pos).addScaledVector(fwd, 460).add(new THREE.Vector3(0, 15, 0));
+        bossMesh.position.copy(player.pos).addScaledVector(fwd, 950).add(new THREE.Vector3(0, 30, 0));
         scene.add(bossMesh);
 
         const bossObj = {
@@ -2750,12 +2804,17 @@
           isBoss: true,
           yaw: player.yaw + Math.PI,
           roll: 0,
-          speed: 86,
+          pitch: 0,
+          speed: 95,
+          baseSpeed: 95,
           hp: waveState.bossMaxHp + (waveState.wave - 1) * 8,
           maxHp: waveState.bossMaxHp + (waveState.wave - 1) * 8,
-          attackCooldown: 1.8,
+          attackCooldown: 2.2,
           phase: 1,
+          aiState: 'STANDOFF_SWEEP',
+          stateTimer: 5.0,
           dashTimer: 0,
+          dashCooldown: 7.0,
           dashDir: new THREE.Vector3()
         };
         waveState.boss = bossObj;
@@ -3027,7 +3086,7 @@
             player.incomingLockTimer = 0;
             if (params.dodgeSlowMo > 0) player.slowMoTimer = params.dodgeSlowMo;
             soundEngine.playDodgeChime();
-            showBanner('⚡ 极限闪避！子弹时间启动 + 3道追踪光弹反击！', 'bg-cyan-400 text-slate-950');
+            showBanner('⚡ 极限闪避！子弹时间启动 + 斯派修姆贯穿光线齐射反击！', 'bg-cyan-400 text-slate-950');
             fireSpaciumSalvo(3, true);
           }
         }
@@ -3054,12 +3113,122 @@
         showBanner('✨ 光之球化脱离！正在重新凝结能量变身…', 'bg-amber-400 text-slate-950');
       }
 
-      const projGeoSlash = new THREE.CylinderGeometry(2.2, 2.2, 0.5, 10);
-      const projMatSlash = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-      const projGeoBeam = new THREE.SphereGeometry(2.6, 8, 8);
-      const projMatBeam = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
-      const projGeoChaos = new THREE.SphereGeometry(3.5, 8, 8);
+      // ==========================================
+      // TOKUSATSU CANON WEAPONS: ULTRA SLASH & SPACIUS BEAM
+      // ==========================================
+      const projGeoChaos = new THREE.SphereGeometry(4.5, 10, 10);
       const projMatChaos = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
+
+      function createUltraSlashMesh() {
+        const root = new THREE.Group();
+
+        // 1. Center pure white core disc
+        const coreGeo = new THREE.CircleGeometry(2.4, 24);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        root.add(core);
+
+        // 2. High-energy electric plasma ring
+        const ringGeo = new THREE.RingGeometry(2.2, 4.2, 24);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.95 });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        root.add(ring);
+
+        // 3. Iconic 8 Sawtooth Blades (八分锯齿)
+        const teethGeo = new THREE.BufferGeometry();
+        const positions = [];
+        const numTeeth = 8;
+        for (let k = 0; k < numTeeth; k++) {
+          const theta = k * (Math.PI * 2 / numTeeth);
+          const x0 = Math.cos(theta) * 2.4;
+          const y0 = Math.sin(theta) * 2.4;
+          const x1 = Math.cos(theta + 0.28) * 2.8;
+          const y1 = Math.sin(theta + 0.28) * 2.8;
+          const xTip = Math.cos(theta + 0.48) * 6.2;
+          const yTip = Math.sin(theta + 0.48) * 6.2;
+
+          positions.push(x0, y0, 0, x1, y1, 0, xTip, yTip, 0);
+          positions.push(x0, y0, 0, xTip, yTip, 0, x1, y1, 0);
+        }
+        teethGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const teethMat = new THREE.MeshBasicMaterial({ color: 0x7dd3fc, side: THREE.DoubleSide });
+        const teethMesh = new THREE.Mesh(teethGeo, teethMat);
+        root.add(teethMesh);
+
+        // 4. Subtle Outer Energy Halo
+        const haloGeo = new THREE.RingGeometry(4.2, 6.0, 24);
+        const haloMat = new THREE.MeshBasicMaterial({ color: 0x0284c7, side: THREE.DoubleSide, transparent: true, opacity: 0.55 });
+        const halo = new THREE.Mesh(haloGeo, haloMat);
+        root.add(halo);
+
+        root.userData.isSlash = true;
+        return root;
+      }
+
+      function createSpaciumBeamMesh() {
+        const root = new THREE.Group();
+
+        // 1. Central Ultra-Concentrated Plasma Beam Core (Length 130, bright white)
+        const coreGeo = new THREE.CylinderGeometry(1.6, 1.6, 130, 12);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        core.rotation.x = Math.PI / 2; // align along Z
+        root.add(core);
+
+        // 2. High-energy Electric Cyan Plasma Sheath
+        const sheathGeo = new THREE.CylinderGeometry(4.0, 4.0, 130, 12);
+        const sheathMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85 });
+        const sheath = new THREE.Mesh(sheathGeo, sheathMat);
+        sheath.rotation.x = Math.PI / 2;
+        root.add(sheath);
+
+        // 3. Triple Spiraling Plasma Wave Coils (螺旋电浆能量环)
+        const coils = [];
+        for (let i = 0; i < 4; i++) {
+          const coilGeo = new THREE.TorusGeometry(5.6, 0.45, 8, 20);
+          const coilMat = new THREE.MeshBasicMaterial({ color: (i % 2 === 0 ? 0x67e8f9 : 0x818cf8), transparent: true, opacity: 0.85 });
+          const coil = new THREE.Mesh(coilGeo, coilMat);
+          coil.position.z = -55 + i * 36;
+          root.add(coil);
+          coils.push(coil);
+        }
+        root.userData.coils = coils;
+
+        // 4. Beam Head Conical Shockwave Ring (头部电浆激波)
+        const headRingGeo = new THREE.RingGeometry(1.6, 7.0, 20);
+        const headRingMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, side: THREE.DoubleSide });
+        const headRing = new THREE.Mesh(headRingGeo, headRingMat);
+        headRing.position.z = -65;
+        root.add(headRing);
+
+        root.userData.isBeamStream = true;
+        return root;
+      }
+
+      function spawnSpaciumCrossFlare(pos, fwd) {
+        const flareGroup = new THREE.Group();
+        const armH = new THREE.Mesh(new THREE.PlaneGeometry(18, 2.4), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95 }));
+        const armV = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 18), new THREE.MeshBasicMaterial({ color: 0x67e8f9, transparent: true, opacity: 0.95 }));
+        const coreGlow = new THREE.Mesh(new THREE.CircleGeometry(6.0, 16), new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.8 }));
+        flareGroup.add(armH);
+        flareGroup.add(armV);
+        flareGroup.add(coreGlow);
+        flareGroup.position.copy(pos).addScaledVector(fwd, 14);
+        flareGroup.quaternion.copy(camera.quaternion);
+        scene.add(flareGroup);
+
+        let life = 0.16;
+        const updateFlare = (delta) => {
+          life -= delta;
+          flareGroup.scale.addScalar(delta * 16);
+          if (life <= 0) {
+            scene.remove(flareGroup);
+          } else {
+            requestAnimationFrame(() => updateFlare(0.016));
+          }
+        };
+        requestAnimationFrame(() => updateFlare(0.016));
+      }
 
       function getHeroForwardVec() {
         const euler = new THREE.Euler(player.pitch, player.yaw, 0, 'YXZ');
@@ -3075,60 +3244,75 @@
         gamepadState.vibrate(40, 0.15, 0.35);
 
         const fwd = getHeroForwardVec();
-        const mesh = new THREE.Mesh(projGeoSlash, projMatSlash);
-        mesh.position.copy(player.pos).addScaledVector(fwd, 16);
-        scene.add(mesh);
+        const slashMesh = createUltraSlashMesh();
+        slashMesh.position.copy(player.pos).addScaledVector(fwd, 16);
+        slashMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), fwd);
+        scene.add(slashMesh);
 
         projectiles.push({
-          mesh,
-          vel: fwd.clone().multiplyScalar(430),
-          life: 1.3,
-          homingTarget: null,
-          isBeam: false
+          mesh: slashMesh,
+          vel: fwd.clone().multiplyScalar(850),
+          life: 2.4,
+          isSlash: true,
+          isBeamStream: false
         });
       }
 
       function fireSpaciumSalvo(count, freeCounter) {
         if (player.transforming) return;
         if (!freeCounter && (player.reloadingTimer > 0 || player.missiles <= 0)) return;
-        const n = freeCounter ? count : Math.min(count, player.missiles);
+        const countToFire = freeCounter ? count : Math.min(count, player.missiles);
         if (!freeCounter) {
-          player.missiles -= n;
+          player.missiles -= countToFire;
           if (player.missiles === 0 && player.ammo === 0) player.reloadingTimer = 5.0;
         }
         soundEngine.playBeamCharge();
         soundEngine.playSpacium();
         markTutorial('combat');
-        camState.shake = Math.min(10, camState.shake + 4.5);
-        gamepadState.vibrate(180, 0.45, 0.85);
+        camState.shake = Math.min(18, camState.shake + (countToFire > 1 ? 12.0 : 8.5));
+        gamepadState.vibrate(350, 0.7, 0.95);
 
         const fwd = getHeroForwardVec();
+        spawnSpaciumCrossFlare(player.pos, fwd);
 
-        // Convergence particle effect around arms
-        for (let k = 0; k < 12; k++) {
-          const sparkGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-          const sparkMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+        // Arm convergence spark effect
+        for (let k = 0; k < 18; k++) {
+          const sparkGeo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+          const sparkMat = new THREE.MeshBasicMaterial({ color: 0x67e8f9 });
           const spk = new THREE.Mesh(sparkGeo, sparkMat);
-          const off = new THREE.Vector3((Math.random() - 0.5) * 16, (Math.random() - 0.5) * 16, (Math.random() - 0.5) * 16);
+          const off = new THREE.Vector3((Math.random() - 0.5) * 18, (Math.random() - 0.5) * 18, (Math.random() - 0.5) * 18);
           spk.position.copy(player.pos).add(off);
           scene.add(spk);
-          const vel = off.clone().negate().multiplyScalar(4.5);
-          particles.push({ mesh: spk, vel, life: 0.28 });
+          const vel = off.clone().negate().multiplyScalar(6.5);
+          particles.push({ mesh: spk, vel, life: 0.32 });
         }
 
-        for (let i = 0; i < n; i++) {
-          const mesh = new THREE.Mesh(projGeoBeam, projMatBeam);
-          mesh.position.copy(player.pos).addScaledVector(fwd, 14);
-          scene.add(mesh);
+        for (let i = 0; i < countToFire; i++) {
+          let aimDir = fwd.clone();
+          if (countToFire > 1) {
+            const spreadYaw = (i - (countToFire - 1) / 2) * 0.12;
+            aimDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), spreadYaw);
+          }
+          if (player.lockedEnemy && player.lockedEnemy.mesh) {
+            const toTarget = player.lockedEnemy.mesh.position.clone().sub(player.pos).normalize();
+            if (toTarget.dot(fwd) > 0.6) {
+              aimDir.lerp(toTarget, 0.45).normalize();
+            }
+          }
 
-          const spreadYaw = (i - (n - 1) / 2) * 0.22;
-          const dir = fwd.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), spreadYaw);
+          const beamMesh = createSpaciumBeamMesh();
+          beamMesh.position.copy(player.pos).addScaledVector(aimDir, 45 + i * 6);
+          beamMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), aimDir);
+          scene.add(beamMesh);
+
           projectiles.push({
-            mesh,
-            vel: dir.multiplyScalar(285),
-            life: 3.8,
-            homingTarget: player.lockedEnemy || enemies[i % Math.max(1, enemies.length)] || null,
-            isBeam: true
+            mesh: beamMesh,
+            vel: aimDir.multiplyScalar(1080),
+            life: 2.0,
+            isSlash: false,
+            isBeamStream: true,
+            pierceCount: 0,
+            hitEnemies: new Set()
           });
         }
       }
@@ -3397,27 +3581,18 @@
           planets[i].mat.uniforms.uTime.value = performance.now() * 0.001;
         }
 
-        // Update Kaiju Enemies, Boss AI & Lock-on Detection
+        // Update Kaiju Enemies, Boss AI & Lock-on Detection (Standoff & Jousting Flight Model)
         const fwd = getHeroForwardVec();
         let bestTarget = null;
-        let bestDot = 0.85;
+        let bestDot = 0.78;
+        const baseStandoff = params.engagementDist || 900;
 
         for (let i = 0; i < enemies.length; i++) {
           const e = enemies[i];
           const toHero = player.pos.clone().sub(e.mesh.position);
           const dist = toHero.length() || 1;
-          const desiredYaw = Math.atan2(-toHero.x, -toHero.z) + (dist < 180 ? 1.15 : 0.2);
+          e.stateTimer = (e.stateTimer || 5.0) - dt;
 
-          let diff = desiredYaw - e.yaw;
-          while (diff > Math.PI) diff -= Math.PI * 2;
-          while (diff < -Math.PI) diff += Math.PI * 2;
-          e.yaw += Math.max(-1.8, Math.min(1.8, diff)) * dt;
-          e.roll = Math.max(-0.6, Math.min(0.6, diff * 0.8));
-
-          const eEuler = new THREE.Euler(0, e.yaw, e.roll, 'YXZ');
-          const eFwd = new THREE.Vector3(0, 0, -1).applyEuler(eEuler);
-
-          // Boss specific behaviors
           if (e.isBoss) {
             updateBossHUD();
             // Phase 2 check
@@ -3435,67 +3610,163 @@
               e.mesh.userData.matGlow.color.set(blinkFast ? (e.phase === 2 ? '#ff0033' : '#f43f5e') : '#450a0a');
             }
 
+            // Boss Standoff Movement & Phase 2 Warp Dash
+            e.dashCooldown = (e.dashCooldown || 6.0) - dt;
+            if (e.phase === 2 && e.dashCooldown <= 0 && dist > 350) {
+              // Trigger Warp Charge Dash
+              e.dashCooldown = 7.5 + Math.random() * 3.0;
+              e.dashTimer = 2.0;
+              e.dashDir.copy(toHero).normalize();
+              soundEngine.playBossRoar();
+              showBanner('⚡ 混沌魔兽发动时空狂暴冲撞！', 'bg-rose-600 text-white font-bold');
+            }
+
+            let desiredYaw;
+            if (e.dashTimer > 0) {
+              e.dashTimer -= dt;
+              e.speed = 240;
+              desiredYaw = Math.atan2(-e.dashDir.x, -e.dashDir.z);
+              if (dist < 380 && !player.incomingActive && !player.transforming) {
+                player.incomingActive = true;
+                player.incomingLockTimer = 0.0;
+              }
+            } else {
+              e.speed += (e.baseSpeed - e.speed) * Math.min(1, dt * 3);
+              if (dist < baseStandoff * 0.6) {
+                // Too close: turn away / breakaway to reopen distance
+                desiredYaw = Math.atan2(toHero.x, toHero.z) + 0.4;
+              } else if (dist > baseStandoff * 1.25) {
+                // Too far: close in
+                desiredYaw = Math.atan2(-toHero.x, -toHero.z);
+              } else {
+                // Standoff orbit: sweeping gentle curve
+                desiredYaw = Math.atan2(-toHero.x, -toHero.z) + 0.75;
+              }
+            }
+
+            let diff = desiredYaw - e.yaw;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            e.yaw += Math.max(-1.4, Math.min(1.4, diff)) * dt;
+            e.roll = Math.max(-0.6, Math.min(0.6, diff * 0.7));
+
+            const eEuler = new THREE.Euler(0, e.yaw, e.roll, 'YXZ');
+            const eFwd = new THREE.Vector3(0, 0, -1).applyEuler(eEuler);
+
             // Boss Attack & Chaos Barrage
             if (params.enemiesAttack && !player.transforming) {
               e.attackCooldown -= dt;
               if (e.attackCooldown <= 0) {
-                e.attackCooldown = e.phase === 2 ? 2.5 : 3.8;
+                e.attackCooldown = e.phase === 2 ? 2.2 : 3.4;
                 soundEngine.playSpacium();
 
                 // Fire 3~5 Chaos homing energy balls
                 const count = e.phase === 2 ? 5 : 3;
                 for (let k = 0; k < count; k++) {
                   const bMesh = new THREE.Mesh(projGeoChaos, projMatChaos);
-                  bMesh.position.copy(e.mesh.position).addScaledVector(eFwd, 20);
+                  bMesh.position.copy(e.mesh.position).addScaledVector(eFwd, 25);
                   scene.add(bMesh);
 
                   const spreadYaw = (k - (count - 1) / 2) * 0.28;
                   const dir = eFwd.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), spreadYaw);
                   enemyProjectiles.push({
                     mesh: bMesh,
-                    vel: dir.multiplyScalar(220),
-                    life: 4.5,
+                    vel: dir.multiplyScalar(240),
+                    life: 5.5,
                     homing: true
                   });
-                }
-
-                // If Phase 2 and near, trigger Dash & incoming QTE dodge ring
-                if (e.phase === 2 && dist < 500 && !player.incomingActive) {
-                  player.incomingActive = true;
-                  player.incomingLockTimer = 0.0;
                 }
               }
             }
 
-            e.mesh.position.addScaledVector(eFwd, (e.speed + (e.phase === 2 ? 35 : 0)) * dt);
-          } else {
             e.mesh.position.addScaledVector(eFwd, e.speed * dt);
+            e.mesh.position.y += ((player.pos.y + Math.sin(performance.now() * 0.0012) * 45) - e.mesh.position.y) * dt;
+            e.mesh.quaternion.setFromEuler(eEuler);
+
+          } else {
+            // ==========================================
+            // REGULAR KAIJU: 3-STATE JOUSTING FLIGHT AI
+            // 1. ATTACK_RUN (长矛冲锋) -> 2. BREAKAWAY (极速掠冲脱离) -> 3. STANDOFF_SWEEP (远距大角度盘旋)
+            // ==========================================
+            let desiredYaw = e.yaw;
+            let targetPitch = 0;
+
+            if (e.aiState === 'BREAKAWAY') {
+              // State 2: 掠冲脱离，开加力拉开交战距离至 750m+，拒绝死循环绕圈
+              e.speed += (e.baseSpeed * 1.65 - e.speed) * Math.min(1, dt * 4);
+              desiredYaw = Math.atan2(toHero.x, toHero.z) + e.breakawayDir * 0.45;
+              e.roll += (e.breakawayDir * 0.75 - e.roll) * Math.min(1, dt * 5);
+
+              if (dist > baseStandoff * 0.85 || e.stateTimer <= 0) {
+                e.aiState = 'STANDOFF_SWEEP';
+                e.stateTimer = 4.0 + Math.random() * 2.0;
+              }
+            } else if (e.aiState === 'STANDOFF_SWEEP') {
+              // State 3: 在深空远距离做大半径盘旋机动，重新锁定玩家航向
+              e.speed += (e.baseSpeed - e.speed) * Math.min(1, dt * 3);
+              desiredYaw = Math.atan2(-toHero.x, -toHero.z) + e.breakawayDir * 0.95;
+              e.roll += (e.breakawayDir * 0.45 - e.roll) * Math.min(1, dt * 4);
+
+              if (e.stateTimer <= 0) {
+                e.aiState = 'ATTACK_RUN';
+                e.stateTimer = 6.5 + Math.random() * 3.0;
+                e.weaveSeed = Math.random() * 100;
+              }
+            } else {
+              // State 1: ATTACK_RUN - 远距正面对决冲锋，附带正弦蛇形机动
+              e.speed += (e.baseSpeed * 1.1 - e.speed) * Math.min(1, dt * 3);
+              const weave = Math.sin(performance.now() * 0.002 + (e.weaveSeed || 0)) * 0.22;
+              desiredYaw = Math.atan2(-toHero.x, -toHero.z) + weave;
+              targetPitch = Math.max(-0.35, Math.min(0.35, (player.pos.y - e.mesh.position.y) / dist));
+              e.roll += (weave * 1.8 - e.roll) * Math.min(1, dt * 5);
+
+              // 在 400m~720m 射程蓄力开火预警
+              if (params.enemiesAttack && !player.incomingActive && !player.transforming && dist < 720 && dist > 360) {
+                e.attackCooldown -= dt;
+                if (e.attackCooldown <= 0) {
+                  e.attackCooldown = 6.0 + Math.random() * 4.0;
+                  player.incomingActive = true;
+                  player.incomingLockTimer = 0.0;
+                }
+              }
+
+              // 掠冲交错脱离点 (< 260m)
+              if (dist < 260 || e.stateTimer <= 0) {
+                e.aiState = 'BREAKAWAY';
+                e.stateTimer = 3.2 + Math.random() * 1.5;
+                e.breakawayDir = Math.random() > 0.5 ? 1 : -1;
+              }
+            }
+
+            let diff = desiredYaw - e.yaw;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            e.yaw += Math.max(-1.6, Math.min(1.6, diff)) * dt;
+            e.pitch = (e.pitch || 0) + (targetPitch - (e.pitch || 0)) * Math.min(1, dt * 2.5);
+
+            const eEuler = new THREE.Euler(e.pitch, e.yaw, e.roll, 'YXZ');
+            const eFwd = new THREE.Vector3(0, 0, -1).applyEuler(eEuler);
+            e.mesh.position.addScaledVector(eFwd, e.speed * dt);
+            e.mesh.quaternion.setFromEuler(eEuler);
+
+            // 超出深空作战半径 (> 2200m) 时重新在远距前方集结
+            if (dist > 2200) {
+              const ang = player.yaw + (Math.random() - 0.5) * 1.6;
+              const d = baseStandoff * (0.85 + Math.random() * 0.45);
+              e.mesh.position.set(player.pos.x - Math.sin(ang) * d, player.pos.y + (Math.random() - 0.5) * 140, player.pos.z - Math.cos(ang) * d);
+              e.aiState = 'ATTACK_RUN';
+              e.stateTimer = 6.0 + Math.random() * 2.0;
+            }
           }
 
-          e.mesh.position.y += ((player.pos.y + Math.sin(performance.now() * 0.0015 + i) * 35) - e.mesh.position.y) * dt;
-          e.mesh.quaternion.setFromEuler(eEuler);
-
-          if (dist > 1300 && !e.isBoss) {
-            const ang = player.yaw + (Math.random() - 0.5) * 1.4;
-            e.mesh.position.set(player.pos.x - Math.sin(ang) * 520, player.pos.y + (Math.random() - 0.5) * 80, player.pos.z - Math.cos(ang) * 520);
-          }
-
-          // Lock-on cone check (Boss gets lock priority)
+          // Lock-on cone check (Boss gets lock priority, range up to 1500m)
           const toKaiju = e.mesh.position.clone().sub(player.pos);
           const kd = toKaiju.length() || 1;
           const dot = toKaiju.normalize().dot(fwd);
-          if (dot > bestDot && kd < 780) {
-            bestDot = dot;
-            bestTarget = e;
-          }
-
-          // Regular Kaiju Fireball lock-on warning
-          if (!e.isBoss && params.enemiesAttack && !player.incomingActive && !player.transforming) {
-            e.attackCooldown -= dt;
-            if (e.attackCooldown <= 0 && kd < 540) {
-              e.attackCooldown = 6.5 + Math.random() * 4;
-              player.incomingActive = true;
-              player.incomingLockTimer = 0.0;
+          if (dot > bestDot && kd < 1500) {
+            if (!bestTarget || e.isBoss || (!bestTarget.isBoss && dot > bestDot)) {
+              bestDot = dot;
+              bestTarget = e;
             }
           }
         }
@@ -3530,6 +3801,8 @@
             ep.vel.lerp(desired, Math.min(1, dt * 2.8));
           }
           ep.mesh.position.addScaledVector(ep.vel, dt);
+          ep.mesh.rotation.x += dt * 8;
+          ep.mesh.rotation.y += dt * 10;
           ep.life -= dt;
 
           const toPlayerDist = ep.mesh.position.distanceTo(player.pos);
@@ -3556,28 +3829,77 @@
           }
         }
 
-        // Update Hero Projectiles & Collision against Kaiju / Boss
+        // Update Hero Projectiles & Collision against Kaiju / Boss (Multi-Pierce & Canon SFX)
         for (let i = projectiles.length - 1; i >= 0; i--) {
           const p = projectiles[i];
-          if (p.homingTarget && p.homingTarget.mesh) {
-            const desired = p.homingTarget.mesh.position.clone().sub(p.mesh.position).normalize().multiplyScalar(290);
-            p.vel.lerp(desired, Math.min(1, dt * 6));
-          }
           p.mesh.position.addScaledVector(p.vel, dt);
-          if (!p.isBeam) p.mesh.rotation.y += dt * 22;
           p.life -= dt;
 
-          let hit = false;
+          if (p.isSlash) {
+            // Local Z-axis buzzsaw rapid spin
+            p.mesh.rotation.z += dt * 55;
+            // High-speed sawblade trailing cyan sparks
+            if (Math.random() < 0.35) {
+              const spkGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+              const spkMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+              const spk = new THREE.Mesh(spkGeo, spkMat);
+              spk.position.copy(p.mesh.position);
+              scene.add(spk);
+              particles.push({ mesh: spk, vel: new THREE.Vector3((Math.random()-0.5)*25, (Math.random()-0.5)*25, (Math.random()-0.5)*25), life: 0.18 });
+            }
+          } else if (p.isBeamStream) {
+            // Rotate spiral energy coils
+            if (p.mesh.userData && p.mesh.userData.coils) {
+              p.mesh.userData.coils.forEach((c, idx) => {
+                c.rotation.z += dt * (idx % 2 === 0 ? 14 : -14);
+              });
+            }
+            // Blinding electric sparks along the beam length
+            if (Math.random() < 0.5) {
+              const spkGeo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+              const spkMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe });
+              const spk = new THREE.Mesh(spkGeo, spkMat);
+              const offsetZ = (Math.random() - 0.5) * 80;
+              const fwdDir = p.vel.clone().normalize();
+              spk.position.copy(p.mesh.position).addScaledVector(fwdDir, offsetZ);
+              scene.add(spk);
+              particles.push({ mesh: spk, vel: new THREE.Vector3((Math.random()-0.5)*35, (Math.random()-0.5)*35, (Math.random()-0.5)*35), life: 0.22 });
+            }
+          } else if (!p.isBeam) {
+            p.mesh.rotation.y += dt * 22;
+          }
+
+          let removeProj = false;
+          p.hitEnemies = p.hitEnemies || new Set();
+
           for (let j = 0; j < enemies.length; j++) {
             const e = enemies[j];
-            const hitDist = e.isBoss ? 44 : 22;
+            if (p.hitEnemies.has(e)) continue;
+
+            const hitDist = e.isBoss ? (p.isBeamStream ? 64 : 48) : (p.isBeamStream ? 34 : 24);
             if (p.mesh.position.distanceTo(e.mesh.position) < hitDist) {
-              hit = true;
-              const dmg = p.isBeam ? 3 : 1;
+              p.hitEnemies.add(e);
+              const isCrit = p.isBeamStream || e.isBoss;
+              const dmg = p.isBeamStream ? 4 : (p.isSlash ? 2 : 1);
               e.hp -= dmg;
 
-              // Voxel debris peeling effect
-              spawnHitSparks(p.mesh.position, e.isBoss ? 0xf43f5e : 0x38bdf8, e.isBoss || e.hp <= 0);
+              // Voxel peeling & spark impact
+              spawnHitSparks(p.mesh.position, e.isBoss ? 0xf43f5e : (p.isBeamStream ? 0x67e8f9 : 0x38bdf8), isCrit);
+
+              if (p.isBeamStream) {
+                p.pierceCount = (p.pierceCount || 0) + 1;
+                camState.shake = Math.min(18, camState.shake + 6.0);
+                if (p.pierceCount >= 3) {
+                  removeProj = true;
+                }
+              } else if (p.isSlash) {
+                p.pierceCount = (p.pierceCount || 0) + 1;
+                if (p.pierceCount >= 2) {
+                  removeProj = true;
+                }
+              } else {
+                removeProj = true;
+              }
 
               if (e.hp <= 0) {
                 if (e.isBoss) {
@@ -3586,22 +3908,31 @@
                 } else {
                   player.kills += 1;
                   waveState.killsInWave += 1;
-                  spawnVoxelExplosion(p.mesh.position, 28, 0xf97316);
+                  spawnVoxelExplosion(e.mesh.position, 34, 0xf97316);
 
-                  // Check wave boss spawn
                   if (!waveState.bossActive && waveState.killsInWave >= waveState.targetKills) {
                     spawnBoss();
                   } else {
                     e.hp = 3;
+                    // Respawn at long distance in front
                     const ang = player.yaw + (Math.random() - 0.5) * 1.5;
-                    e.mesh.position.set(player.pos.x - Math.sin(ang) * 560, player.pos.y + (Math.random() - 0.5) * 100, player.pos.z - Math.cos(ang) * 560);
+                    const d = baseStandoff * (0.85 + Math.random() * 0.45);
+                    e.mesh.position.set(
+                      player.pos.x - Math.sin(ang) * d,
+                      player.pos.y + (Math.random() - 0.5) * 140,
+                      player.pos.z - Math.cos(ang) * d
+                    );
+                    e.aiState = 'ATTACK_RUN';
+                    e.stateTimer = 6.0 + Math.random() * 3.0;
                   }
                 }
               }
-              break;
+
+              if (removeProj) break;
             }
           }
-          if (hit || p.life <= 0) {
+
+          if (removeProj || p.life <= 0) {
             scene.remove(p.mesh);
             projectiles.splice(i, 1);
           }
@@ -3759,17 +4090,52 @@
               hctx.fillStyle = '#f43f5e';
               hctx.fillRect(ix - 4, iy - 4, 8, 8);
             }
-          } else if (player.lockedEnemy === e) {
-            const isLocked = player.lockProgress >= 0.95;
-            const r = e.isBoss ? 46 : 24;
-            hctx.strokeStyle = e.isBoss ? '#f43f5e' : (isLocked ? '#f43f5e' : '#facc15');
-            hctx.lineWidth = e.isBoss ? 3 : 2;
-            hctx.strokeRect(sx - r, sy - r, r * 2, r * 2);
+          } else {
+            const distM = Math.round(e.mesh.position.distanceTo(player.pos));
+            const isTargeted = (player.lockedEnemy === e);
+            const isLocked = isTargeted && (player.lockProgress >= 0.95);
 
-            if (e.isBoss) {
-              hctx.fillStyle = '#f43f5e';
+            if (isTargeted || isLocked || e.isBoss) {
+              const r = e.isBoss ? 52 : (isLocked ? 30 : 24);
+              const col = e.isBoss ? '#f43f5e' : (isLocked ? '#22d3ee' : '#facc15');
+              hctx.strokeStyle = col;
+              hctx.lineWidth = e.isBoss ? 2.5 : 1.8;
+
+              // Draw Tokusatsu / Military Corner Brackets [ ]
+              const cLen = r * 0.45;
+              hctx.beginPath();
+              // Top-Left corner
+              hctx.moveTo(sx - r, sy - r + cLen); hctx.lineTo(sx - r, sy - r); hctx.lineTo(sx - r + cLen, sy - r);
+              // Top-Right corner
+              hctx.moveTo(sx + r - cLen, sy - r); hctx.lineTo(sx + r, sy - r); hctx.lineTo(sx + r, sy - r + cLen);
+              // Bottom-Left corner
+              hctx.moveTo(sx - r, sy + r - cLen); hctx.lineTo(sx - r, sy + r); hctx.lineTo(sx - r + cLen, sy + r);
+              // Bottom-Right corner
+              hctx.moveTo(sx + r - cLen, sy + r); hctx.lineTo(sx + r, sy + r); hctx.lineTo(sx + r, sy + r - cLen);
+              hctx.stroke();
+
+              // Center reticle pip when lock is confirmed
+              if (isLocked) {
+                hctx.fillStyle = col;
+                hctx.beginPath();
+                hctx.arc(sx, sy, 3, 0, Math.PI * 2);
+                hctx.fill();
+              }
+
+              // Distance & Status Readout below target
               hctx.font = 'bold 10px monospace';
-              hctx.fillText(`CHAOS BOSS [${e.hp}/${e.maxHp}]`, sx - r, sy - r - 6);
+              hctx.fillStyle = col;
+              const tag = e.isBoss ? `CHAOS OVERLORD [${e.hp}/${e.maxHp}]` : (isLocked ? 'LOCK ON' : 'TRACKING');
+              hctx.fillText(`DIST: ${distM}m · ${tag}`, sx - r, sy + r + 13);
+            } else if (distM < 1600) {
+              // Subtle distant marker for targets in forward view
+              const r = 9;
+              hctx.strokeStyle = 'rgba(250, 204, 21, 0.4)';
+              hctx.lineWidth = 1;
+              hctx.strokeRect(sx - r, sy - r, r * 2, r * 2);
+              hctx.font = '9px monospace';
+              hctx.fillStyle = 'rgba(250, 204, 21, 0.65)';
+              hctx.fillText(`${distM}m`, sx - r, sy + r + 10);
             }
           }
         }
@@ -3910,6 +4276,7 @@
       bindRange('ctrlTurnRate', 'valTurnRate', 'turnRate', (v) => v.toFixed(2));
       bindRange('ctrlBankAngle', 'valBankAngle', 'bankAngle', (v) => `${Math.round(v)}°`);
       bindRange('ctrlEnemyCount', 'valEnemyCount', 'enemyCount', (v) => String(Math.round(v)), () => syncEnemies());
+      bindRange('ctrlEngagementDist', 'valEngagementDist', 'engagementDist', (v) => `${Math.round(v)}m`, () => syncEnemies());
       bindRange('ctrlDodgeSlowMo', 'valDodgeSlowMo', 'dodgeSlowMo', (v) => v.toFixed(1));
       bindRange('ctrlPlanets', 'valPlanets', 'planetCount', (v) => String(Math.round(v)), () => rebuildCosmosWorld());
       bindRange('ctrlAsteroids', 'valAsteroids', 'asteroidsDensity', (v) => v.toFixed(2), () => rebuildCosmosWorld());
@@ -4088,7 +4455,12 @@
         document.getElementById('valSliceSpacing').textContent = params.sliceSpacing.toFixed(1);
         document.getElementById('ctrlPixelSize').value = params.pixelSize;
         document.getElementById('valPixelSize').textContent = String(params.pixelSize);
-        document.getElementById('ctrlExplodeSlices').checked = false;
+        document.getElementById('ctrlEnemyCount').value = params.enemyCount;
+        document.getElementById('valEnemyCount').textContent = String(params.enemyCount);
+        if (document.getElementById('ctrlEngagementDist')) {
+          document.getElementById('ctrlEngagementDist').value = params.engagementDist;
+          document.getElementById('valEngagementDist').textContent = `${Math.round(params.engagementDist)}m`;
+        }
         document.getElementById('ctrlPlanets').value = params.planetCount;
         document.getElementById('valPlanets').textContent = String(params.planetCount);
         document.getElementById('ctrlGlow').value = params.glow;
@@ -4142,7 +4514,7 @@
       bindBtn('actEject', 'click', () => { soundEngine.init(); triggerLightTransform(); });
 
       updateDemoUI();
-      window.__gameDebug = { soundEngine, player, pointer, projectiles, launchGame, returnToTitle, fireUltraSlash, triggerBarrelRoll, getGameState: () => gameState };
+      window.__gameDebug = { soundEngine, player, pointer, projectiles, enemies, launchGame, returnToTitle, fireUltraSlash, fireSpaciumSalvo, triggerBarrelRoll, spawnBoss, getGameState: () => gameState };
 
       // ==========================================
       // 11. MAIN ANIMATION LOOP
