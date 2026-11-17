@@ -30,7 +30,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: dark;
@@ -50,6 +50,15 @@
     }
     .font-mono-tech {
       font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+    .font-pixel {
+      font-family: 'Press Start 2P', 'Silkscreen', 'Courier New', monospace;
+      image-rendering: pixelated;
+      -webkit-font-smoothing: none;
+    }
+    .font-silkscreen {
+      font-family: 'Silkscreen', 'Press Start 2P', 'Inter', monospace;
+      image-rendering: pixelated;
     }
     ::-webkit-scrollbar {
       width: 5px;
@@ -153,6 +162,54 @@
     .btn-launch-glow {
       animation: buttonGlow 2.2s ease-in-out infinite;
     }
+    .pixel-title-ultra {
+      font-family: 'Press Start 2P', 'Silkscreen', monospace;
+      image-rendering: pixelated;
+      -webkit-font-smoothing: none;
+      color: #f8fafc;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+      display: inline-block;
+      text-shadow:
+        3px 3px 0px #0284c7,
+        6px 6px 0px #0369a1,
+        9px 9px 0px #082f49,
+        12px 12px 0px #020617,
+        0 0 18px rgba(56, 189, 248, 0.75);
+    }
+    .pixel-title-cosmos {
+      font-family: 'Press Start 2P', 'Silkscreen', monospace;
+      image-rendering: pixelated;
+      -webkit-font-smoothing: none;
+      color: #f8fafc;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+      display: inline-block;
+      text-shadow:
+        3px 3px 0px #f43f5e,
+        6px 6px 0px #be123c,
+        9px 9px 0px #4c0519,
+        12px 12px 0px #020617,
+        0 0 18px rgba(244, 63, 94, 0.75);
+    }
+    .text-shadow-pixel {
+      text-shadow: 2px 2px 0px #0284c7, 4px 4px 0px #020617;
+    }
+    .btn-pixel-arcade {
+      font-family: 'Press Start 2P', monospace;
+      image-rendering: pixelated;
+      -webkit-font-smoothing: none;
+      box-shadow: 4px 4px 0px #0369a1, 8px 8px 0px #020617;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+    .btn-pixel-arcade:hover {
+      box-shadow: 5px 5px 0px #38bdf8, 10px 10px 0px #020617;
+      transform: translate(-1px, -1px);
+    }
+    .btn-pixel-arcade:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0px #0369a1, 2px 2px 0px #020617;
+    }
   </style>
 </head>
 <body class="h-screen w-screen flex flex-col bg-[#05070d] text-slate-200 overflow-hidden">
@@ -212,105 +269,112 @@
       <canvas id="hudCanvas"></canvas>
 
       <!-- Title Screen Overlay (Attract Mode & Cinematic Showcase) -->
-      <div id="titleOverlay" class="absolute inset-0 z-40 flex flex-col justify-between items-center p-4 sm:p-7 pointer-events-auto select-none bg-gradient-to-b from-[#03050a]/80 via-[#03050a]/25 to-[#03050a]/90 backdrop-blur-[1.5px] transition-all duration-700">
+      <div id="titleOverlay" class="absolute inset-0 z-40 flex flex-col justify-between items-center p-3 sm:p-6 pointer-events-auto select-none bg-gradient-to-b from-[#03050a]/85 via-[#03050a]/30 to-[#03050a]/90 backdrop-blur-[1.5px] transition-all duration-700">
         
-        <!-- Top Title Bar Tag -->
-        <div class="flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/85 border border-slate-700/80 backdrop-blur-md shadow-lg">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-          <span class="font-mono-tech text-[10px] sm:text-[11px] tracking-widest text-cyan-300 font-bold uppercase whitespace-nowrap">M78 NEBULA DEFENSE · 3D VOXEL RECONSTRUCTION</span>
+        <!-- Top Title Bar Tag (Pixel Badge) -->
+        <div class="flex items-center gap-2 px-3 py-1 bg-slate-950/90 border-2 border-cyan-400 shadow-[3px_3px_0px_#0284c7] backdrop-blur-md">
+          <span class="w-2 h-2 bg-cyan-400 animate-ping"></span>
+          <span class="font-pixel text-[8px] sm:text-[9px] tracking-wider text-cyan-300 font-bold uppercase whitespace-nowrap">
+            M78 NEBULA DEFENSE · 3D VOXEL RECONSTRUCTION
+          </span>
         </div>
 
         <!-- Center Big Hero Logo & Launch Button -->
         <div class="flex flex-col items-center text-center my-auto max-w-3xl w-full px-2">
-          <!-- Logo Block -->
-          <div class="logo-container flex flex-col items-center mb-6 transform transition-transform hover:scale-105 duration-500 cursor-pointer w-full overflow-visible" id="logoHeroClick">
+          <!-- Pixel Logo Block -->
+          <div class="logo-container flex flex-col items-center mb-5 transform transition-transform hover:scale-105 duration-300 cursor-pointer w-full overflow-visible" id="logoHeroClick">
             <div class="flex items-center gap-2 mb-2">
-              <span class="h-px w-8 sm:w-16 bg-gradient-to-r from-transparent to-cyan-400"></span>
-              <span class="font-mono-tech text-[10px] sm:text-xs font-bold tracking-[0.25em] text-cyan-300/90 uppercase whitespace-nowrap">TSUBURAYA TRIBUTE · KAIJU BATTLE</span>
-              <span class="h-px w-8 sm:w-16 bg-gradient-to-l from-transparent to-cyan-400"></span>
+              <span class="h-0.5 w-6 sm:w-12 bg-cyan-400"></span>
+              <span class="font-silkscreen text-[9px] sm:text-[11px] font-bold tracking-[0.2em] text-cyan-300 uppercase whitespace-nowrap">
+                TSUBURAYA TRIBUTE · KAIJU BATTLE
+              </span>
+              <span class="h-0.5 w-6 sm:w-12 bg-cyan-400"></span>
             </div>
 
-            <!-- Main Title with anti-clipping container -->
-            <div class="relative flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 px-2 overflow-visible">
-              <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-sans overflow-visible m-0 leading-none">
-                <span class="title-logo-word">ULTRAMAN</span>
+            <!-- Pixel Main Title with Dual-tone Stepped Block Shadows -->
+            <div class="relative flex flex-wrap sm:flex-nowrap items-center justify-center gap-1.5 sm:gap-3 px-2 overflow-visible">
+              <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-pixel overflow-visible m-0 leading-none">
+                <span class="pixel-title-ultra">ULTRAMAN</span>
               </h1>
-              <!-- Glowing Color Timer Emblem -->
+              <!-- Glowing Voxel Diamond Color Timer Emblem -->
               <div class="mx-1 sm:mx-2.5 relative flex items-center justify-center shrink-0">
-                <div class="w-8 h-8 sm:w-11 sm:h-11 md:w-13 md:h-13 rounded-full bg-gradient-to-tr from-cyan-500 via-sky-300 to-white border-2 sm:border-3 border-white shadow-[0_0_28px_#22d3ee,0_0_55px_rgba(56,189,248,0.8)] flex items-center justify-center animate-pulse">
-                  <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white shadow-[0_0_12px_#ffffff]"></div>
+                <div class="relative w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 flex items-center justify-center animate-pulse">
+                  <div class="w-full h-full rotate-45 bg-cyan-400 border-2 sm:border-3 border-white shadow-[0_0_16px_#22d3ee,3px_3px_0px_#0284c7]"></div>
+                  <div class="absolute w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rotate-45 bg-white shadow-[0_0_8px_#ffffff]"></div>
                 </div>
               </div>
-              <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-sans overflow-visible m-0 leading-none">
-                <span class="title-logo-word">COSMOS</span>
+              <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-pixel overflow-visible m-0 leading-none">
+                <span class="pixel-title-cosmos">COSMOS</span>
               </h1>
             </div>
 
-            <!-- Chinese Subtitle & Style Mark with anti-wrapping safety -->
-            <div class="mt-2.5 sm:mt-3.5 flex items-center justify-center gap-2.5 sm:gap-3 flex-wrap px-2">
-              <span class="text-base sm:text-xl md:text-2xl font-black tracking-[0.35em] text-slate-100 drop-shadow-[0_0_16px_rgba(255,255,255,0.75)] whitespace-nowrap pl-2">
+            <!-- Chinese Subtitle in Pixel Retro Style -->
+            <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2.5 sm:gap-3.5 flex-wrap px-2">
+              <span class="font-silkscreen text-base sm:text-xl md:text-2xl font-bold tracking-[0.3em] text-slate-100 text-shadow-pixel whitespace-nowrap pl-1">
                 高 斯 奥 特 曼
               </span>
-              <span class="px-2.5 py-0.5 rounded text-[10px] sm:text-[11px] font-mono-tech font-bold bg-rose-500/25 text-rose-300 border border-rose-500/70 shadow-[0_0_14px_rgba(244,63,94,0.35)] whitespace-nowrap">
-                3D 体素空战 · VOXEL RETRO 3D
+              <span class="px-2 py-0.5 text-[9px] sm:text-[10px] font-pixel bg-slate-900 border-2 border-rose-500 text-rose-300 shadow-[2px_2px_0px_#be123c] whitespace-nowrap">
+                3D VOXEL DOGFIGHT
               </span>
             </div>
 
-            <div class="mt-2 text-[11px] sm:text-xs font-mono-tech text-slate-400 tracking-wider">
+            <div class="mt-2 text-[9px] sm:text-[10px] font-silkscreen text-cyan-400/80 tracking-widest uppercase">
               14-LAYER 3D SPRITE STACKING · SUBPIXEL SMOOTH AA · BAYER DITHERING
             </div>
           </div>
 
-          <!-- Launch Button Block -->
-          <div class="flex flex-col items-center gap-3 w-full max-w-sm">
-            <button id="btnLaunchGame" type="button" class="btn-launch-glow group relative w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-rose-600 hover:from-cyan-400 hover:to-rose-500 text-white font-mono-tech font-bold text-sm sm:text-base tracking-widest uppercase transition-all duration-300 active:scale-95 shadow-2xl flex items-center justify-center gap-2 border border-cyan-300/40">
-              <span class="text-amber-300 text-lg group-hover:scale-125 transition-transform">✦</span>
-              <span class="whitespace-nowrap">启 航 出 击 · START FLIGHT</span>
-              <span class="text-amber-300 text-lg group-hover:scale-125 transition-transform">✦</span>
+          <!-- Launch Button Block in Retro Arcade Style -->
+          <div class="flex flex-col items-center gap-2.5 w-full max-w-sm">
+            <button id="btnLaunchGame" type="button" class="btn-pixel-arcade group relative w-full py-3.5 px-4 bg-gradient-to-r from-cyan-600 via-sky-600 to-rose-600 hover:from-cyan-400 hover:to-rose-500 text-white text-xs sm:text-sm tracking-widest uppercase transition-all duration-100 active:scale-95 border-2 border-cyan-300 flex items-center justify-center gap-2 cursor-pointer">
+              <span class="text-amber-300 animate-pulse text-sm">▶</span>
+              <span class="whitespace-nowrap font-bold">START FLIGHT · 启航出击</span>
+              <span class="text-amber-300 animate-pulse text-sm">◀</span>
             </button>
 
-            <!-- Press any key hints with gamepad / mouse icons -->
-            <div class="flex items-center gap-2.5 text-[11px] font-mono-tech text-slate-300/90 animate-pulse whitespace-nowrap">
-              <span>⌨️ 按任意键</span>
-              <span>•</span>
-              <span>🖱️ 点击屏幕</span>
-              <span>•</span>
-              <span>🎮 手柄按 (A) / START</span>
+            <!-- Retro Coin & Control Hints -->
+            <div class="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-silkscreen text-cyan-300/90 animate-pulse whitespace-nowrap">
+              <span>[ 1P COIN: 01 · PRESS ANY KEY OR CLICK SCREEN ]</span>
             </div>
           </div>
         </div>
 
-        <!-- Bottom Demo Showcase Indicator & Feature Highlights -->
+        <!-- Bottom Demo Showcase Indicator & Feature Highlights (Pixel Deck) -->
         <div class="w-full max-w-2xl flex flex-col items-center gap-2 sm:gap-2.5 px-2">
           <!-- Demo Mode Pill Deck -->
-          <div class="flex items-center justify-between w-full bg-slate-950/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800 shadow-xl text-xs font-mono-tech gap-2">
+          <div class="flex items-center justify-between w-full bg-slate-950/90 px-3.5 py-2 border-2 border-slate-700 shadow-[3px_3px_0px_#020617] text-xs font-silkscreen gap-2">
             <div class="flex items-center gap-2 text-cyan-400 shrink-0">
-              <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-              <span class="font-bold tracking-wider uppercase text-[11px] sm:text-xs">自动演示</span>
+              <span class="inline-block w-2 h-2 bg-cyan-400 animate-ping"></span>
+              <span class="font-pixel text-[9px] sm:text-[10px] font-bold tracking-wider uppercase">DEMO</span>
               <span class="text-slate-600">|</span>
             </div>
             
             <div class="flex-1 min-w-0 text-left">
-              <div id="titleDemoPhaseText" class="text-slate-200 font-medium text-[11px] sm:text-xs truncate" title="幕 1/3: 奥特曼 14 层体素全向特写与结构剖析">
+              <div id="titleDemoPhaseText" class="text-slate-200 font-medium text-[10px] sm:text-[11px] truncate" title="幕 1/3: 奥特曼 14 层体素全向特写与结构剖析">
                 幕 1/3: 奥特曼 14 层体素全向特写与结构剖析
               </div>
             </div>
 
             <!-- Quick Demo Phase Switchers -->
             <div class="flex items-center gap-1.5 shrink-0">
-              <button id="btnDemoPrev" type="button" title="上一演示" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-[11px] cursor-pointer">◀</button>
+              <button id="btnDemoPrev" type="button" title="上一演示" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-pixel text-[9px] cursor-pointer active:translate-y-0.5">◀</button>
               <div class="flex items-center gap-1 px-1">
-                <span id="dotDemo0" class="w-2.5 h-1.5 rounded-full bg-cyan-400 transition-all"></span>
-                <span id="dotDemo1" class="w-1.5 h-1.5 rounded-full bg-slate-700 transition-all"></span>
-                <span id="dotDemo2" class="w-1.5 h-1.5 rounded-full bg-slate-700 transition-all"></span>
+                <span id="dotDemo0" class="w-2 h-2 bg-cyan-400 transition-all"></span>
+                <span id="dotDemo1" class="w-2 h-2 bg-slate-700 transition-all"></span>
+                <span id="dotDemo2" class="w-2 h-2 bg-slate-700 transition-all"></span>
               </div>
-              <button id="btnDemoNext" type="button" title="下一演示" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-[11px] cursor-pointer">▶</button>
+              <button id="btnDemoNext" type="button" title="下一演示" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-pixel text-[9px] cursor-pointer active:translate-y-0.5">▶</button>
             </div>
           </div>
 
-          <!-- Feature Pills -->
-          <div class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[10px] font-mono-tech text-slate-400">
-            <span class="px-2 py-0.5 rounded bg-slate-900/70 border border-slate-800/80">14-Layer Sprite Stacking</span>
+          <!-- Feature Pills in Pixel Arcade Style -->
+          <div class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[9px] font-silkscreen text-slate-400">
+            <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">14-Layer Sprite Stacking</span>
+            <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">Subpixel Anti-Aliased Upscale</span>
+            <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">Bayer Ordered Dithering</span>
+            <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">Optical Cross Diffraction</span>
+            <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">3-Stage Chaos Overlord Boss</span>
+          </div>
+        </div>
             <span class="px-2 py-0.5 rounded bg-slate-900/70 border border-slate-800/80">Subpixel Anti-Aliased Upscale</span>
             <span class="px-2 py-0.5 rounded bg-slate-900/70 border border-slate-800/80">Bayer Ordered Dithering</span>
             <span class="px-2 py-0.5 rounded bg-slate-900/70 border border-slate-800/80">Optical Cross Diffraction</span>
