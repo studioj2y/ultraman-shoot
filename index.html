@@ -1,0 +1,3602 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Forge | ultraman — Three.js 体素切片宇宙飞行与怪兽空战</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // CDN fallback in case cdnjs is blocked or slow
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"><\/script>');
+    }
+  </script>
+  <script>
+    // Fail-safe global diagnostic to prevent silent black screen
+    window.addEventListener('error', function (e) {
+      console.error('[Forge Runtime Error]', e);
+      var box = document.getElementById('runtimeErrorAlert');
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'runtimeErrorAlert';
+        box.className = 'fixed top-4 left-1/2 -translate-x-1/2 max-w-lg w-11/12 bg-rose-950/95 border-2 border-rose-500 text-rose-100 p-4 rounded-xl shadow-2xl z-[9999] font-mono text-xs';
+        document.body.appendChild(box);
+      }
+      box.innerHTML = '<div class="font-bold text-rose-300 text-sm mb-1">⚠️ 宇宙飞行引擎启动异常</div>' +
+        '<div class="text-[11px] text-slate-300 mb-2">' + (e.message || '未知脚本错误') + ' (' + (e.filename ? e.filename.split('/').pop() : 'index.html') + ':' + e.lineno + ')</div>' +
+        '<div class="text-[10px] text-slate-400">若提示 THREE 未定义，请检查网络是否能访问 CDN，或尝试在静态服务器环境中刷新。</div>';
+    });
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #05070d;
+      color: #e2e8f0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+    }
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0e16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #242c3d;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3b465e;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 2px;
+      background: #232a3b;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      background: #e11d48;
+      margin-top: -4px;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      transition: transform 0.1s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.18);
+    }
+    #glCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    #hudCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    @keyframes timerPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.92); }
+    }
+    .timer-critical {
+      animation: timerPulse 0.45s infinite ease-in-out;
+    }
+    @keyframes shineEffect {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes logoBreath {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(34,211,238,0.5)) drop-shadow(0 0 45px rgba(225,29,72,0.3)); transform: scale(1); }
+      50% { filter: drop-shadow(0 0 32px rgba(34,211,238,0.85)) drop-shadow(0 0 65px rgba(225,29,72,0.55)); transform: scale(1.015); }
+    }
+    @keyframes buttonGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(34,211,238,0.4), inset 0 0 15px rgba(34,211,238,0.2); }
+      50% { box-shadow: 0 0 38px rgba(34,211,238,0.8), inset 0 0 28px rgba(34,211,238,0.45); }
+    }
+    .text-metallic-title {
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 20%, #38bdf8 50%, #ffffff 75%, #f43f5e 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shineEffect 6s linear infinite;
+    }
+    .title-logo-word {
+      display: inline-block;
+      position: relative;
+      padding: 0.05em 0.25em 0.12em 0.08em; /* Generous padding ensures slanted glyphs are never clipped */
+      overflow: visible;
+      transform: skewX(-7deg);
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 18%, #38bdf8 48%, #ffffff 72%, #f43f5e 98%);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shineEffect 7s linear infinite;
+      filter: drop-shadow(0 0 16px rgba(56,189,248,0.6)) drop-shadow(0 4px 10px rgba(0,0,0,0.95));
+      letter-spacing: -0.01em;
+      line-height: 1.05;
+    }
+    .logo-container {
+      animation: logoBreath 4.5s ease-in-out infinite;
+    }
+    .btn-launch-glow {
+      animation: buttonGlow 2.2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex flex-col bg-[#05070d] text-slate-200 overflow-hidden">
+
+  <!-- Top Header Workbench Bar -->
+  <header class="h-11 shrink-0 bg-[#0c1018] border-b border-slate-800/80 px-3 flex items-center justify-between z-30">
+    <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-1.5">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]"></span>
+        <span class="font-semibold text-sm tracking-tight text-white">Forge</span>
+        <span class="text-slate-600">|</span>
+        <span class="font-mono-tech text-xs font-medium text-slate-300">ultraman-cosmos</span>
+      </div>
+      <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-tech bg-slate-800/90 text-cyan-300 border border-slate-700/70">
+        Three.js WebGL · 3D Voxel Stack + Selective Bloom
+      </span>
+    </div>
+
+    <!-- Center Quick Camera Mode Pills -->
+    <div class="flex items-center gap-1 bg-[#131824] p-0.5 rounded-md border border-slate-800">
+      <button id="topBarViewChase" type="button" class="px-2.5 py-1 rounded text-xs font-mono-tech transition-colors bg-[#e11d48] text-white font-medium">
+        CHASE
+      </button>
+      <button id="topBarViewTop" type="button" class="px-2.5 py-1 rounded text-xs font-mono-tech transition-colors text-slate-400 hover:text-white">
+        TOP
+      </button>
+      <button id="topBarViewCockpit" type="button" class="px-2.5 py-1 rounded text-xs font-mono-tech transition-colors text-slate-400 hover:text-white">
+        FIRST-PERSON
+      </button>
+    </div>
+
+    <!-- Right Workbench Buttons -->
+    <div class="flex items-center gap-1.5">
+      <button id="btnTitleModeHeader" type="button" title="进入电影级标题巡航与演示模式" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-amber-500/40 transition flex items-center gap-1">
+        <span>🎬</span>
+        <span>标题演示</span>
+      </button>
+      <button id="btnStackIntroHeader" type="button" title="播放 3D 体素切片堆叠组装动画" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-cyan-300 border border-slate-700/70 transition">
+        切片组装
+      </button>
+      <button id="btnAudioToggle" type="button" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/70 transition">
+        SFX: ON
+      </button>
+      <button id="btnToggleControls" type="button" class="px-2.5 py-1 rounded text-xs font-medium bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition flex items-center gap-1">
+        <span>Controls</span>
+        <span class="font-mono-tech text-[10px] text-rose-400">▾</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex min-h-0 relative overflow-hidden">
+
+    <!-- Left WebGL 3D Viewport -->
+    <main id="viewportContainer" class="flex-1 relative bg-[#03050a] overflow-hidden">
+      <canvas id="glCanvas" class="cursor-crosshair"></canvas>
+      <canvas id="hudCanvas"></canvas>
+
+      <!-- Title Screen Overlay (Attract Mode & Cinematic Showcase) -->
+      <div id="titleOverlay" class="absolute inset-0 z-40 flex flex-col justify-between items-center p-4 sm:p-7 pointer-events-auto select-none bg-gradient-to-b from-[#03050a]/80 via-[#03050a]/25 to-[#03050a]/90 backdrop-blur-[1.5px] transition-all duration-700">
+        
+        <!-- Top Title Bar Tag -->
+        <div class="flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/85 border border-slate-700/80 backdrop-blur-md shadow-lg">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+          <span class="font-mono-tech text-[10px] sm:text-[11px] tracking-widest text-cyan-300 font-bold uppercase whitespace-nowrap">M78 NEBULA DEFENSE · 3D VOXEL RECONSTRUCTION</span>
+        </div>
+
+        <!-- Center Big Hero Logo & Launch Button -->
+        <div class="flex flex-col items-center text-center my-auto max-w-3xl w-full px-2">
+          <!-- Logo Block -->
+          <div class="logo-container flex flex-col items-center mb-6 transform transition-transform hover:scale-105 duration-500 cursor-pointer w-full overflow-visible" id="logoHeroClick">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="h-px w-8 sm:w-16 bg-gradient-to-r from-transparent to-cyan-400"></span>
+              <span class="font-mono-tech text-[10px] sm:text-xs font-bold tracking-[0.25em] text-cyan-300/90 uppercase whitespace-nowrap">TSUBURAYA TRIBUTE · KAIJU BATTLE</span>
+              <span class="h-px w-8 sm:w-16 bg-gradient-to-l from-transparent to-cyan-400"></span>
+            </div>
+
+            <!-- Main Title with anti-clipping container -->
+            <div class="relative flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 px-2 overflow-visible">
+              <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-sans overflow-visible m-0 leading-none">
+                <span class="title-logo-word">ULTRAMAN</span>
+              </h1>
+              <!-- Glowing Color Timer Emblem -->
+              <div class="mx-1 sm:mx-2.5 relative flex items-center justify-center shrink-0">
+                <div class="w-8 h-8 sm:w-11 sm:h-11 md:w-13 md:h-13 rounded-full bg-gradient-to-tr from-cyan-500 via-sky-300 to-white border-2 sm:border-3 border-white shadow-[0_0_28px_#22d3ee,0_0_55px_rgba(56,189,248,0.8)] flex items-center justify-center animate-pulse">
+                  <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white shadow-[0_0_12px_#ffffff]"></div>
+                </div>
+              </div>
+              <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-sans overflow-visible m-0 leading-none">
+                <span class="title-logo-word">COSMOS</span>
+              </h1>
+            </div>
+
+            <!-- Chinese Subtitle & Style Mark with anti-wrapping safety -->
+            <div class="mt-2.5 sm:mt-3.5 flex items-center justify-center gap-2.5 sm:gap-3 flex-wrap px-2">
+              <span class="text-base sm:text-xl md:text-2xl font-black tracking-[0.35em] text-slate-100 drop-shadow-[0_0_16px_rgba(255,255,255,0.75)] whitespace-nowrap pl-2">
+                高 斯 奥 特 曼
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-[10px] sm:text-[11px] font-mono-tech font-bold bg-rose-500/25 text-rose-300 border border-rose-500/70 shadow-[0_0_14px_rgba(244,63,94,0.35)] whitespace-nowrap">
+                3D 体素空战 · VOXEL RETRO 3D
+              </span>
+            </div>
+
+            <div class="mt-2 text-[11px] sm:text-xs font-mono-tech text-slate-400 tracking-wider">
+              14-LAYER 3D SPRITE STACKING · SUBPIXEL SMOOTH AA · BAYER DITHERING
+            </div>
+          </div>
+
+          <!-- Launch Button Block -->
+          <div class="flex flex-col items-center gap-3 w-full max-w-sm">
+            <button id="btnLaunchGame" type="button" class="btn-launch-glow group relative w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-rose-600 hover:from-cyan-400 hover:to-rose-500 text-white font-mono-tech font-bold text-sm sm:text-base tracking-widest uppercase transition-all duration-300 active:scale-95 shadow-2xl flex items-center justify-center gap-2 border border-cyan-300/40">
+              <span class="text-amber-300 text-lg group-hover:scale-125 transition-transform">✦</span>
+              <span class="whitespace-nowrap">启 航 出 击 · START FLIGHT</span>
+              <span class="text-amber-300 text-lg group-hover:scale-125 transition-transform">✦</span>
+            </button>
+
+            <!-- Press any key hints with gamepad / mouse icons -->
+            <div class="flex items-center gap-2.5 text-[11px] font-mono-tech text-slate-300/90 animate-pulse whitespace-nowrap">
+              <span>⌨️ 按任意键</span>
+              <span>•</span>
+              <span>🖱️ 点击屏幕</span>
+              <span>•</span>
+              <span>🎮 手柄按 (A) / START</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Demo Showcase Indicator & Feature Highlights -->
+        <div class="w-full max-w-2xl flex flex-col items-center gap-2 sm:gap-2.5 px-2">
+          <!-- Demo Mode Pill Deck -->
+          <div class="flex items-center justify-between w-full bg-slate-950/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800 shadow-xl text-xs font-mono-tech gap-2">
+            <div class="flex items-center gap-2 text-cyan-400 shrink-0">
+              <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+              <span class="font-bold tracking-wider uppercase text-[11px] sm:text-xs">自动演示</span>
+              <span class="text-slate-600">|</span>
+            </div>
+            
+            <div class="flex-1 min-w-0 text-left">
+              <div id="titleDemoPhaseText" class="text-slate-200 font-medium text-[11px] sm:text-xs truncate" title="幕 1/3: 奥特曼 14 层体素全向特写与结构剖析">
+                幕 1/3: 奥特曼 14 层体素全向特写与结构剖析
+              </div>
+            </div>
+
+            <!-- Quick Demo Phase Switchers -->
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button id="btnDemoPrev" type="button" title="上一演示" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-[11px] cursor-pointer">◀</button>
+              <div class="flex items-center gap-1 px-1">
+                <span id="dotDemo0" class="w-2.5 h-1.5 rounded-full bg-cyan-400 transition-all"></span>
+                <span id="dotDemo1" class="w-1.5 h-1.5 rounded-full bg-slate-700 transition-all"></span>
+                <span id="dotDemo2" class="w-1.5 h-1.5 rounded-full bg-slate-700 transition-all"></span>
+              </div>
+              <button id="btnDemoNext" type="button" title="下一演示" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-[11px] cursor-pointer">▶</button>
+            </div>
+          </div>
+
+          <!-- Feature Pills -->
+          <div class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[10px] font-mono-tech text-slate-400">
+            <span class="px-2 py-0.5 rounded bg-slate-900/70 border border-slate-800/80">14-Layer Sprite Stacking</span>
+            <span class="px-2 py-0.5 rounded bg-slate-900/70 border border-slate-800/80">Subpixel Anti-Aliased Upscale</span>
+            <span class="px-2 py-0.5 rounded bg-slate-900/70 border border-slate-800/80">Bayer Ordered Dithering</span>
+            <span class="px-2 py-0.5 rounded bg-slate-900/70 border border-slate-800/80">Optical Cross Diffraction</span>
+            <span class="px-2 py-0.5 rounded bg-slate-900/70 border border-slate-800/80">3-Stage Chaos Overlord Boss</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Top-Left HUD: Kills, Color Timer (Energy), Telemetry -->
+      <div class="pointer-events-none absolute top-3 left-3 flex flex-col gap-1.5 z-10 font-mono-tech">
+        <div class="flex items-center gap-3.5 bg-slate-950/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800/80 shadow-lg">
+          <div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider">KAIJU DEFEATED</div>
+            <div id="hudKills" class="text-lg font-bold text-white leading-tight">00</div>
+          </div>
+          <div class="h-7 w-px bg-slate-800"></div>
+          <div class="flex items-center gap-2.5">
+            <!-- Color Timer Indicator -->
+            <div id="colorTimerOrb" class="w-5 h-5 rounded-full bg-cyan-400 border-2 border-slate-200 shadow-[0_0_12px_#22d3ee] transition-colors"></div>
+            <div>
+              <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">COLOR TIMER</div>
+              <div id="hudHullBars" class="flex items-center gap-1">
+                <span class="w-3.5 h-2 rounded-xs bg-cyan-400"></span>
+                <span class="w-3.5 h-2 rounded-xs bg-cyan-400"></span>
+                <span class="w-3.5 h-2 rounded-xs bg-cyan-400"></span>
+                <span class="w-3.5 h-2 rounded-xs bg-cyan-400"></span>
+                <span class="w-3.5 h-2 rounded-xs bg-cyan-400"></span>
+                <span class="w-3.5 h-2 rounded-xs bg-cyan-400"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5 bg-slate-950/60 px-2.5 py-1 rounded text-[11px] text-slate-300 border border-slate-800/60">
+          <span>VEL <strong id="hudSpeed" class="text-cyan-300">95</strong> km/s</span>
+          <span>SEC <strong id="hudSector" class="text-amber-300">M78-A</strong></span>
+          <span>WAVE <strong id="hudWave" class="text-rose-400 font-bold">01</strong></span>
+          <span>VIEW <strong id="hudView" class="text-rose-400">CHASE</strong></span>
+          <span id="hudGamepadTag" class="hidden text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">🎮 PAD</span>
+        </div>
+      </div>
+
+      <!-- Boss Health Bar Panel (Top Center) -->
+      <div id="bossHudPanel" class="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 w-80 sm:w-96 bg-slate-950/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-rose-500/60 shadow-[0_0_28px_rgba(244,63,94,0.4)] z-20 font-mono-tech hidden transition-all duration-300">
+        <div class="flex items-center justify-between text-[11px] mb-1">
+          <div class="flex items-center gap-1.5">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_#f43f5e]"></span>
+            <span id="bossName" class="font-bold text-rose-300 tracking-wider">CHAOS ZETTON · 混沌杰顿</span>
+          </div>
+          <span id="bossHpPercent" class="text-xs font-bold text-white">100%</span>
+        </div>
+        <div class="h-2.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-700/80 p-0.5">
+          <div id="bossHpBar" class="h-full bg-gradient-to-r from-rose-600 via-amber-500 to-rose-400 rounded-full transition-all duration-150 shadow-[0_0_12px_#f43f5e]" style="width: 100%"></div>
+        </div>
+        <div class="flex justify-between items-center text-[9px] text-slate-400 mt-1">
+          <span id="bossPhaseTag" class="text-amber-400 font-medium">PHASE 1: CHAOS ORBS</span>
+          <span id="bossThreatTag" class="text-rose-400 font-bold uppercase">THREAT: OVERLORD</span>
+        </div>
+      </div>
+
+      <!-- Top-Right Canvas Overlay Buttons -->
+      <div class="absolute top-3 right-3 flex items-center gap-1.5 z-20 font-mono-tech">
+        <button id="btnIntel" type="button" class="px-2.5 py-1 rounded text-xs font-semibold bg-slate-900/85 hover:bg-slate-800 text-amber-400 border border-amber-500/40 shadow backdrop-blur-sm transition">
+          INTEL (暂停/说明)
+        </button>
+        <button id="btnTutorial" type="button" class="px-2.5 py-1 rounded text-xs font-semibold bg-slate-900/85 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 shadow backdrop-blur-sm transition">
+          TUTORIAL
+        </button>
+      </div>
+
+      <!-- Center Alert Banner -->
+      <div id="centerBanner" class="pointer-events-none absolute top-16 left-1/2 -translate-x-1/2 z-20 hidden">
+        <div id="centerBannerText" class="px-4 py-1.5 rounded-full font-mono-tech text-xs font-bold uppercase tracking-widest bg-cyan-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.8)]">
+          PERFECT DODGE!
+        </div>
+      </div>
+
+      <!-- Tutorial Floating Checklist -->
+      <div id="tutorialCard" class="absolute top-14 right-3 w-64 bg-slate-950/85 backdrop-blur-md border border-slate-800 rounded-lg p-3 z-20 font-mono-tech text-xs shadow-xl">
+        <div class="flex items-center justify-between mb-2 pb-1 border-b border-slate-800">
+          <span class="font-bold text-cyan-300 tracking-wide">M78 FLIGHT TRAINING</span>
+          <button id="btnCloseTutorial" type="button" class="text-slate-400 hover:text-white text-[11px]">✕</button>
+        </div>
+        <ul class="space-y-1.5 text-[11px]">
+          <li id="tutSteer" class="flex items-center gap-2 text-slate-300">
+            <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
+            <span>鼠标指针或 WASD 控制宇宙航向</span>
+          </li>
+          <li id="tutBoost" class="flex items-center gap-2 text-slate-300">
+            <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
+            <span>按住 Shift / 左键开启超光速推进</span>
+          </li>
+          <li id="tutRoll" class="flex items-center gap-2 text-slate-300">
+            <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
+            <span>单击左键或按 R 螺旋翻滚闪避</span>
+          </li>
+          <li id="tutLoop" class="flex items-center gap-2 text-slate-300">
+            <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
+            <span>按 F 或 G 执行空间筋斗翻越</span>
+          </li>
+          <li id="tutView" class="flex items-center gap-2 text-slate-300">
+            <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
+            <span>按 Space 切换追尾/俯视/第一视角</span>
+          </li>
+          <li id="tutCombat" class="flex items-center gap-2 text-slate-300">
+            <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
+            <span>右键发射八分光轮 · M 斯派修姆齐射</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Bottom-Left HUD: Energy & Spacium Charges -->
+      <div class="pointer-events-none absolute bottom-14 sm:bottom-3 left-3 flex items-center gap-3 z-10 font-mono-tech">
+        <div class="bg-slate-950/75 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800/80 flex items-center gap-4">
+          <div>
+            <div class="text-[10px] text-slate-400 uppercase">SLASH ENERGY</div>
+            <div class="flex items-baseline gap-1.5">
+              <span id="hudAmmo" class="text-base font-bold text-cyan-300">300</span>
+              <span id="hudReloadTag" class="text-[10px] text-amber-400 hidden">CHARGING</span>
+            </div>
+          </div>
+          <div class="h-6 w-px bg-slate-800"></div>
+          <div>
+            <div class="text-[10px] text-slate-400 uppercase mb-1">SPACIUM BEAM (M)</div>
+            <div id="hudMissileBars" class="flex items-center gap-1">
+              <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
+              <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
+              <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
+              <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
+              <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
+              <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Quick Action Deck (Desktop / Landscape) -->
+      <div class="hidden sm:flex absolute bottom-2.5 right-3 flex-wrap items-center justify-end gap-1.5 z-20 font-mono-tech">
+        <button id="actBoost" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-cyan-500/20 hover:bg-cyan-500/35 text-cyan-300 border border-cyan-500/40 backdrop-blur-sm active:scale-95 transition">
+          ⚡ 加速 (Shift/RT)
+        </button>
+        <button id="actRoll" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-slate-900/85 hover:bg-slate-800 text-slate-200 border border-slate-700 backdrop-blur-sm active:scale-95 transition">
+          🌀 翻滚 (R/B键)
+        </button>
+        <button id="actLoop" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-slate-900/85 hover:bg-slate-800 text-slate-200 border border-slate-700 backdrop-blur-sm active:scale-95 transition">
+          ➰ 筋斗 (F/LB)
+        </button>
+        <button id="actCannon" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-sky-500/20 hover:bg-sky-500/35 text-sky-300 border border-sky-500/40 backdrop-blur-sm active:scale-95 transition">
+          💫 光轮 (右键/RB)
+        </button>
+        <button id="actMissile" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-rose-500/20 hover:bg-rose-500/35 text-rose-300 border border-rose-500/40 backdrop-blur-sm active:scale-95 transition">
+          ⚡ 光线 (M/Y键)
+        </button>
+        <button id="actEject" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-slate-900/85 hover:bg-amber-900/50 text-amber-300 border border-slate-700 backdrop-blur-sm active:scale-95 transition">
+          ✨ 光球变身 (E)
+        </button>
+      </div>
+
+      <!-- Mobile Touch Virtual Joystick (Left) -->
+      <div id="virtualJoystickZone" class="sm:hidden absolute bottom-5 left-4 w-32 h-32 rounded-full border-2 border-cyan-400/30 bg-cyan-950/25 backdrop-blur-sm flex items-center justify-center pointer-events-auto touch-none z-20 shadow-[0_0_20px_rgba(34,211,238,0.15)]">
+        <div id="virtualJoystickKnob" class="w-12 h-12 rounded-full bg-cyan-400/70 border-2 border-cyan-200 shadow-[0_0_14px_#22d3ee] pointer-events-none transition-transform duration-75"></div>
+      </div>
+
+      <!-- Mobile Touch Action Buttons (Right) -->
+      <div id="mobileActionDeck" class="sm:hidden absolute bottom-5 right-4 flex flex-col items-end gap-2 pointer-events-auto touch-none z-20 font-mono-tech select-none">
+        <div class="flex gap-2">
+          <button id="touchRollBtn" type="button" class="w-12 h-12 rounded-full bg-slate-900/85 border border-cyan-400/60 text-cyan-300 text-[11px] font-bold flex items-center justify-center active:scale-90 active:bg-cyan-500/40 shadow-lg">
+            翻滚
+          </button>
+          <button id="touchMissileBtn" type="button" class="w-12 h-12 rounded-full bg-rose-950/85 border border-rose-400/70 text-rose-300 text-[11px] font-bold flex items-center justify-center active:scale-90 active:bg-rose-500/40 shadow-lg">
+            光线
+          </button>
+        </div>
+        <div class="flex gap-2">
+          <button id="touchBoostBtn" type="button" class="w-14 h-14 rounded-full bg-cyan-950/85 border-2 border-cyan-400 text-cyan-300 text-xs font-bold flex items-center justify-center active:scale-90 active:bg-cyan-400 active:text-slate-950 shadow-[0_0_15px_rgba(34,211,238,0.35)]">
+            加速
+          </button>
+          <button id="touchSlashBtn" type="button" class="w-15 h-15 rounded-full bg-sky-600/90 border-2 border-sky-300 text-white text-sm font-bold flex items-center justify-center active:scale-90 active:bg-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.5)]">
+            光轮
+          </button>
+        </div>
+      </div>
+
+      <!-- INTEL Modal -->
+      <div id="intelModal" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-md z-30 flex items-center justify-center p-4">
+        <div class="max-w-xl w-full bg-[#0e131e] border border-slate-700/80 rounded-xl shadow-2xl p-5 font-mono-tech">
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <div>
+              <span class="text-xs px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 mr-2">PAUSED</span>
+              <span class="text-base font-bold text-white">ULTRAMAN COSMOS — WEBGL RENDER PIPELINE</span>
+            </div>
+            <button id="btnCloseIntel" type="button" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs">
+              继续飞行 (ESC)
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs mb-4">
+            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-cyan-300 font-bold mb-1.5 flex items-center gap-1">
+                <span>🎮 FLIGHT CONTROLS</span>
+              </div>
+              <ul class="space-y-1 text-slate-300 text-[11px]">
+                <li>• 鼠标/左摇杆/WASD：空间转向俯仰</li>
+                <li>• 单击左键/B键/R：螺旋翻滚闪避</li>
+                <li>• 按住Shift/RT/左键：超光速推进</li>
+                <li>• 右键/RB/C：八分光轮连射</li>
+                <li>• M键/Y键：斯派修姆追踪齐射</li>
+                <li>• Space/View键：三视角循环切换</li>
+                <li>• 移动端：左侧摇杆 + 右侧大圆触键</li>
+              </ul>
+            </div>
+            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-amber-400 font-bold mb-1.5">⚡ DODGE & COUNTER</div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                怪兽发射追踪火球或 Boss 蓄力锁定时，出现<strong>双色收缩圆环</strong>。在两环重合瞬间横滚（单击或 R/B键），触发 <strong>1.3秒子弹时间</strong>并自动齐射 <strong>3道追踪光弹</strong>与手柄触觉震动反击！
+              </p>
+            </div>
+            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-rose-400 font-bold mb-1.5">👾 BOSS & WAVE</div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                击败当前波次怪兽后触发 <strong>CHAOS OVERLORD (混沌霸主)</strong> 降临！Boss 拥有多段血条、发光自卫弹幕与半血二阶段<strong>极速狂暴冲撞</strong>，击破后进入下一宇宙扇区。
+              </p>
+            </div>
+            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-purple-400 font-bold mb-1.5">✨ 3D VOXEL PIPELINE</div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                14~20层真 3D 体素切片堆叠构建，击中剥离体素碎块！配合 <strong>Selective Bloom</strong> 局部辉光提取、GLSL 程序化星球（气态巨星光环/熔岩/冰晶）与暗角颗粒。
+              </p>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button id="btnResumeFlight" type="button" class="px-4 py-2 rounded-lg bg-[#e11d48] hover:bg-[#f43f5e] text-white font-semibold text-xs transition shadow-lg">
+              返回宇宙航线 (Resume)
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Parameter Workbench Panel -->
+    <aside id="controlsPanel" class="w-80 sm:w-84 shrink-0 bg-[#0c1018] border-l border-slate-800/90 flex flex-col h-full z-20 transition-all duration-200">
+      <div class="p-3 border-b border-slate-800/80 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono-tech font-semibold text-slate-200 tracking-wide">Controls <span class="text-rose-400">ultraman</span></span>
+          <button id="btnResetParams" type="button" class="text-[11px] font-mono-tech text-slate-400 hover:text-cyan-300 transition">
+            Reset Defaults
+          </button>
+        </div>
+        <div class="relative">
+          <input id="paramSearch" type="text" placeholder="Filter parameters (slice, planet, bloom...)" class="w-full bg-[#141925] border border-slate-700/80 focus:border-cyan-400 rounded-md px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none font-mono-tech" />
+        </div>
+      </div>
+
+      <div id="paramGroupsContainer" class="flex-1 overflow-y-auto p-3 space-y-4 font-mono-tech text-xs">
+
+        <!-- 1. VOXEL STACK -->
+        <section class="param-group space-y-2.5 bg-[#111622] p-2.5 rounded-lg border border-slate-800/80" data-keywords="voxel sprite stack slice spacing pixel size explode intro">
+          <div class="flex items-center justify-between text-[11px] font-bold text-cyan-300 uppercase tracking-wider">
+            <span>3D Voxel Stack (体素切片)</span>
+            <button id="btnTriggerStackIntro" type="button" class="px-1.5 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-[10px]">
+              Replay Intro
+            </button>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlHeroScale" class="text-slate-300">Hero scale (体型比例)</label>
+              <span id="valHeroScale" class="text-slate-400">1.00</span>
+            </div>
+            <input id="ctrlHeroScale" type="range" min="0.6" max="1.6" step="0.05" value="1.00" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlSliceSpacing" class="text-slate-300">Slice spacing (切片层距)</label>
+              <span id="valSliceSpacing" class="text-slate-400">1.0</span>
+            </div>
+            <input id="ctrlSliceSpacing" type="range" min="0.8" max="3.8" step="0.1" value="1.0" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlPixelSize" class="text-slate-300">Render pixel size (像素化)</label>
+              <span id="valPixelSize" class="text-slate-400">2</span>
+            </div>
+            <input id="ctrlPixelSize" type="range" min="1" max="5" step="1" value="2" class="w-full" />
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-[11px] text-slate-300">Explode slices (3D切片拆解)</span>
+            <input id="ctrlExplodeSlices" type="checkbox" class="h-3.5 w-3.5 accent-cyan-400 rounded cursor-pointer" />
+          </div>
+        </section>
+
+        <!-- 2. CAMERA -->
+        <section class="param-group space-y-2.5 bg-[#111622] p-2.5 rounded-lg border border-slate-800/80" data-keywords="camera view top chase cockpit distance height">
+          <div class="text-[11px] font-bold text-rose-400 uppercase tracking-wider">Camera (多视角相机)</div>
+
+          <div class="space-y-1">
+            <div class="text-[11px] text-slate-300 mb-1">View (Space switches)</div>
+            <div class="grid grid-cols-3 gap-1 bg-[#0a0d14] p-1 rounded border border-slate-800">
+              <button id="btnViewTop" type="button" class="py-1 rounded text-[11px] text-slate-400 hover:text-white transition">top</button>
+              <button id="btnViewChase" type="button" class="py-1 rounded text-[11px] bg-[#e11d48] text-white font-semibold transition">chase</button>
+              <button id="btnViewCockpit" type="button" class="py-1 rounded text-[11px] text-slate-400 hover:text-white transition">1st-person</button>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlViewChange" class="text-slate-300">View transition (s)</label>
+              <span id="valViewChange" class="text-slate-400">1.2</span>
+            </div>
+            <input id="ctrlViewChange" type="range" min="0.2" max="2.8" step="0.1" value="1.2" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlChaseDist" class="text-slate-300">Chase distance</label>
+              <span id="valChaseDist" class="text-slate-400">2.6</span>
+            </div>
+            <input id="ctrlChaseDist" type="range" min="1.5" max="4.5" step="0.1" value="2.6" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlChaseHeight" class="text-slate-300">Chase elevation</label>
+              <span id="valChaseHeight" class="text-slate-400">12°</span>
+            </div>
+            <input id="ctrlChaseHeight" type="range" min="2" max="35" step="1" value="12" class="w-full" />
+          </div>
+        </section>
+
+        <!-- 3. FLIGHT -->
+        <section class="param-group space-y-2.5 bg-[#111622] p-2.5 rounded-lg border border-slate-800/80" data-keywords="flight speed boost turn rate bank angle pointer">
+          <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Flight (宇宙飞行动力学)</div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlSpeed" class="text-slate-300">Cruise speed</label>
+              <span id="valSpeed" class="text-slate-400">95</span>
+            </div>
+            <input id="ctrlSpeed" type="range" min="50" max="170" step="1" value="95" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlBoost" class="text-slate-300">Hyperspeed boost (×)</label>
+              <span id="valBoost" class="text-slate-400">1.9</span>
+            </div>
+            <input id="ctrlBoost" type="range" min="1.2" max="2.8" step="0.1" value="1.9" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlTurnRate" class="text-slate-300">Agility / Turn rate</label>
+              <span id="valTurnRate" class="text-slate-400">1.30</span>
+            </div>
+            <input id="ctrlTurnRate" type="range" min="0.6" max="2.5" step="0.05" value="1.30" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlBankAngle" class="text-slate-300">Bank angle</label>
+              <span id="valBankAngle" class="text-slate-400">52°</span>
+            </div>
+            <input id="ctrlBankAngle" type="range" min="15" max="75" step="1" value="52" class="w-full" />
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-[11px] text-slate-300">Steer with pointer</span>
+            <input id="ctrlSteerPointer" type="checkbox" checked class="h-3.5 w-3.5 accent-cyan-400 rounded cursor-pointer" />
+          </div>
+        </section>
+
+        <!-- 4. KAIJU COMBAT -->
+        <section class="param-group space-y-2.5 bg-[#111622] p-2.5 rounded-lg border border-slate-800/80" data-keywords="combat kaiju monster attack dodge slow motion">
+          <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Kaiju Combat (怪兽空战)</div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlEnemyCount" class="text-slate-300">Active Kaiju (宇宙怪兽数)</label>
+              <span id="valEnemyCount" class="text-slate-400">4</span>
+            </div>
+            <input id="ctrlEnemyCount" type="range" min="0" max="8" step="1" value="4" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlDodgeSlowMo" class="text-slate-300">Dodge slow-mo (s)</label>
+              <span id="valDodgeSlowMo" class="text-slate-400">1.3</span>
+            </div>
+            <input id="ctrlDodgeSlowMo" type="range" min="0" max="2.5" step="0.1" value="1.3" class="w-full" />
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-[11px] text-slate-300">Kaiju fireballs (怪兽锁敌)</span>
+            <input id="ctrlEnemiesAttack" type="checkbox" checked class="h-3.5 w-3.5 accent-cyan-400 rounded cursor-pointer" />
+          </div>
+        </section>
+
+        <!-- 5. COSMOS & PLANETS -->
+        <section class="param-group space-y-2.5 bg-[#111622] p-2.5 rounded-lg border border-slate-800/80" data-keywords="cosmos universe planets asteroids nebula seed">
+          <div class="text-[11px] font-bold text-sky-400 uppercase tracking-wider">Cosmos & Planets (宇宙与星球)</div>
+
+          <div class="space-y-1">
+            <div class="text-[11px] text-slate-300 mb-1">Nebula palette (星云光谱)</div>
+            <div class="grid grid-cols-3 gap-1 bg-[#0a0d14] p-1 rounded border border-slate-800">
+              <button id="btnTimeNebula" type="button" class="py-1 rounded text-[11px] bg-[#e11d48] text-white font-semibold transition">nebula</button>
+              <button id="btnTimeSolar" type="button" class="py-1 rounded text-[11px] text-slate-400 hover:text-white transition">solar</button>
+              <button id="btnTimeVoid" type="button" class="py-1 rounded text-[11px] text-slate-400 hover:text-white transition">deep void</button>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlPlanets" class="text-slate-300">Planets count (星球数量)</label>
+              <span id="valPlanets" class="text-slate-400">12</span>
+            </div>
+            <input id="ctrlPlanets" type="range" min="4" max="22" step="1" value="12" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlAsteroids" class="text-slate-300">Asteroids density (小行星带)</label>
+              <span id="valAsteroids" class="text-slate-400">0.55</span>
+            </div>
+            <input id="ctrlAsteroids" type="range" min="0.0" max="1.0" step="0.05" value="0.55" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlWorldSeed" class="text-slate-300">Universe seed (星系种子)</label>
+              <span id="valWorldSeed" class="text-slate-400">7</span>
+            </div>
+            <input id="ctrlWorldSeed" type="range" min="1" max="50" step="1" value="7" class="w-full" />
+          </div>
+        </section>
+
+        <!-- 6. SHADER & POST-FX (BLOOM, SUBPIXEL AA, DITHERING, DIFFRACTION) -->
+        <section class="param-group space-y-2.5 bg-[#111622] p-2.5 rounded-lg border border-slate-800/80" data-keywords="shader bloom glow vignette film grain trails post dither diffraction subpixel">
+          <div class="text-[11px] font-bold text-purple-400 uppercase tracking-wider flex items-center justify-between">
+            <span>Post-FX & Anti-Aliasing (高光与平滑)</span>
+            <span class="text-[10px] text-cyan-400 font-mono-tech font-normal">Retro-Cinematic</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-slate-300" title="在像素边界应用亚像素连续平滑过渡，彻底消除旋转平移时的阶梯跳动与割裂感">Subpixel AA (亚像素平滑消除割裂)</span>
+            <input id="ctrlSubpixel" type="checkbox" checked class="h-3.5 w-3.5 accent-cyan-400 rounded cursor-pointer" />
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-slate-300">Light ribbons (光之飞行尾迹)</span>
+            <input id="ctrlWingTrails" type="checkbox" checked class="h-3.5 w-3.5 accent-cyan-400 rounded cursor-pointer" />
+          </div>
+
+          <div class="space-y-1 pt-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlGlow" class="text-slate-300" title="软拐点与 Karis 抗闪烁阈值辉光 (当前降至轻量30%强度)">Selective Bloom (防闪烁阈值辉光)</label>
+              <span id="valGlow" class="text-slate-400">0.30</span>
+            </div>
+            <input id="ctrlGlow" type="range" min="0.0" max="1.8" step="0.05" value="0.30" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlDiffraction" class="text-slate-300" title="模拟特摄镜头与高能光斑的光学衍射十字星芒 (当前降至轻量30%强度)">Diffraction spikes (光学衍射十字星芒)</label>
+              <span id="valDiffraction" class="text-slate-400">0.15</span>
+            </div>
+            <input id="ctrlDiffraction" type="range" min="0.0" max="1.0" step="0.05" value="0.15" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlDither" class="text-slate-300" title="4x4 Bayer 空间有序抖动矩阵，消除星空深色与暗角阶梯色带 (当前降至轻量30%强度)">Bayer Dithering (空间有序抖动)</label>
+              <span id="valDither" class="text-slate-400">0.10</span>
+            </div>
+            <input id="ctrlDither" type="range" min="0.0" max="1.0" step="0.05" value="0.10" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlVignette" class="text-slate-300">Darkened corners (暗角)</label>
+              <span id="valVignette" class="text-slate-400">0.35</span>
+            </div>
+            <input id="ctrlVignette" type="range" min="0.0" max="0.85" step="0.05" value="0.35" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <label for="ctrlFilmGrain" class="text-slate-300">Film grain (胶片颗粒)</label>
+              <span id="valFilmGrain" class="text-slate-400">0.04</span>
+            </div>
+            <input id="ctrlFilmGrain" type="range" min="0.0" max="0.50" step="0.02" value="0.04" class="w-full" />
+          </div>
+        </section>
+
+        <!-- 7. ULTRAMAN COLOURS -->
+        <section class="param-group space-y-2.5 bg-[#111622] p-2.5 rounded-lg border border-slate-800/80" data-keywords="ultraman colors body silver red timer paint">
+          <div class="text-[11px] font-bold text-rose-300 uppercase tracking-wider">Hero Colours (奥特曼涂装)</div>
+
+          <div class="flex items-center justify-between">
+            <label for="ctrlColorBody" class="text-[11px] text-slate-300">Silver skin (银色身躯)</label>
+            <div class="flex items-center gap-2">
+              <span id="valColorBody" class="text-[10px] text-slate-400">#D8DEE9</span>
+              <input id="ctrlColorBody" type="color" value="#d8dee9" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <label for="ctrlColorAccent" class="text-[11px] text-slate-300">Red markings (经典红纹)</label>
+            <div class="flex items-center gap-2">
+              <span id="valColorAccent" class="text-[10px] text-slate-400">#E11D48</span>
+              <input id="ctrlColorAccent" type="color" value="#e11d48" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <label for="ctrlColorTimer" class="text-[11px] text-slate-300">Color Timer (计时器光核)</label>
+            <div class="flex items-center gap-2">
+              <span id="valColorTimer" class="text-[10px] text-slate-400">#22D3EE</span>
+              <input id="ctrlColorTimer" type="color" value="#22d3ee" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </aside>
+
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ==========================================
+      // 1. DEFAULT PARAMETERS
+      // ==========================================
+      const DEFAULT_PARAMS = {
+        heroScale: 1.0,
+        sliceSpacing: 1.0,
+        pixelSize: 2,
+        explodeSlices: false,
+        view: 'chase',
+        viewChange: 1.2,
+        chaseDist: 2.6,
+        chaseHeight: 12,
+        speed: 95,
+        boostMultiplier: 1.9,
+        turnRate: 1.30,
+        bankAngle: 52,
+        steerWithPointer: true,
+        enemyCount: 4,
+        dodgeSlowMo: 1.3,
+        enemiesAttack: true,
+        nebulaMode: 'nebula', // 'nebula' | 'solar' | 'void'
+        planetCount: 12,
+        asteroidsDensity: 0.55,
+        worldSeed: 7,
+        wingtipTrails: true,
+        glow: 0.30,
+        diffraction: 0.15,
+        ditherStrength: 0.10,
+        subpixelSmooth: true,
+        vignette: 0.35,
+        filmGrain: 0.04,
+        colorBody: '#d8dee9',
+        colorAccent: '#e11d48',
+        colorTimer: '#22d3ee'
+      };
+      const params = Object.assign({}, DEFAULT_PARAMS);
+
+      // ==========================================
+      // 2. SYNTHESIZED WEB AUDIO (COSMOS + TIMER)
+      // ==========================================
+      const soundEngine = {
+        ctx: null,
+        muted: false,
+        droneOsc: null,
+        droneGain: null,
+        lastBeep: 0,
+        init() {
+          if (this.ctx) return;
+          try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            this.ctx = new AudioCtx();
+            this.droneOsc = this.ctx.createOscillator();
+            this.droneOsc.type = 'sine';
+            this.droneOsc.frequency.value = 90;
+            this.droneGain = this.ctx.createGain();
+            this.droneGain.gain.value = 0.025;
+            this.droneOsc.connect(this.droneGain);
+            this.droneGain.connect(this.ctx.destination);
+            this.droneOsc.start();
+          } catch (e) {}
+        },
+        update(speedRatio, boosting, criticalTimer, paused) {
+          if (!this.ctx || !this.droneGain) return;
+          const now = this.ctx.currentTime;
+          if (this.muted || paused) {
+            this.droneGain.gain.setTargetAtTime(0, now, 0.08);
+            return;
+          }
+          this.droneOsc.frequency.setTargetAtTime(85 + speedRatio * 70 + (boosting ? 65 : 0), now, 0.1);
+          this.droneGain.gain.setTargetAtTime(boosting ? 0.05 : 0.02, now, 0.1);
+
+          // Classic Color Timer warning beep when hull <= 2
+          if (criticalTimer && performance.now() - this.lastBeep > 650) {
+            this.lastBeep = performance.now();
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1080, now);
+            g.gain.setValueAtTime(0.05, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+            osc.connect(g);
+            g.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          }
+        },
+        playSlash() {
+          if (!this.ctx || this.muted) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(1250, now);
+          osc.frequency.exponentialRampToValueAtTime(340, now + 0.09);
+          g.gain.setValueAtTime(0.06, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.095);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        },
+        playSpacium() {
+          if (!this.ctx || this.muted) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.linearRampToValueAtTime(880, now + 0.22);
+          osc.frequency.exponentialRampToValueAtTime(210, now + 0.55);
+          g.gain.setValueAtTime(0.08, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.56);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.57);
+        },
+        playExplosion() {
+          if (!this.ctx || this.muted) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(26, now + 0.5);
+          g.gain.setValueAtTime(0.14, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.52);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.53);
+        },
+        playDodgeChime() {
+          if (!this.ctx || this.muted) return;
+          const now = this.ctx.currentTime;
+          [587.33, 880, 1174.66].forEach((f, idx) => {
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.05);
+            g.gain.setValueAtTime(0.08, now + idx * 0.05);
+            g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.28);
+            osc.connect(g);
+            g.connect(this.ctx.destination);
+            osc.start(now + idx * 0.05);
+            osc.stop(now + idx * 0.05 + 0.3);
+          });
+        },
+        playHit() {
+          if (!this.ctx || this.muted) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(820, now);
+          osc.frequency.exponentialRampToValueAtTime(180, now + 0.08);
+          g.gain.setValueAtTime(0.12, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        },
+        playBeamCharge() {
+          if (!this.ctx || this.muted) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(960, now + 0.18);
+          g.gain.setValueAtTime(0.01, now);
+          g.gain.linearRampToValueAtTime(0.09, now + 0.16);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.21);
+        },
+        playBossAlert() {
+          if (!this.ctx || this.muted) return;
+          const now = this.ctx.currentTime;
+          [740, 520, 740, 520].forEach((f, idx) => {
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(f, now + idx * 0.16);
+            g.gain.setValueAtTime(0.06, now + idx * 0.16);
+            g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.16 + 0.14);
+            osc.connect(g);
+            g.connect(this.ctx.destination);
+            osc.start(now + idx * 0.16);
+            osc.stop(now + idx * 0.16 + 0.15);
+          });
+        },
+        playBossRoar() {
+          if (!this.ctx || this.muted) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(160, now);
+          osc.frequency.linearRampToValueAtTime(55, now + 0.85);
+          g.gain.setValueAtTime(0.18, now);
+          g.gain.linearRampToValueAtTime(0.24, now + 0.2);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.96);
+        }
+      };
+
+      // ==========================================
+      // 3. THREE.JS SCENE & POST-FX SHADER PIPELINE
+      // ==========================================
+      const glCanvas = document.getElementById('glCanvas');
+      const hudCanvas = document.getElementById('hudCanvas');
+      const hctx = hudCanvas.getContext('2d');
+
+      const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: false, powerPreference: 'high-performance' });
+      renderer.setPixelRatio(1);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, 1, 0.5, 4200);
+
+      // Lighting for crisp 3D voxel normals & metallic glints
+      const ambientLight = new THREE.AmbientLight(0x475569, 1.35);
+      scene.add(ambientLight);
+      const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.75);
+      sunLight.position.set(180, 260, -220);
+      scene.add(sunLight);
+      const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.75);
+      rimLight.position.set(-160, -120, 140);
+      scene.add(rimLight);
+
+      // Offscreen RenderTargets for Selective Bloom + Pixelation + Dithering + AA
+      let rtScene = new THREE.WebGLRenderTarget(320, 180, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+      let rtBloomA = new THREE.WebGLRenderTarget(160, 90, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+      let rtBloomB = new THREE.WebGLRenderTarget(160, 90, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+
+      const postScene = new THREE.Scene();
+      const postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      const quadGeo = new THREE.PlaneGeometry(2, 2);
+
+      // Pass 1: Extract bright emissive pixels (eyes, color timer, beams, magma, stars)
+      // + Karis Average Anti-Firefly Weighting + Soft Quadratic Knee (No Specular Pop)
+      const blurMat = new THREE.ShaderMaterial({
+        uniforms: {
+          tDiffuse: { value: null },
+          uResolution: { value: new THREE.Vector2(160, 90) },
+          uDirection: { value: new THREE.Vector2(1, 0) },
+          uThresholdOnly: { value: 1.0 }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() { vUv = uv; gl_Position = vec4(position, 1.0); }
+        `,
+        fragmentShader: `
+          uniform sampler2D tDiffuse;
+          uniform vec2 uResolution;
+          uniform vec2 uDirection;
+          uniform float uThresholdOnly;
+          varying vec2 vUv;
+
+          vec3 sampleBright(vec2 uv) {
+            vec3 c = texture2D(tDiffuse, uv).rgb;
+            if (uThresholdOnly > 0.5) {
+              float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
+              // Anti-firefly Karis weighting: stabilizes specular highlights from flashing
+              float karis = 1.0 / (1.0 + luma * 0.42);
+              // Quadratic soft knee threshold curve (smooth C1 transition eliminates hard pop)
+              float threshold = 0.56;
+              float knee = 0.28;
+              float soft = clamp(luma - threshold + knee, 0.0, 2.0 * knee);
+              soft = (soft * soft) / (4.0 * knee + 1e-4);
+              float contrib = max(soft, luma - threshold) / max(luma, 1e-4);
+              return c * max(0.0, contrib) * karis;
+            }
+            return c;
+          }
+
+          void main() {
+            vec2 off1 = vec2(1.41176) * uDirection / uResolution;
+            vec2 off2 = vec2(3.29411) * uDirection / uResolution;
+            vec3 col = sampleBright(vUv) * 0.227027;
+            col += sampleBright(vUv + off1) * 0.316216;
+            col += sampleBright(vUv - off1) * 0.316216;
+            col += sampleBright(vUv + off2) * 0.070270;
+            col += sampleBright(vUv - off2) * 0.070270;
+            gl_FragColor = vec4(col, 1.0);
+          }
+        `
+      });
+
+      // Pass 2: Final Composite
+      // Features: Subpixel AA Smooth Upscale + Optical Cross Diffraction + Bayer Ordered Dithering + Vignette
+      const compositeMat = new THREE.ShaderMaterial({
+        uniforms: {
+          tScene: { value: null },
+          tBloom: { value: null },
+          uBloomStrength: { value: params.glow },
+          uDiffraction: { value: params.diffraction },
+          uDitherStrength: { value: params.ditherStrength },
+          uSubpixelSmooth: { value: 1.0 },
+          uVignette: { value: params.vignette },
+          uGrain: { value: params.filmGrain },
+          uResolution: { value: new THREE.Vector2(800, 600) },
+          uRtResolution: { value: new THREE.Vector2(400, 300) },
+          uTime: { value: 0.0 }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() { vUv = uv; gl_Position = vec4(position, 1.0); }
+        `,
+        fragmentShader: `
+          uniform sampler2D tScene;
+          uniform sampler2D tBloom;
+          uniform float uBloomStrength;
+          uniform float uDiffraction;
+          uniform float uDitherStrength;
+          uniform float uSubpixelSmooth;
+          uniform float uVignette;
+          uniform float uGrain;
+          uniform vec2 uResolution;
+          uniform vec2 uRtResolution;
+          uniform float uTime;
+          varying vec2 vUv;
+
+          // 1. Subpixel Anti-Aliased Pixel Upscaling Filter
+          // Keeps pixel centers 100% crisp, while anti-aliasing edges over a razor-thin subpixel band.
+          // Banishes subpixel jumping and crawling artifacts during camera rotation/motion!
+          vec2 smoothPixelUV(vec2 uv, vec2 screenRes, vec2 rtRes, float enableSmooth) {
+            if (enableSmooth < 0.5) {
+              return (floor(uv * rtRes) + 0.5) / rtRes;
+            }
+            vec2 p = uv * rtRes;
+            vec2 i = floor(p);
+            vec2 f = fract(p);
+            vec2 fw = max(rtRes / screenRes, vec2(1e-4));
+            // Razor-sharp transition width: only ~0.35 display pixel transition, 95%+ area is 100% crisp
+            f = clamp((f - 0.5) / (fw * 0.35) + 0.5, 0.0, 1.0);
+            return (i + f) / rtRes;
+          }
+
+          // 2. Optical Diffraction Stars & Cross-Spikes
+          // Recreates Tokusatsu camera lens diffraction without adding hazy blur
+          vec3 sampleDiffraction(sampler2D tex, vec2 uv, vec2 screenRes, float amount) {
+            vec3 core = texture2D(tex, uv).rgb;
+            if (amount <= 0.005) return core;
+
+            vec2 dX = vec2(2.0 / screenRes.x, 0.0) * amount;
+            vec2 dY = vec2(0.0, 2.0 / screenRes.y) * amount;
+
+            vec3 streakX = (
+              texture2D(tex, uv + dX).rgb +
+              texture2D(tex, uv - dX).rgb
+            ) * 0.5;
+
+            vec3 streakY = (
+              texture2D(tex, uv + dY).rgb +
+              texture2D(tex, uv - dY).rgb
+            ) * 0.5;
+
+            // Subtle spectral dispersion in bloom fringe
+            vec2 disp = (uv - 0.5) * (0.0015 * amount);
+            float r = texture2D(tex, uv + disp).r;
+            float b_ch = texture2D(tex, uv - disp).b;
+            vec3 chrom = vec3(r, core.g, b_ch);
+
+            vec3 glint = mix((streakX + streakY) * 0.5, chrom, 0.35);
+            return mix(core, glint, clamp(amount * 0.75, 0.0, 0.45));
+          }
+
+          // 3. 4x4 Bayer Matrix Spatial Ordered Dithering
+          // Smooths color steps in sky nebulae and vignette without blurring geometry
+          float bayer4(vec2 p) {
+            vec2 c = mod(floor(p), 4.0);
+            int x = int(c.x);
+            int y = int(c.y);
+            float v = 0.0;
+            if (y == 0) {
+              if (x == 0) v = 0.0; else if (x == 1) v = 8.0; else if (x == 2) v = 2.0; else v = 10.0;
+            } else if (y == 1) {
+              if (x == 0) v = 12.0; else if (x == 1) v = 4.0; else if (x == 2) v = 14.0; else v = 6.0;
+            } else if (y == 2) {
+              if (x == 0) v = 3.0; else if (x == 1) v = 11.0; else if (x == 2) v = 1.0; else v = 9.0;
+            } else {
+              if (x == 0) v = 15.0; else if (x == 1) v = 7.0; else if (x == 2) v = 13.0; else v = 5.0;
+            }
+            return (v / 16.0) - 0.5;
+          }
+
+          float rand(vec2 co) {
+            return fract(sin(dot(co, vec2(12.9898, 78.233)) + uTime * 7.1) * 43758.5453);
+          }
+
+          void main() {
+            vec2 uvScene = smoothPixelUV(vUv, uResolution, uRtResolution, uSubpixelSmooth);
+            vec3 base = texture2D(tScene, uvScene).rgb;
+
+            // Sample optical diffraction bloom
+            vec3 bloom = sampleDiffraction(tBloom, vUv, uResolution, uDiffraction);
+            vec3 col = base + bloom * uBloomStrength;
+
+            // Smooth vignette
+            float dist = distance(vUv, vec2(0.5));
+            col *= 1.0 - smoothstep(0.35, 0.85, dist) * uVignette;
+
+            // Spatial Bayer Ordered Dithering
+            col += bayer4(gl_FragCoord.xy) * (uDitherStrength * 0.035);
+
+            // Subtle film grain
+            col += (rand(vUv) - 0.5) * uGrain * 0.08;
+
+            gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+          }
+        `
+      });
+
+      const postQuad = new THREE.Mesh(quadGeo, compositeMat);
+      postScene.add(postQuad);
+
+      // ==========================================
+      // 4. PROCEDURAL COSMOS SKYBOX & GLSL PLANETS
+      // ==========================================
+      const skyUniforms = {
+        uTime: { value: 0 },
+        uColorA: { value: new THREE.Color('#060918') },
+        uColorB: { value: new THREE.Color('#1e1b4b') },
+        uNebulaAccent: { value: new THREE.Color('#0284c7') },
+        uSeed: { value: 7.0 }
+      };
+
+      const skyGeo = new THREE.SphereGeometry(2600, 32, 24);
+      const skyMat = new THREE.ShaderMaterial({
+        side: THREE.BackSide,
+        depthWrite: false,
+        uniforms: skyUniforms,
+        vertexShader: `
+          varying vec3 vDir;
+          void main() {
+            vDir = normalize(position);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float uTime;
+          uniform vec3 uColorA;
+          uniform vec3 uColorB;
+          uniform vec3 uNebulaAccent;
+          uniform float uSeed;
+          varying vec3 vDir;
+
+          float hash3(vec3 p) {
+            p = fract(p * 0.3183099 + 0.1);
+            p *= 17.0;
+            return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+          }
+          float noise3(vec3 x) {
+            vec3 i = floor(x);
+            vec3 f = fract(x);
+            f = f * f * (3.0 - 2.0 * f);
+            return mix(
+              mix(mix(hash3(i + vec3(0,0,0)), hash3(i + vec3(1,0,0)), f.x),
+                  mix(hash3(i + vec3(0,1,0)), hash3(i + vec3(1,1,0)), f.x), f.y),
+              mix(mix(hash3(i + vec3(0,0,1)), hash3(i + vec3(1,0,1)), f.x),
+                  mix(hash3(i + vec3(0,1,1)), hash3(i + vec3(1,1,1)), f.x), f.y), f.z);
+          }
+          float fbm(vec3 p) {
+            float v = 0.0;
+            float a = 0.5;
+            for (int i = 0; i < 4; i++) {
+              v += a * noise3(p);
+              p *= 2.04;
+              a *= 0.5;
+            }
+            return v;
+          }
+
+          // Anti-Aliased Analytical Continuous Starfield
+          // Solves camera rotation shimmering by using a continuous Gaussian radial falloff
+          vec3 getStars(vec3 d, float time) {
+            vec3 p = d * 110.0;
+            vec3 ip = floor(p);
+            vec3 fp = fract(p);
+            vec3 stepDir = step(0.5, fp) * 2.0 - 1.0;
+            vec3 stars = vec3(0.0);
+
+            for (int x = 0; x <= 1; x++) {
+              for (int y = 0; y <= 1; y++) {
+                for (int z = 0; z <= 1; z++) {
+                  vec3 cOff = vec3(float(x), float(y), float(z)) * stepDir;
+                  vec3 cell = ip + cOff;
+                  float h = hash3(cell);
+                  if (h > 0.962) {
+                    vec3 starCenter = cOff + vec3(fract(h * 17.31), fract(h * 43.19), fract(h * 89.13));
+                    vec3 diff = starCenter - fp;
+                    float d2 = dot(diff, diff);
+                    float g = exp(-d2 * 36.0);
+                    if (g > 0.005) {
+                      float twinkle = 0.78 + 0.22 * sin(time * 2.6 + h * 628.0);
+                      vec3 sCol = mix(vec3(0.85, 0.95, 1.0), vec3(1.0, 0.88, 0.6), fract(h * 5.0));
+                      stars += sCol * (g * twinkle * (0.8 + 1.4 * fract(h * 57.0)));
+                    }
+                  }
+                }
+              }
+            }
+            return stars;
+          }
+
+          void main() {
+            vec3 d = normalize(vDir);
+            float n1 = fbm(d * 2.4 + vec3(uSeed * 0.37));
+            float n2 = fbm(d * 5.2 - vec3(uSeed * 0.19));
+            float band = smoothstep(0.32, 0.85, n1 * 0.7 + n2 * 0.3);
+            vec3 col = mix(uColorA, uColorB, band);
+            col += uNebulaAccent * pow(band, 2.4) * 0.55;
+
+            // Add smooth continuous starfield
+            col += getStars(d, uTime);
+
+            gl_FragColor = vec4(col, 1.0);
+          }
+        `
+      });
+      const skyDome = new THREE.Mesh(skyGeo, skyMat);
+      scene.add(skyDome);
+
+      // Procedural Planet Shader Material Generator (Terran, Gas Giant, Volcanic, Ice)
+      function createPlanetShaderMaterial(type, seedVal) {
+        const palettes = {
+          terran: { c1: '#0369a1', c2: '#22c55e', c3: '#f8fafc', rim: '#38bdf8', emissive: 0.0 },
+          gas:    { c1: '#9a3412', c2: '#fbbf24', c3: '#fed7aa', rim: '#f97316', emissive: 0.08 },
+          lava:   { c1: '#1e1b18', c2: '#7f1d1d', c3: '#fb923c', rim: '#f97316', emissive: 1.0 },
+          ice:    { c1: '#0c4a6e', c2: '#7dd3fc', c3: '#f0f9ff', rim: '#a5f3fc', emissive: 0.15 }
+        };
+        const pal = palettes[type] || palettes.terran;
+
+        return new THREE.ShaderMaterial({
+          uniforms: {
+            uTime: { value: 0 },
+            uSeed: { value: seedVal },
+            uMode: { value: type === 'gas' ? 1.0 : (type === 'lava' ? 2.0 : 0.0) },
+            uEmissive: { value: pal.emissive },
+            uCol1: { value: new THREE.Color(pal.c1) },
+            uCol2: { value: new THREE.Color(pal.c2) },
+            uCol3: { value: new THREE.Color(pal.c3) },
+            uRim:  { value: new THREE.Color(pal.rim) },
+            uSunDir: { value: new THREE.Vector3(0.55, 0.7, -0.45).normalize() }
+          },
+          vertexShader: `
+            varying vec3 vNormalWorld;
+            varying vec3 vPosLocal;
+            varying vec3 vViewDir;
+            void main() {
+              vPosLocal = normalize(position);
+              vec4 worldPos = modelMatrix * vec4(position, 1.0);
+              vNormalWorld = normalize(mat3(modelMatrix) * normal);
+              vViewDir = normalize(cameraPosition - worldPos.xyz);
+              gl_Position = projectionMatrix * viewMatrix * worldPos;
+            }
+          `,
+          fragmentShader: `
+            uniform float uTime;
+            uniform float uSeed;
+            uniform float uMode;
+            uniform float uEmissive;
+            uniform vec3 uCol1;
+            uniform vec3 uCol2;
+            uniform vec3 uCol3;
+            uniform vec3 uRim;
+            uniform vec3 uSunDir;
+            varying vec3 vNormalWorld;
+            varying vec3 vPosLocal;
+            varying vec3 vViewDir;
+
+            float hash(vec3 p) {
+              p = fract(p * 0.3183099 + 0.1);
+              p *= 17.0;
+              return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+            }
+            float noise(vec3 x) {
+              vec3 i = floor(x);
+              vec3 f = fract(x);
+              f = f * f * (3.0 - 2.0 * f);
+              return mix(
+                mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
+                    mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                    mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+            }
+            float fbm(vec3 p) {
+              float v = 0.0; float a = 0.5;
+              for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.1; a *= 0.5; }
+              return v;
+            }
+
+            void main() {
+              vec3 p = vPosLocal;
+              float n = 0.0;
+              if (uMode > 0.5 && uMode < 1.5) {
+                // Gas giant banded turbulence
+                float warp = fbm(p * 3.5 + vec3(uSeed));
+                n = sin((p.y * 12.0 + warp * 4.5)) * 0.5 + 0.5;
+              } else if (uMode >= 1.5) {
+                // Volcanic magma fissures
+                float base = fbm(p * 4.0 + vec3(uSeed));
+                n = 1.0 - abs(base * 2.0 - 1.0);
+                n = pow(n, 3.2);
+              } else {
+                // Terran / Ice continents
+                n = fbm(p * 3.2 + vec3(uSeed * 1.3));
+              }
+
+              vec3 surf = mix(uCol1, uCol2, smoothstep(0.32, 0.62, n));
+              surf = mix(surf, uCol3, smoothstep(0.68, 0.92, n));
+
+              float diff = max(dot(vNormalWorld, uSunDir), 0.12);
+              float fresnel = pow(1.0 - max(dot(vNormalWorld, vViewDir), 0.0), 3.0);
+
+              vec3 finalCol = surf * diff;
+              if (uEmissive > 0.5) {
+                // Glowing magma cracks bypass shadow & trigger Selective Bloom
+                finalCol += uCol3 * smoothstep(0.65, 0.95, n) * 1.45;
+              }
+              finalCol += uRim * fresnel * 0.85;
+              gl_FragColor = vec4(finalCol, 1.0);
+            }
+          `
+        });
+      }
+
+      const cosmosGroup = new THREE.Group();
+      scene.add(cosmosGroup);
+      const planets = [];
+      const asteroids = [];
+
+      function seededRandom(seedObj) {
+        seedObj.val = (seedObj.val * 1664525 + 1013904223) % 4294967296;
+        return seedObj.val / 4294967296;
+      }
+
+      function rebuildCosmosWorld() {
+        while (cosmosGroup.children.length > 0) {
+          const obj = cosmosGroup.children.pop();
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) obj.material.dispose();
+        }
+        planets.length = 0;
+        asteroids.length = 0;
+
+        const rng = { val: params.worldSeed * 98765 + 1337 };
+        const types = ['terran', 'gas', 'lava', 'ice'];
+
+        // Build diverse Planets of varying sizes, morphologies, & rings
+        for (let i = 0; i < params.planetCount; i++) {
+          const pType = types[i % types.length];
+          const radius = pType === 'gas' ? (75 + seededRandom(rng) * 70) : (28 + seededRandom(rng) * 48);
+          const geo = new THREE.IcosahedronGeometry(radius, pType === 'gas' ? 4 : 3);
+          const mat = createPlanetShaderMaterial(pType, seededRandom(rng) * 40);
+          const mesh = new THREE.Mesh(geo, mat);
+
+          const ang = (i / params.planetCount) * Math.PI * 2 + seededRandom(rng) * 0.5;
+          const dist = 280 + seededRandom(rng) * 1150;
+          const yOff = (seededRandom(rng) - 0.5) * 340;
+          mesh.position.set(Math.cos(ang) * dist, yOff, Math.sin(ang) * dist);
+          cosmosGroup.add(mesh);
+
+          // Add Planetary Rings to Gas Giants or select worlds
+          if (pType === 'gas' || seededRandom(rng) > 0.72) {
+            const ringGeo = new THREE.RingGeometry(radius * 1.32, radius * 2.15, 48);
+            const ringMat = new THREE.MeshBasicMaterial({
+              color: pType === 'gas' ? 0xfed7aa : 0x7dd3fc,
+              side: THREE.DoubleSide,
+              transparent: true,
+              opacity: 0.42
+            });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.rotation.x = Math.PI * 0.42;
+            ringMesh.rotation.y = (seededRandom(rng) - 0.5) * 0.8;
+            mesh.add(ringMesh);
+          }
+
+          planets.push({
+            mesh,
+            mat,
+            radius,
+            rotSpeed: (seededRandom(rng) - 0.5) * 0.18
+          });
+        }
+
+        // Build Asteroid Field using InstancedMesh for crisp 60fps performance
+        const astCount = Math.round(params.asteroidsDensity * 260);
+        if (astCount > 0) {
+          const astGeo = new THREE.DodecahedronGeometry(1, 0);
+          const astMat = new THREE.MeshStandardMaterial({
+            color: 0x64748b,
+            roughness: 0.85,
+            metalness: 0.15,
+            flatShading: true
+          });
+          const astInst = new THREE.InstancedMesh(astGeo, astMat, astCount);
+          const dummy = new THREE.Object3D();
+
+          for (let i = 0; i < astCount; i++) {
+            const ang = seededRandom(rng) * Math.PI * 2;
+            const dist = 120 + seededRandom(rng) * 1200;
+            const x = Math.cos(ang) * dist;
+            const z = Math.sin(ang) * dist;
+            const y = (seededRandom(rng) - 0.5) * 260;
+            const sx = 3 + seededRandom(rng) * 11;
+            const sy = sx * (0.6 + seededRandom(rng) * 0.7);
+            const sz = sx * (0.6 + seededRandom(rng) * 0.7);
+
+            dummy.position.set(x, y, z);
+            dummy.scale.set(sx, sy, sz);
+            dummy.rotation.set(seededRandom(rng) * 6, seededRandom(rng) * 6, seededRandom(rng) * 6);
+            dummy.updateMatrix();
+            astInst.setMatrixAt(i, dummy.matrix);
+          }
+          astInst.instanceMatrix.needsUpdate = true;
+          cosmosGroup.add(astInst);
+        }
+      }
+
+      // ==========================================
+      // 5. 3D VOXEL STACK BUILDERS (ULTRAMAN & KAIJU)
+      // ==========================================
+      // Builds a layered 3D Voxel Stack Group (14 horizontal slices along local Y)
+      // So rotating in 3D is 100% solid AND `sliceSpacing` / `explodeSlices` separates the 14 slices!
+      const VOXEL_SIZE = 1.05;
+      const voxelBoxGeo = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+
+      function buildUltramanVoxelGroup() {
+        const root = new THREE.Group();
+        const slices = [];
+        const NUM_SLICES = 14;
+
+        // Materials
+        const matSilver = new THREE.MeshStandardMaterial({ color: params.colorBody, metalness: 0.45, roughness: 0.3 });
+        const matRed = new THREE.MeshStandardMaterial({ color: params.colorAccent, metalness: 0.25, roughness: 0.35 });
+        const matEye = new THREE.MeshBasicMaterial({ color: 0xfffbeb }); // Bright emissive -> Selective Bloom!
+        const matTimer = new THREE.MeshBasicMaterial({ color: params.colorTimer });
+
+        // Ultraman flying pose along -Z (head at z = -15, boots at z = +16)
+        // Grid: x in [-9..9], z in [-16..16], y (slice) in [0..13]
+        for (let s = 0; s < NUM_SLICES; s++) {
+          const sliceGroup = new THREE.Group();
+          sliceGroup.userData.baseY = (s - 6.5) * VOXEL_SIZE;
+          sliceGroup.position.y = sliceGroup.userData.baseY;
+
+          for (let z = -16; z <= 16; z++) {
+            for (let x = -9; x <= 9; x++) {
+              const ax = Math.abs(x);
+              let mat = null;
+
+              // 1. Head & Helmet Crest (z: -13..-8, s: 4..12)
+              if (z >= -13 && z <= -8 && s >= 4 && s <= 11) {
+                const headR = 2.6 - Math.abs(z + 10.5) * 0.45 - Math.abs(s - 7.5) * 0.35;
+                if (ax <= headR) {
+                  mat = matSilver;
+                  // Glowing Almond Eyes
+                  if (z <= -11 && s >= 7 && s <= 8 && ax >= 1 && ax <= 2) {
+                    mat = matEye;
+                  }
+                }
+              }
+              // Iconic Silver Head Crest (Fin)
+              if (z >= -12 && z <= -7 && s >= 10 && s <= 13 && ax === 0) {
+                mat = matSilver;
+              }
+
+              // 2. Torso & Classic Red/Silver Markings (z: -7..4, s: 3..10)
+              if (!mat && z >= -7 && z <= 4 && s >= 3 && s <= 10) {
+                const torsoW = z < -1 ? 3.5 : 2.6;
+                const torsoH = Math.abs(s - 6.5);
+                if (ax <= torsoW && torsoH <= 3.2) {
+                  // Red chest & shoulder patterns
+                  const isRedPattern = (z <= -3 && ax >= 1) || (z >= 0 && z <= 2 && ax >= 2) || (s >= 9 && ax <= 2);
+                  mat = isRedPattern ? matRed : matSilver;
+
+                  // Glowing Color Timer on chest center (bottom/front side s=3..4, z=-5..-4)
+                  if (s <= 4 && z >= -5 && z <= -4 && ax <= 1) {
+                    mat = matTimer;
+                  }
+                }
+              }
+
+              // 3. Forward-Outstretched Flying Arms & Red Gloves (z: -16..-5, s: 5..8)
+              if (!mat && z >= -16 && z <= -5 && s >= 5 && s <= 8) {
+                // Left/Right arms stretching straight ahead!
+                if ((x >= 3 && x <= 4) || (x <= -3 && x >= -4)) {
+                  if (s >= 6 && s <= 7) {
+                    mat = z <= -13 ? matRed : matSilver; // Red gloves at front fists
+                  }
+                }
+              }
+
+              // 4. Legs & Red Boots extending backward (z: 5..15, s: 4..8)
+              if (!mat && z >= 5 && z <= 15 && s >= 4 && s <= 8) {
+                if (ax >= 1 && ax <= 2 && s >= 5 && s <= 7) {
+                  mat = z >= 11 ? matRed : matSilver;
+                }
+              }
+
+              if (mat) {
+                const cube = new THREE.Mesh(voxelBoxGeo, mat);
+                cube.position.set(x * VOXEL_SIZE, 0, z * VOXEL_SIZE);
+                sliceGroup.add(cube);
+              }
+            }
+          }
+          slices.push(sliceGroup);
+          root.add(sliceGroup);
+        }
+
+        root.userData.slices = slices;
+        root.userData.matSilver = matSilver;
+        root.userData.matRed = matRed;
+        root.userData.matTimer = matTimer;
+        return root;
+      }
+
+      // Build 3 distinct Space Kaiju Voxel Blueprints
+      function buildKaijuVoxelGroup(variant) {
+        const root = new THREE.Group();
+        const slices = [];
+        const NUM_SLICES = 14;
+
+        const palettes = [
+          { shell: 0x312e81, belly: 0x6366f1, horn: 0xe11d48, glow: 0xfacc15 }, // Baltan/Gomora Space Beast
+          { shell: 0x18181b, belly: 0x52525b, horn: 0xf59e0b, glow: 0xf97316 }, // Zetton-style Armored Kaiju
+          { shell: 0x450a0a, belly: 0x991b1b, horn: 0x38bdf8, glow: 0x22d3ee }  // Crystal Magma Kaiju
+        ];
+        const pal = palettes[variant % palettes.length];
+
+        const matShell = new THREE.MeshStandardMaterial({ color: pal.shell, roughness: 0.65, metalness: 0.2 });
+        const matBelly = new THREE.MeshStandardMaterial({ color: pal.belly, roughness: 0.55 });
+        const matHorn  = new THREE.MeshStandardMaterial({ color: pal.horn, roughness: 0.4 });
+        const matGlow  = new THREE.MeshBasicMaterial({ color: pal.glow });
+
+        for (let s = 0; s < NUM_SLICES; s++) {
+          const sliceGroup = new THREE.Group();
+          sliceGroup.userData.baseY = (s - 6.5) * VOXEL_SIZE;
+          sliceGroup.position.y = sliceGroup.userData.baseY;
+
+          for (let z = -14; z <= 14; z++) {
+            for (let x = -11; x <= 11; x++) {
+              const ax = Math.abs(x);
+              let mat = null;
+
+              // Bulky Kaiju body
+              if (z >= -8 && z <= 8 && s >= 2 && s <= 11) {
+                const rad = 5.2 - Math.abs(z) * 0.42 - Math.abs(s - 6.5) * 0.55;
+                if (ax <= rad) {
+                  mat = s <= 4 ? matBelly : matShell;
+                  // Glowing chest core
+                  if (z >= -6 && z <= -4 && s >= 4 && s <= 7 && ax <= 1) {
+                    mat = matGlow;
+                  }
+                }
+              }
+              // Dorsal Glowing Spikes along spine
+              if (!mat && z >= -4 && z <= 11 && s >= 10 && s <= 13 && ax <= 1 && (z % 3 === 0)) {
+                mat = matGlow;
+              }
+              // Giant Claws / Wings / Horns
+              if (!mat && variant % 3 === 0 && z >= -14 && z <= -7 && s >= 5 && s <= 9 && ax >= 4 && ax <= 7) {
+                mat = matHorn; // Dual Giant Pincers
+              } else if (!mat && variant % 3 === 1 && z >= -2 && z <= 6 && s >= 6 && s <= 9 && ax >= 5 && ax <= 10) {
+                mat = matHorn; // Winged Kaiju fins
+              } else if (!mat && z >= -13 && z <= -9 && s >= 9 && s <= 13 && ax >= 2 && ax <= 4) {
+                mat = matHorn; // Twin curved horns
+              }
+              // Kaiju Eyes
+              if (z >= -10 && z <= -8 && s >= 7 && s <= 9 && ax === 2) {
+                mat = matGlow;
+              }
+              // Thick Tail
+              if (!mat && z >= 8 && z <= 14 && s >= 3 && s <= 6 && ax <= Math.max(0, 3 - (z - 8) * 0.45)) {
+                mat = matShell;
+              }
+
+              if (mat) {
+                const cube = new THREE.Mesh(voxelBoxGeo, mat);
+                cube.position.set(x * VOXEL_SIZE, 0, z * VOXEL_SIZE);
+                sliceGroup.add(cube);
+              }
+            }
+          }
+          slices.push(sliceGroup);
+          root.add(sliceGroup);
+        }
+        root.userData.slices = slices;
+        return root;
+      }
+
+      // Build Epic Chaos Overlord Voxel Blueprint (Boss)
+      function buildBossVoxelGroup() {
+        const root = new THREE.Group();
+        const slices = [];
+        const NUM_SLICES = 18;
+
+        const matArmor = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.45, metalness: 0.65 });
+        const matPlate = new THREE.MeshStandardMaterial({ color: 0x27272a, roughness: 0.35, metalness: 0.4 });
+        const matHorn  = new THREE.MeshStandardMaterial({ color: 0x7f1d1d, roughness: 0.35 });
+        const matGlow  = new THREE.MeshBasicMaterial({ color: 0xf43f5e }); // Bright emissive crimson
+        const matCore  = new THREE.MeshBasicMaterial({ color: 0xfacc15 }); // Gold-orange chaos reactor
+
+        for (let s = 0; s < NUM_SLICES; s++) {
+          const sliceGroup = new THREE.Group();
+          sliceGroup.userData.baseY = (s - 8.5) * VOXEL_SIZE;
+          sliceGroup.position.y = sliceGroup.userData.baseY;
+
+          for (let z = -18; z <= 18; z++) {
+            for (let x = -16; x <= 16; x++) {
+              const ax = Math.abs(x);
+              let mat = null;
+
+              // Heavy Fortress Torso & Core
+              if (z >= -10 && z <= 10 && s >= 3 && s <= 15) {
+                const rad = 7.5 - Math.abs(z) * 0.35 - Math.abs(s - 9.0) * 0.45;
+                if (ax <= rad) {
+                  mat = ax <= 3 ? matArmor : matPlate;
+                  // Dual Hyper Chaos Core
+                  if (z >= -7 && z <= -3 && s >= 6 && s <= 11 && ax <= 2) {
+                    mat = ax === 0 ? matCore : matGlow;
+                  }
+                }
+              }
+
+              // Gigantic Obsidian Wings / Crystal Shoulder Pauldrons
+              if (!mat && z >= -4 && z <= 12 && s >= 7 && s <= 14 && ax >= 7 && ax <= 15) {
+                if (ax - 7 <= (z + 4) * 0.75) {
+                  mat = (ax === 15 || z === 12) ? matGlow : matArmor;
+                }
+              }
+
+              // Twin Curved Demon Horns
+              if (!mat && z >= -18 && z <= -10 && s >= 10 && s <= 17 && ax >= 3 && ax <= 8) {
+                const hornProg = (z + 18) / 8.0;
+                if (Math.abs(ax - (4 + hornProg * 3.5)) <= 1.2) {
+                  mat = matHorn;
+                }
+              }
+
+              // Quad Dorsal Glowing Spines
+              if (!mat && z >= -6 && z <= 14 && s >= 14 && s <= 17 && (ax === 2 || ax === 5) && (z % 4 === 0)) {
+                mat = matGlow;
+              }
+
+              // Heavy Armored Tail
+              if (!mat && z >= 10 && z <= 18 && s >= 4 && s <= 8 && ax <= Math.max(0, 4.5 - (z - 10) * 0.5)) {
+                mat = z % 2 === 0 ? matArmor : matGlow;
+              }
+
+              if (mat) {
+                const cube = new THREE.Mesh(voxelBoxGeo, mat);
+                cube.position.set(x * VOXEL_SIZE, 0, z * VOXEL_SIZE);
+                sliceGroup.add(cube);
+              }
+            }
+          }
+          slices.push(sliceGroup);
+          root.add(sliceGroup);
+        }
+
+        root.userData.slices = slices;
+        root.userData.matGlow = matGlow;
+        root.userData.matCore = matCore;
+        return root;
+      }
+
+      const heroMesh = buildUltramanVoxelGroup();
+      scene.add(heroMesh);
+
+      // Light Sphere mesh for Transformation / Ejection (E key)
+      const lightSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(7, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.85 })
+      );
+      lightSphere.visible = false;
+      scene.add(lightSphere);
+
+      // ==========================================
+      // 6. GAME STATE, KAIJU, BEAMS & PARTICLES
+      // ==========================================
+      const player = {
+        pos: new THREE.Vector3(0, 0, 0),
+        yaw: 0,
+        pitch: 0,
+        roll: 0,
+        speed: 95,
+        boosting: false,
+        rollAnim: 0,
+        rollDir: 1,
+        loopAnim: 0,
+        loopDir: 1,
+        hull: 6,
+        kills: 0,
+        ammo: 300,
+        missiles: 6,
+        reloadingTimer: 0,
+        fireCooldown: 0,
+        stackIntroProgress: 0.0,
+        transforming: false,
+        transformTimer: 0,
+        incomingActive: false,
+        incomingLockTimer: 0,
+        slowMoTimer: 0,
+        hitStopTimer: 0,
+        lockedEnemy: null,
+        lockProgress: 0
+      };
+
+      const waveState = {
+        wave: 1,
+        killsInWave: 0,
+        targetKills: 6,
+        bossActive: false,
+        boss: null,
+        bossMaxHp: 24
+      };
+
+      const camState = {
+        pos: new THREE.Vector3(0, 20, 65),
+        look: new THREE.Vector3(0, 0, -20),
+        blendTop: 0,
+        blendFirst: 0,
+        shake: 0
+      };
+
+      const enemies = [];
+      const projectiles = [];
+      const enemyProjectiles = [];
+      const particles = [];
+      const debrisParticles = [];
+      const trailPointsL = [];
+      const trailPointsR = [];
+
+      // ==========================================
+      // TITLE SCREEN & DEMO SHOWCASE STATE
+      // ==========================================
+      let gameState = 'TITLE'; // 'TITLE' | 'PLAYING'
+      let demoPhase = 0; // 0: Hero 3D showcase, 1: Space Flight & Weapon Demo, 2: Chaos Boss Spectacle
+      let demoTimer = 0;
+      let demoShootTimer = 0;
+      let demoBossMesh = null;
+
+      function updateDemoUI() {
+        const textEl = document.getElementById('titleDemoPhaseText');
+        const d0 = document.getElementById('dotDemo0');
+        const d1 = document.getElementById('dotDemo1');
+        const d2 = document.getElementById('dotDemo2');
+
+        const descriptions = [
+          '幕 1/3: 奥特曼 14 层体素全向特写与结构剖析',
+          '幕 2/3: 空间空战巡航、八分光轮与体素受击剥离粒子',
+          '幕 3/3: 混沌灭世魔兽 (Chaos Overlord) 巨翼与暗核危机'
+        ];
+        if (textEl) textEl.textContent = descriptions[demoPhase];
+
+        const dots = [d0, d1, d2];
+        dots.forEach((dot, idx) => {
+          if (!dot) return;
+          if (idx === demoPhase) {
+            dot.className = 'w-3 h-1.5 rounded-full bg-cyan-400 transition-all';
+          } else {
+            dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-700 transition-all';
+          }
+        });
+      }
+
+      function launchGame() {
+        if (gameState === 'PLAYING') return;
+        gameState = 'PLAYING';
+        soundEngine.init();
+        soundEngine.playDodgeChime();
+        gamepadState.vibrate(220, 0.4, 0.85);
+
+        const overlay = document.getElementById('titleOverlay');
+        if (overlay) {
+          overlay.classList.remove('pointer-events-auto');
+          overlay.classList.add('opacity-0', 'pointer-events-none');
+          overlay.style.pointerEvents = 'none';
+          overlay.style.display = 'none';
+        }
+
+        // Clean up any demo boss mesh if present
+        if (demoBossMesh) {
+          scene.remove(demoBossMesh);
+          demoBossMesh = null;
+        }
+
+        // Reset player posture & position
+        player.pos.set(0, 0, 0);
+        player.pitch = 0;
+        player.roll = 0;
+        player.yaw = 0;
+        player.speed = params.speed;
+        player.stackIntroProgress = 0.0; // Play assembly upon launch
+        
+        showBanner('✨ 任务启动！高斯奥特曼全系统出击！', 'bg-cyan-400 text-slate-950 shadow-[0_0_25px_#22d3ee]');
+        syncEnemies();
+      }
+
+      function returnToTitle() {
+        gameState = 'TITLE';
+        demoPhase = 0;
+        demoTimer = 0;
+        const overlay = document.getElementById('titleOverlay');
+        if (overlay) {
+          overlay.style.display = 'flex';
+          overlay.style.pointerEvents = 'auto';
+          overlay.classList.remove('opacity-0', 'pointer-events-none');
+          overlay.classList.add('pointer-events-auto');
+        }
+        updateDemoUI();
+      }
+
+      function updateTitleDemo(rawDt, dt) {
+        demoTimer += rawDt;
+
+        // Auto switch demo phase every 7.5 seconds
+        const newPhase = Math.floor(demoTimer / 7.5) % 3;
+        if (newPhase !== demoPhase) {
+          demoPhase = newPhase;
+          updateDemoUI();
+        }
+
+        // Rotate cosmos sky & planets slowly
+        skyDome.position.copy(camera.position);
+        skyUniforms.uTime.value = performance.now() * 0.001;
+        for (let i = 0; i < planets.length; i++) {
+          planets[i].mesh.rotation.y += planets[i].rotSpeed * dt * 0.5;
+          planets[i].mat.uniforms.uTime.value = performance.now() * 0.001;
+        }
+
+        // Update peeling debris & particles during demo
+        for (let i = debrisParticles.length - 1; i >= 0; i--) {
+          const dp = debrisParticles[i];
+          dp.mesh.position.addScaledVector(dp.vel, dt);
+          dp.life -= dt;
+          if (dp.life <= 0) { scene.remove(dp.mesh); debrisParticles.splice(i, 1); }
+        }
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.mesh.position.addScaledVector(pt.vel, dt);
+          pt.life -= dt;
+          if (pt.life <= 0) { scene.remove(pt.mesh); particles.splice(i, 1); }
+        }
+
+        // Update Projectiles during demo
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+          const p = projectiles[i];
+          p.mesh.position.addScaledVector(p.vel, dt);
+          if (!p.isBeam) p.mesh.rotation.y += dt * 22;
+          p.life -= dt;
+          if (p.life <= 0) { scene.remove(p.mesh); projectiles.splice(i, 1); }
+        }
+
+        const now = performance.now() * 0.001;
+
+        if (demoPhase === 0) {
+          // --- Phase 0: Cinematic Hero Orbit Showcase ---
+          if (demoBossMesh) { demoBossMesh.visible = false; }
+          heroMesh.visible = true;
+          heroMesh.position.set(0, Math.sin(now * 1.5) * 1.8, 0);
+          heroMesh.quaternion.setFromEuler(new THREE.Euler(0, 0, Math.sin(now * 1.2) * 0.1, 'YXZ'));
+
+          // Gentle voxel slice breathing
+          const breatheSpacing = 1.0 + Math.sin(now * 2.2) * 0.22;
+          heroMesh.userData.slices.forEach((sl) => {
+            sl.position.y = sl.userData.baseY * breatheSpacing;
+          });
+
+          // Orbit camera around hero
+          const orbitAngle = now * 0.45;
+          const orbitDist = 58;
+          const orbitH = 15 + Math.sin(now * 0.6) * 8;
+          camera.position.set(Math.cos(orbitAngle) * orbitDist, orbitH, Math.sin(orbitAngle) * orbitDist);
+          camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+        } else if (demoPhase === 1) {
+          // --- Phase 1: Space Flight & Weapon Demo ---
+          if (demoBossMesh) { demoBossMesh.visible = false; }
+          heroMesh.visible = true;
+
+          // Cruise forward through space
+          player.pos.z -= 80 * dt;
+          player.pitch = Math.sin(now * 1.6) * 0.08;
+          player.roll = Math.sin(now * 1.2) * 0.25;
+          heroMesh.position.copy(player.pos);
+          heroMesh.quaternion.setFromEuler(new THREE.Euler(player.pitch, 0, player.roll, 'YXZ'));
+
+          // Cinematic camera tracking from 3/4 quarter chase view
+          const camOffset = new THREE.Vector3(26, 12, 45);
+          camera.position.copy(player.pos).add(camOffset);
+          camera.lookAt(player.pos.clone().add(new THREE.Vector3(-10, 0, -50)));
+
+          // Auto demonstration shots
+          demoShootTimer -= dt;
+          if (demoShootTimer <= 0) {
+            demoShootTimer = 1.75;
+            soundEngine.playSlash();
+            const mesh = new THREE.Mesh(projGeoSlash, projMatSlash);
+            mesh.position.copy(player.pos).add(new THREE.Vector3(0, 0, -16));
+            scene.add(mesh);
+            projectiles.push({ mesh, vel: new THREE.Vector3(0, 0, -420), life: 1.8, isBeam: false });
+
+            // Spawn hit sparks in front
+            spawnHitSparks(player.pos.clone().add(new THREE.Vector3(0, 0, -90)), 0x38bdf8, false);
+          }
+
+        } else if (demoPhase === 2) {
+          // --- Phase 2: Chaos Overlord Boss Spectacle ---
+          heroMesh.visible = false;
+          if (!demoBossMesh) {
+            demoBossMesh = buildBossVoxelGroup();
+            demoBossMesh.scale.setScalar(2.6);
+            scene.add(demoBossMesh);
+          }
+          demoBossMesh.visible = true;
+          demoBossMesh.position.set(0, Math.sin(now * 1.2) * 4, -40);
+
+          // Boss glow and breathing
+          const pulse = Math.floor(now * 8) % 2 === 0;
+          if (demoBossMesh.userData.matGlow) {
+            demoBossMesh.userData.matGlow.color.set(pulse ? '#ff0033' : '#991b1b');
+          }
+
+          // Low angle dramatic orbiting camera
+          const bAngle = now * 0.35 + Math.PI;
+          const bDist = 110;
+          const bH = -15 + Math.sin(now * 0.5) * 12;
+          camera.position.set(Math.cos(bAngle) * bDist, bH, Math.sin(bAngle) * bDist - 40);
+          camera.lookAt(new THREE.Vector3(0, 8, -40));
+
+          // Occasional chaos orb demonstration
+          demoShootTimer -= dt;
+          if (demoShootTimer <= 0) {
+            demoShootTimer = 2.0;
+            soundEngine.playBossRoar();
+            for (let k = 0; k < 3; k++) {
+              const bMesh = new THREE.Mesh(projGeoChaos, projMatChaos);
+              bMesh.position.copy(demoBossMesh.position).add(new THREE.Vector3(0, 0, 20));
+              scene.add(bMesh);
+              const dir = new THREE.Vector3((k - 1) * 0.35, -0.1, 1).normalize();
+              projectiles.push({ mesh: bMesh, vel: dir.multiplyScalar(180), life: 2.2, isBeam: true });
+            }
+          }
+        }
+      }
+
+      // Gamepad Input & Haptics Engine
+      const gamepadState = {
+        connected: false,
+        padIndex: -1,
+        lastButtonStates: {},
+        poll() {
+          const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+          let activePad = null;
+          for (let i = 0; i < gamepads.length; i++) {
+            if (gamepads[i] && gamepads[i].connected) {
+              activePad = gamepads[i];
+              break;
+            }
+          }
+          const tag = document.getElementById('hudGamepadTag');
+          if (activePad) {
+            if (!this.connected) {
+              this.connected = true;
+              this.padIndex = activePad.index;
+              if (tag) tag.classList.remove('hidden');
+              showBanner('🎮 手柄已连接: ' + (activePad.id || 'GAMEPAD').slice(0, 22), 'bg-emerald-400 text-slate-950');
+            }
+            return activePad;
+          } else {
+            if (this.connected) {
+              this.connected = false;
+              this.padIndex = -1;
+              if (tag) tag.classList.add('hidden');
+            }
+            return null;
+          }
+        },
+        vibrate(duration = 100, weakMagnitude = 0.35, strongMagnitude = 0.65) {
+          if (!this.connected) return;
+          const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+          const pad = gamepads[this.padIndex];
+          if (pad && pad.vibrationActuator && pad.vibrationActuator.playEffect) {
+            try {
+              pad.vibrationActuator.playEffect('dual-rumble', {
+                startDelay: 0,
+                duration: duration,
+                weakMagnitude: Math.min(1, weakMagnitude),
+                strongMagnitude: Math.min(1, strongMagnitude)
+              });
+            } catch (e) {}
+          }
+        }
+      };
+
+      window.addEventListener('gamepadconnected', () => gamepadState.poll());
+      window.addEventListener('gamepaddisconnected', () => gamepadState.poll());
+
+      // Trail Ribbon Lines
+      const trailGeoL = new THREE.BufferGeometry();
+      const trailGeoR = new THREE.BufferGeometry();
+      const trailMat = new THREE.LineBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.78 });
+      const trailLineL = new THREE.Line(trailGeoL, trailMat);
+      const trailLineR = new THREE.Line(trailGeoR, trailMat);
+      scene.add(trailLineL);
+      scene.add(trailLineR);
+
+      function syncEnemies() {
+        if (waveState.bossActive) return; // Boss 战斗时不补充杂兵
+        while (enemies.length < params.enemyCount) {
+          const idx = enemies.length;
+          const mesh = buildKaijuVoxelGroup(idx);
+          const ang = Math.random() * Math.PI * 2;
+          const dist = 260 + Math.random() * 340;
+          mesh.position.set(
+            player.pos.x + Math.cos(ang) * dist,
+            player.pos.y + (Math.random() - 0.5) * 140,
+            player.pos.z + Math.sin(ang) * dist
+          );
+          mesh.scale.setScalar(1.35);
+          scene.add(mesh);
+          enemies.push({
+            mesh,
+            isBoss: false,
+            yaw: Math.random() * Math.PI * 2,
+            roll: 0,
+            speed: 74 + Math.random() * 18 + (waveState.wave - 1) * 6,
+            hp: 3,
+            attackCooldown: 3.5 + Math.random() * 4.5
+          });
+        }
+        while (enemies.length > params.enemyCount) {
+          const rem = enemies.pop();
+          scene.remove(rem.mesh);
+        }
+      }
+
+      function updateBossHUD() {
+        const panel = document.getElementById('bossHudPanel');
+        if (!panel) return;
+        if (!waveState.bossActive || !waveState.boss) {
+          panel.classList.add('hidden');
+          return;
+        }
+        panel.classList.remove('hidden');
+        const b = waveState.boss;
+        const pct = Math.max(0, Math.min(100, Math.round((b.hp / b.maxHp) * 100)));
+        document.getElementById('bossHpPercent').textContent = `${pct}%`;
+        document.getElementById('bossHpBar').style.width = `${pct}%`;
+        document.getElementById('bossName').textContent = `CHAOS OVERLORD · 混沌灭世魔兽 (WAVE ${waveState.wave})`;
+        
+        const phaseTag = document.getElementById('bossPhaseTag');
+        const threatTag = document.getElementById('bossThreatTag');
+        if (b.hp <= b.maxHp * 0.5) {
+          phaseTag.textContent = 'PHASE 2: ENRAGED WARP CHARGE';
+          phaseTag.className = 'text-rose-400 font-bold animate-pulse';
+          threatTag.textContent = 'THREAT: EXTINCTION';
+        } else {
+          phaseTag.textContent = 'PHASE 1: CHAOS ORB BARRAGE';
+          phaseTag.className = 'text-amber-400 font-medium';
+          threatTag.textContent = 'THREAT: OVERLORD';
+        }
+      }
+
+      function spawnBoss() {
+        if (waveState.bossActive) return;
+        waveState.bossActive = true;
+        soundEngine.playBossAlert();
+        soundEngine.playBossRoar();
+        gamepadState.vibrate(500, 0.7, 1.0);
+
+        showBanner('⚠️ WARNING: CHAOS KAIJU OVERLORD DETECTED ⚠️', 'bg-rose-600 text-white shadow-[0_0_30px_#f43f5e]');
+        camState.shake = 18;
+
+        const bossMesh = buildBossVoxelGroup();
+        bossMesh.scale.setScalar(2.3);
+
+        const fwd = getHeroForwardVec();
+        bossMesh.position.copy(player.pos).addScaledVector(fwd, 460).add(new THREE.Vector3(0, 15, 0));
+        scene.add(bossMesh);
+
+        const bossObj = {
+          mesh: bossMesh,
+          isBoss: true,
+          yaw: player.yaw + Math.PI,
+          roll: 0,
+          speed: 86,
+          hp: waveState.bossMaxHp + (waveState.wave - 1) * 8,
+          maxHp: waveState.bossMaxHp + (waveState.wave - 1) * 8,
+          attackCooldown: 1.8,
+          phase: 1,
+          dashTimer: 0,
+          dashDir: new THREE.Vector3()
+        };
+        waveState.boss = bossObj;
+        enemies.push(bossObj);
+        updateBossHUD();
+      }
+
+      function onBossDefeated(bossObj) {
+        soundEngine.playBossRoar();
+        soundEngine.playExplosion();
+        gamepadState.vibrate(600, 0.8, 1.0);
+        player.slowMoTimer = 2.4;
+        camState.shake = 26;
+
+        // Massive multi-stage voxel detonations
+        for (let k = 0; k < 5; k++) {
+          setTimeout(() => {
+            const off = new THREE.Vector3((Math.random() - 0.5) * 45, (Math.random() - 0.5) * 35, (Math.random() - 0.5) * 45);
+            spawnVoxelExplosion(bossObj.mesh.position.clone().add(off), 28, k % 2 === 0 ? 0xf43f5e : 0xfacc15);
+          }, k * 120);
+        }
+
+        scene.remove(bossObj.mesh);
+        waveState.bossActive = false;
+        waveState.boss = null;
+        updateBossHUD();
+
+        // Advance to next Wave & Sector
+        waveState.wave += 1;
+        waveState.killsInWave = 0;
+        player.hull = 6;
+        player.ammo = 300;
+        player.missiles = 6;
+
+        const sectorNames = ['M78-A', 'M78-B', 'M78-C', 'M78-D', 'M78-OMEGA'];
+        const secName = sectorNames[(waveState.wave - 1) % sectorNames.length];
+        const secEl = document.getElementById('hudSector');
+        if (secEl) secEl.textContent = secName;
+
+        const waveEl = document.getElementById('hudWave');
+        if (waveEl) waveEl.textContent = String(waveState.wave).padStart(2, '0');
+
+        showBanner(`🎉 SECTOR LIBERATED! ADVANCING TO WAVE ${waveState.wave}`, 'bg-emerald-400 text-slate-950 shadow-[0_0_30px_#34d399]');
+        setTimeout(() => syncEnemies(), 2200);
+      }
+
+      rebuildCosmosWorld();
+      syncEnemies();
+
+      // ==========================================
+      // 7. INPUT & INTERACTION HANDLERS
+      // ==========================================
+      const keys = {};
+      const pointer = { normX: 0, normY: 0, active: false, downLeft: false, downRight: false, downTime: 0 };
+      let isPaused = false;
+      let holdBoostBtn = false;
+      let holdCannonBtn = false;
+      let holdTouchSlash = false;
+      let holdTouchBoost = false;
+
+      // Virtual Joystick state for Mobile / Touch
+      const virtualStick = { active: false, normX: 0, normY: 0, touchId: null, startX: 0, startY: 0 };
+      const joyZone = document.getElementById('virtualJoystickZone');
+      const joyKnob = document.getElementById('virtualJoystickKnob');
+
+      if (joyZone && joyKnob) {
+        joyZone.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          soundEngine.init();
+          if (virtualStick.active || e.changedTouches.length === 0) return;
+          const t = e.changedTouches[0];
+          virtualStick.active = true;
+          virtualStick.touchId = t.identifier;
+          const rect = joyZone.getBoundingClientRect();
+          virtualStick.startX = rect.left + rect.width * 0.5;
+          virtualStick.startY = rect.top + rect.height * 0.5;
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+          if (!virtualStick.active) return;
+          for (let i = 0; i < e.changedTouches.length; i++) {
+            const t = e.changedTouches[i];
+            if (t.identifier === virtualStick.touchId) {
+              const dx = t.clientX - virtualStick.startX;
+              const dy = t.clientY - virtualStick.startY;
+              const maxDist = 48;
+              const dist = Math.hypot(dx, dy);
+              const clamped = Math.min(dist, maxDist);
+              const ang = Math.atan2(dy, dx);
+              const cx = Math.cos(ang) * clamped;
+              const cy = Math.sin(ang) * clamped;
+              joyKnob.style.transform = `translate(${cx}px, ${cy}px)`;
+              virtualStick.normX = cx / maxDist;
+              virtualStick.normY = cy / maxDist;
+              if (Math.abs(virtualStick.normX) > 0.1 || Math.abs(virtualStick.normY) > 0.1) markTutorial('steer');
+              break;
+            }
+          }
+        }, { passive: false });
+
+        const releaseJoystick = (e) => {
+          if (!virtualStick.active) return;
+          for (let i = 0; i < e.changedTouches.length; i++) {
+            if (e.changedTouches[i].identifier === virtualStick.touchId) {
+              virtualStick.active = false;
+              virtualStick.touchId = null;
+              virtualStick.normX = 0;
+              virtualStick.normY = 0;
+              joyKnob.style.transform = 'translate(0px, 0px)';
+              break;
+            }
+          }
+        };
+
+        window.addEventListener('touchend', releaseJoystick, { passive: false });
+        window.addEventListener('touchcancel', releaseJoystick, { passive: false });
+      }
+
+      // Mobile Touch Action Buttons Bindings
+      const touchSlashBtn = document.getElementById('touchSlashBtn');
+      const touchBoostBtn = document.getElementById('touchBoostBtn');
+      const touchRollBtn = document.getElementById('touchRollBtn');
+      const touchMissileBtn = document.getElementById('touchMissileBtn');
+
+      if (touchSlashBtn) {
+        touchSlashBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); holdTouchSlash = true; }, { passive: false });
+        touchSlashBtn.addEventListener('touchend', () => { holdTouchSlash = false; });
+      }
+      if (touchBoostBtn) {
+        touchBoostBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); holdTouchBoost = true; }, { passive: false });
+        touchBoostBtn.addEventListener('touchend', () => { holdTouchBoost = false; });
+      }
+      if (touchRollBtn) {
+        touchRollBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); triggerBarrelRoll(1); }, { passive: false });
+      }
+      if (touchMissileBtn) {
+        touchMissileBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); fireSpaciumSalvo(1); }, { passive: false });
+      }
+
+      const tutorialDone = { steer: false, boost: false, roll: false, loop: false, view: false, combat: false };
+      function markTutorial(key) {
+        if (tutorialDone[key]) return;
+        tutorialDone[key] = true;
+        const map = { steer: 'tutSteer', boost: 'tutBoost', roll: 'tutRoll', loop: 'tutLoop', view: 'tutView', combat: 'tutCombat' };
+        const el = document.getElementById(map[key]);
+        if (el) {
+          el.classList.add('text-emerald-400', 'line-through');
+          const box = el.querySelector('.tut-box');
+          if (box) { box.textContent = '✓'; box.classList.add('bg-emerald-500/30', 'border-emerald-400'); }
+        }
+      }
+
+      window.addEventListener('keydown', (e) => {
+        soundEngine.init();
+        if (gameState === 'TITLE') {
+          launchGame();
+          return;
+        }
+        keys[e.code] = true;
+        if (e.code === 'Escape') { toggleIntelModal(); return; }
+        if (isPaused) return;
+        if (e.code === 'Space') { e.preventDefault(); cycleCameraView(); }
+        else if (e.code === 'KeyR') triggerBarrelRoll(1);
+        else if (e.code === 'KeyF') triggerLoop(1);
+        else if (e.code === 'KeyG') triggerLoop(-1);
+        else if (e.code === 'KeyM') fireSpaciumSalvo(1);
+        else if (e.code === 'KeyE') triggerLightTransform();
+      });
+      window.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+      function updatePointerCoord(clientX, clientY) {
+        const rect = glCanvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+        pointer.normX = Math.max(-1, Math.min(1, (((clientX - rect.left) / rect.width) - 0.5) * 2));
+        pointer.normY = Math.max(-1, Math.min(1, (((clientY - rect.top) / rect.height) - 0.5) * 2));
+        pointer.active = true;
+        if (Math.abs(pointer.normX) > 0.15 || Math.abs(pointer.normY) > 0.15) markTutorial('steer');
+      }
+
+      function onPointerMove(e) {
+        updatePointerCoord(e.clientX, e.clientY);
+      }
+
+      function onPointerDown(e) {
+        soundEngine.init();
+        if (gameState === 'TITLE') {
+          launchGame();
+          return;
+        }
+        if (isPaused) return;
+
+        updatePointerCoord(e.clientX, e.clientY);
+
+        // e.button: 0 = Left, 1 = Middle, 2 = Right
+        if (e.button === 2) {
+          // Right click: Shoot Ultra Slash immediately & hold for continuous cannon fire
+          e.preventDefault();
+          pointer.downRight = true;
+          fireUltraSlash();
+          markTutorial('combat');
+        } else if (e.button === 0) {
+          // Left click: Quick tap = Barrel Roll / Long hold = Hyper Boost
+          e.preventDefault();
+          pointer.downLeft = true;
+          pointer.downTime = performance.now();
+        } else if (e.button === 1) {
+          // Middle click: Spacium Beam Salvo
+          e.preventDefault();
+          fireSpaciumSalvo(1);
+        }
+      }
+
+      function onPointerUp(e) {
+        if (e.button === 2) {
+          pointer.downRight = false;
+        } else if (e.button === 0) {
+          if (pointer.downLeft && !isPaused) {
+            const duration = performance.now() - pointer.downTime;
+            // Quick tap (< 280ms) triggers Barrel Roll!
+            if (duration < 280) {
+              triggerBarrelRoll(pointer.normX >= 0 ? 1 : -1);
+              markTutorial('roll');
+            }
+          }
+          pointer.downLeft = false;
+        }
+      }
+
+      glCanvas.addEventListener('pointermove', onPointerMove);
+      glCanvas.addEventListener('pointerdown', onPointerDown);
+
+      const vpContainer = document.getElementById('viewportContainer');
+      if (vpContainer) {
+        vpContainer.addEventListener('pointermove', onPointerMove);
+        vpContainer.addEventListener('pointerdown', onPointerDown);
+        vpContainer.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
+      }
+
+      window.addEventListener('pointerup', onPointerUp);
+      glCanvas.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
+      window.addEventListener('contextmenu', (e) => {
+        const t = e.target;
+        if (!t || !t.closest || !t.closest('input, textarea, select')) {
+          e.preventDefault();
+          return false;
+        }
+      });
+
+      function showBanner(text, cls) {
+        const banner = document.getElementById('centerBanner');
+        const bt = document.getElementById('centerBannerText');
+        bt.textContent = text;
+        bt.className = `px-4 py-1.5 rounded-full font-mono-tech text-xs font-bold uppercase tracking-widest shadow-lg ${cls}`;
+        banner.classList.remove('hidden');
+        clearTimeout(showBanner._t);
+        showBanner._t = setTimeout(() => banner.classList.add('hidden'), 2100);
+      }
+
+      function triggerBarrelRoll(dir) {
+        if (player.transforming) return;
+        if (player.rollAnim <= 0) {
+          player.rollAnim = Math.PI * 2;
+          player.rollDir = dir || 1;
+          markTutorial('roll');
+
+          if (player.incomingActive && player.incomingLockTimer >= 0.55 && player.incomingLockTimer <= 0.98) {
+            player.incomingActive = false;
+            player.incomingLockTimer = 0;
+            if (params.dodgeSlowMo > 0) player.slowMoTimer = params.dodgeSlowMo;
+            soundEngine.playDodgeChime();
+            showBanner('⚡ 极限闪避！子弹时间启动 + 3道追踪光弹反击！', 'bg-cyan-400 text-slate-950');
+            fireSpaciumSalvo(3, true);
+          }
+        }
+      }
+
+      function triggerLoop(dir) {
+        if (player.transforming) return;
+        if (player.loopAnim <= 0) {
+          player.loopAnim = Math.PI * 2;
+          player.loopDir = dir || 1;
+          markTutorial('loop');
+        }
+      }
+
+      function triggerLightTransform() {
+        if (player.transforming) return;
+        player.transforming = true;
+        player.transformTimer = 2.8;
+        heroMesh.visible = false;
+        lightSphere.visible = true;
+        lightSphere.position.copy(player.pos);
+        camState.shake = 12;
+        soundEngine.playDodgeChime();
+        showBanner('✨ 光之球化脱离！正在重新凝结能量变身…', 'bg-amber-400 text-slate-950');
+      }
+
+      const projGeoSlash = new THREE.CylinderGeometry(2.2, 2.2, 0.5, 10);
+      const projMatSlash = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      const projGeoBeam = new THREE.SphereGeometry(2.6, 8, 8);
+      const projMatBeam = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
+      const projGeoChaos = new THREE.SphereGeometry(3.5, 8, 8);
+      const projMatChaos = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
+
+      function getHeroForwardVec() {
+        const euler = new THREE.Euler(player.pitch, player.yaw, 0, 'YXZ');
+        return new THREE.Vector3(0, 0, -1).applyEuler(euler).normalize();
+      }
+
+      function fireUltraSlash() {
+        if (player.transforming || player.reloadingTimer > 0 || player.ammo <= 0) return;
+        player.ammo = Math.max(0, player.ammo - 1);
+        if (player.ammo === 0 && player.missiles === 0) player.reloadingTimer = 5.0;
+        soundEngine.playSlash();
+        markTutorial('combat');
+        gamepadState.vibrate(40, 0.15, 0.35);
+
+        const fwd = getHeroForwardVec();
+        const mesh = new THREE.Mesh(projGeoSlash, projMatSlash);
+        mesh.position.copy(player.pos).addScaledVector(fwd, 16);
+        scene.add(mesh);
+
+        projectiles.push({
+          mesh,
+          vel: fwd.clone().multiplyScalar(430),
+          life: 1.3,
+          homingTarget: null,
+          isBeam: false
+        });
+      }
+
+      function fireSpaciumSalvo(count, freeCounter) {
+        if (player.transforming) return;
+        if (!freeCounter && (player.reloadingTimer > 0 || player.missiles <= 0)) return;
+        const n = freeCounter ? count : Math.min(count, player.missiles);
+        if (!freeCounter) {
+          player.missiles -= n;
+          if (player.missiles === 0 && player.ammo === 0) player.reloadingTimer = 5.0;
+        }
+        soundEngine.playBeamCharge();
+        soundEngine.playSpacium();
+        markTutorial('combat');
+        camState.shake = Math.min(10, camState.shake + 4.5);
+        gamepadState.vibrate(180, 0.45, 0.85);
+
+        const fwd = getHeroForwardVec();
+
+        // Convergence particle effect around arms
+        for (let k = 0; k < 12; k++) {
+          const sparkGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+          const sparkMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+          const spk = new THREE.Mesh(sparkGeo, sparkMat);
+          const off = new THREE.Vector3((Math.random() - 0.5) * 16, (Math.random() - 0.5) * 16, (Math.random() - 0.5) * 16);
+          spk.position.copy(player.pos).add(off);
+          scene.add(spk);
+          const vel = off.clone().negate().multiplyScalar(4.5);
+          particles.push({ mesh: spk, vel, life: 0.28 });
+        }
+
+        for (let i = 0; i < n; i++) {
+          const mesh = new THREE.Mesh(projGeoBeam, projMatBeam);
+          mesh.position.copy(player.pos).addScaledVector(fwd, 14);
+          scene.add(mesh);
+
+          const spreadYaw = (i - (n - 1) / 2) * 0.22;
+          const dir = fwd.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), spreadYaw);
+          projectiles.push({
+            mesh,
+            vel: dir.multiplyScalar(285),
+            life: 3.8,
+            homingTarget: player.lockedEnemy || enemies[i % Math.max(1, enemies.length)] || null,
+            isBeam: true
+          });
+        }
+      }
+
+      function spawnHitSparks(pos, colorHex, isCritical) {
+        soundEngine.playHit();
+        camState.shake = Math.min(16, camState.shake + (isCritical ? 5.0 : 2.0));
+        gamepadState.vibrate(isCritical ? 120 : 60, isCritical ? 0.4 : 0.2, isCritical ? 0.75 : 0.4);
+        if (isCritical) player.hitStopTimer = 0.038;
+
+        const count = isCritical ? 14 : 7;
+        const boxGeo = new THREE.BoxGeometry(1.4, 1.4, 1.4);
+        const boxMat = new THREE.MeshBasicMaterial({ color: colorHex || 0xfacc15 });
+
+        for (let i = 0; i < count; i++) {
+          const m = new THREE.Mesh(boxGeo, boxMat);
+          m.position.copy(pos);
+          scene.add(m);
+
+          const angA = Math.random() * Math.PI * 2;
+          const angB = (Math.random() - 0.5) * Math.PI;
+          const spd = 35 + Math.random() * 85;
+          const vel = new THREE.Vector3(
+            Math.cos(angA) * Math.cos(angB) * spd,
+            Math.sin(angB) * spd + 15,
+            Math.sin(angA) * Math.cos(angB) * spd
+          );
+
+          debrisParticles.push({
+            mesh: m,
+            vel,
+            rotVel: new THREE.Vector3((Math.random() - 0.5) * 16, (Math.random() - 0.5) * 16, (Math.random() - 0.5) * 16),
+            life: 0.55 + Math.random() * 0.35,
+            maxLife: 0.9
+          });
+        }
+      }
+
+      function spawnVoxelExplosion(pos, count, colorHex) {
+        soundEngine.playExplosion();
+        camState.shake = Math.min(16, camState.shake + count * 0.25);
+        const geo = new THREE.BoxGeometry(2.2, 2.2, 2.2);
+        const mat = new THREE.MeshBasicMaterial({ color: colorHex || 0xfacc15 });
+        for (let i = 0; i < count; i++) {
+          const m = new THREE.Mesh(geo, mat);
+          m.position.copy(pos);
+          scene.add(m);
+          const v = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize().multiplyScalar(40 + Math.random() * 120);
+          particles.push({ mesh: m, vel: v, life: 0.5 + Math.random() * 0.5 });
+        }
+      }
+
+      function setCameraView(mode) {
+        params.view = mode;
+        markTutorial('view');
+        updateViewUI();
+      }
+
+      function cycleCameraView() {
+        const order = ['chase', 'top', 'cockpit'];
+        setCameraView(order[(order.indexOf(params.view) + 1) % order.length]);
+      }
+
+      // ==========================================
+      // 8. MAIN SIMULATION UPDATE
+      // ==========================================
+      function updateSimulation(rawDt) {
+        if (isPaused) {
+          soundEngine.update(0, false, false, true);
+          return;
+        }
+
+        // Title Showcase Mode: run cinematic camera & demo sequences
+        if (gameState === 'TITLE') {
+          updateTitleDemo(rawDt, Math.min(0.05, rawDt));
+          const pad = gamepadState.poll();
+          if (pad) {
+            for (let b = 0; b < pad.buttons.length; b++) {
+              if (pad.buttons[b] && pad.buttons[b].pressed) {
+                launchGame();
+                break;
+              }
+            }
+          }
+          return;
+        }
+
+        // Hit-stop impact pause for meaty combat feedback
+        if (player.hitStopTimer > 0) {
+          player.hitStopTimer -= rawDt;
+          return;
+        }
+
+        let timeScale = 1.0;
+        if (player.slowMoTimer > 0) {
+          player.slowMoTimer = Math.max(0, player.slowMoTimer - rawDt);
+          timeScale = 0.26;
+        }
+        const dt = Math.min(0.05, rawDt) * timeScale;
+
+        // Stack-up slice assembly animation
+        if (player.stackIntroProgress < 1.0) {
+          player.stackIntroProgress = Math.min(1.0, player.stackIntroProgress + rawDt * 0.85);
+        }
+
+        // Reload energy
+        if (player.reloadingTimer > 0) {
+          player.reloadingTimer -= rawDt;
+          if (player.reloadingTimer <= 0) {
+            player.reloadingTimer = 0;
+            player.ammo = 300;
+            player.missiles = 6;
+          }
+        }
+
+        // Poll Gamepad API
+        const pad = gamepadState.poll();
+        let padBoost = false;
+        let padSlash = false;
+        if (pad) {
+          const deadzone = 0.16;
+          let gx = pad.axes[0] || 0;
+          let gy = pad.axes[1] || 0;
+          if (Math.abs(gx) < deadzone) gx = 0;
+          if (Math.abs(gy) < deadzone) gy = 0;
+
+          padBoost = (pad.buttons[7] && pad.buttons[7].pressed) || (pad.buttons[0] && pad.buttons[0].pressed);
+          padSlash = (pad.buttons[5] && pad.buttons[5].pressed) || (pad.buttons[2] && pad.buttons[2].pressed);
+
+          // Y Button: Spacium
+          if (pad.buttons[3] && pad.buttons[3].pressed && !gamepadState.lastButtonStates[3]) {
+            fireSpaciumSalvo(1);
+          }
+          // B Button: Barrel Roll
+          if (pad.buttons[1] && pad.buttons[1].pressed && !gamepadState.lastButtonStates[1]) {
+            triggerBarrelRoll(gx >= 0 ? 1 : -1);
+          }
+          // LB Button: Loop
+          if (pad.buttons[4] && pad.buttons[4].pressed && !gamepadState.lastButtonStates[4]) {
+            triggerLoop(1);
+          }
+          // View/Back: Cycle View
+          if (pad.buttons[8] && pad.buttons[8].pressed && !gamepadState.lastButtonStates[8]) {
+            cycleCameraView();
+          }
+          // Menu/Start: Pause
+          if (pad.buttons[9] && pad.buttons[9].pressed && !gamepadState.lastButtonStates[9]) {
+            toggleIntelModal();
+          }
+          for (let b = 0; b < pad.buttons.length; b++) {
+            gamepadState.lastButtonStates[b] = pad.buttons[b].pressed;
+          }
+        }
+
+        // Light Sphere Transform sequence
+        if (player.transforming) {
+          player.transformTimer -= rawDt;
+          lightSphere.scale.setScalar(1.0 + Math.sin(performance.now() * 0.02) * 0.25);
+          if (player.transformTimer <= 0) {
+            player.transforming = false;
+            lightSphere.visible = false;
+            heroMesh.visible = true;
+            player.hull = 6;
+            player.stackIntroProgress = 0.0;
+          }
+        } else {
+          const holdBoost = keys['ShiftLeft'] || keys['ShiftRight'] || (pointer.downLeft && performance.now() - pointer.downTime > 180) || holdBoostBtn || holdTouchBoost || padBoost;
+          player.boosting = holdBoost;
+          if (holdBoost) markTutorial('boost');
+
+          const targetSpd = params.speed * (player.boosting ? params.boostMultiplier : 1.0);
+          player.speed += (targetSpd - player.speed) * Math.min(1, dt * 5);
+
+          let turnIn = 0;
+          let pitchIn = 0;
+          if (keys['KeyA'] || keys['ArrowLeft']) turnIn += 1;
+          if (keys['KeyD'] || keys['ArrowRight']) turnIn -= 1;
+          if (keys['KeyS'] || keys['ArrowDown']) pitchIn += 1;
+          if (keys['KeyW'] || keys['ArrowUp']) pitchIn -= 1;
+          if (turnIn !== 0 || pitchIn !== 0) markTutorial('steer');
+
+          if (params.steerWithPointer && pointer.active && turnIn === 0 && pitchIn === 0 && !virtualStick.active) {
+            if (Math.abs(pointer.normX) > 0.06) turnIn = Math.max(-1, Math.min(1, -pointer.normX * 1.35));
+            if (Math.abs(pointer.normY) > 0.06) pitchIn = Math.max(-1, Math.min(1, -pointer.normY * 1.25));
+          }
+
+          // Touch Virtual Joystick input
+          if (virtualStick.active) {
+            turnIn -= virtualStick.normX * 1.5;
+            pitchIn -= virtualStick.normY * 1.35;
+          }
+
+          // Gamepad Stick input
+          if (pad) {
+            const deadzone = 0.16;
+            let gx = pad.axes[0] || 0;
+            let gy = pad.axes[1] || 0;
+            if (Math.abs(gx) > deadzone) turnIn -= (gx * 1.55);
+            if (Math.abs(gy) > deadzone) pitchIn -= (gy * 1.4);
+          }
+
+          player.yaw += turnIn * params.turnRate * 1.75 * dt;
+          const maxBank = (params.bankAngle * Math.PI) / 180;
+          player.roll += (turnIn * maxBank - player.roll) * Math.min(1, dt * 7);
+          player.pitch += (pitchIn * 0.62 - player.pitch) * Math.min(1, dt * 6);
+
+          if (player.rollAnim > 0) player.rollAnim = Math.max(0, player.rollAnim - rawDt * 9.5);
+          if (player.loopAnim > 0) player.loopAnim = Math.max(0, player.loopAnim - rawDt * 5.2);
+
+          const effPitch = player.pitch + (player.loopAnim > 0 ? Math.sin(player.loopAnim) * 0.95 * player.loopDir : 0);
+          const effRoll = player.roll + (player.rollAnim > 0 ? (Math.PI * 2 - player.rollAnim) * player.rollDir : 0);
+
+          const euler = new THREE.Euler(effPitch, player.yaw, effRoll, 'YXZ');
+          const fwd = new THREE.Vector3(0, 0, -1).applyEuler(euler);
+          player.pos.addScaledVector(fwd, player.speed * dt);
+
+          // Update Hero Mesh 3D Transform + Slice Stacking Spacing
+          heroMesh.position.copy(player.pos);
+          heroMesh.quaternion.setFromEuler(euler);
+          heroMesh.scale.setScalar(params.heroScale);
+
+          const explodeMult = params.explodeSlices ? 3.0 : 1.0;
+          const introGap = (1.0 - player.stackIntroProgress) * 6.5;
+          const spacingFactor = params.sliceSpacing * explodeMult + introGap;
+          heroMesh.userData.slices.forEach((sl) => {
+            sl.position.y = sl.userData.baseY * spacingFactor;
+          });
+
+          // Color Timer critical pulse when hull <= 2
+          const timerCrit = player.hull <= 2;
+          const blinkOn = !timerCrit || (Math.floor(performance.now() / 220) % 2 === 0);
+          heroMesh.userData.matTimer.color.set(timerCrit ? (blinkOn ? '#ef4444' : '#450a0a') : params.colorTimer);
+
+          // Fire Slash Cannon
+          player.fireCooldown = Math.max(0, player.fireCooldown - rawDt);
+          if ((pointer.downRight || keys['KeyC'] || holdCannonBtn || holdTouchSlash || padSlash) && player.fireCooldown <= 0) {
+            fireUltraSlash();
+            player.fireCooldown = 0.095;
+          }
+
+          // Wing / Hand Light Ribbons
+          if (params.wingtipTrails) {
+            const rightVec = new THREE.Vector3(1, 0, 0).applyEuler(euler).multiplyScalar(7 * params.heroScale);
+            const tailPos = player.pos.clone().addScaledVector(fwd, -12 * params.heroScale);
+            trailPointsL.push(tailPos.clone().sub(rightVec));
+            trailPointsR.push(tailPos.clone().add(rightVec));
+            if (trailPointsL.length > 42) trailPointsL.shift();
+            if (trailPointsR.length > 42) trailPointsR.shift();
+            trailGeoL.setFromPoints(trailPointsL);
+            trailGeoR.setFromPoints(trailPointsR);
+            trailLineL.visible = true;
+            trailLineR.visible = true;
+          } else {
+            trailLineL.visible = false;
+            trailLineR.visible = false;
+          }
+        }
+
+        soundEngine.update((player.speed - 50) / 150, player.boosting, player.hull <= 2, isPaused);
+
+        // Rotate Planets & Keep SkyDome centered on camera (pure celestial sphere)
+        skyDome.position.copy(camera.position);
+        skyUniforms.uTime.value = performance.now() * 0.001;
+        for (let i = 0; i < planets.length; i++) {
+          planets[i].mesh.rotation.y += planets[i].rotSpeed * dt;
+          planets[i].mat.uniforms.uTime.value = performance.now() * 0.001;
+        }
+
+        // Update Kaiju Enemies, Boss AI & Lock-on Detection
+        const fwd = getHeroForwardVec();
+        let bestTarget = null;
+        let bestDot = 0.85;
+
+        for (let i = 0; i < enemies.length; i++) {
+          const e = enemies[i];
+          const toHero = player.pos.clone().sub(e.mesh.position);
+          const dist = toHero.length() || 1;
+          const desiredYaw = Math.atan2(-toHero.x, -toHero.z) + (dist < 180 ? 1.15 : 0.2);
+
+          let diff = desiredYaw - e.yaw;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          e.yaw += Math.max(-1.8, Math.min(1.8, diff)) * dt;
+          e.roll = Math.max(-0.6, Math.min(0.6, diff * 0.8));
+
+          const eEuler = new THREE.Euler(0, e.yaw, e.roll, 'YXZ');
+          const eFwd = new THREE.Vector3(0, 0, -1).applyEuler(eEuler);
+
+          // Boss specific behaviors
+          if (e.isBoss) {
+            updateBossHUD();
+            // Phase 2 check
+            if (e.phase === 1 && e.hp <= e.maxHp * 0.5) {
+              e.phase = 2;
+              soundEngine.playBossRoar();
+              gamepadState.vibrate(400, 0.6, 0.95);
+              showBanner('⚠️ BOSS ENRAGED: WARP CHARGE ACTIVE!', 'bg-rose-600 text-white shadow-[0_0_30px_#f43f5e]');
+              camState.shake = 16;
+            }
+
+            // Boss Glow Pulse
+            const blinkFast = Math.floor(performance.now() / (e.phase === 2 ? 110 : 260)) % 2 === 0;
+            if (e.mesh.userData.matGlow) {
+              e.mesh.userData.matGlow.color.set(blinkFast ? (e.phase === 2 ? '#ff0033' : '#f43f5e') : '#450a0a');
+            }
+
+            // Boss Attack & Chaos Barrage
+            if (params.enemiesAttack && !player.transforming) {
+              e.attackCooldown -= dt;
+              if (e.attackCooldown <= 0) {
+                e.attackCooldown = e.phase === 2 ? 2.5 : 3.8;
+                soundEngine.playSpacium();
+
+                // Fire 3~5 Chaos homing energy balls
+                const count = e.phase === 2 ? 5 : 3;
+                for (let k = 0; k < count; k++) {
+                  const bMesh = new THREE.Mesh(projGeoChaos, projMatChaos);
+                  bMesh.position.copy(e.mesh.position).addScaledVector(eFwd, 20);
+                  scene.add(bMesh);
+
+                  const spreadYaw = (k - (count - 1) / 2) * 0.28;
+                  const dir = eFwd.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), spreadYaw);
+                  enemyProjectiles.push({
+                    mesh: bMesh,
+                    vel: dir.multiplyScalar(220),
+                    life: 4.5,
+                    homing: true
+                  });
+                }
+
+                // If Phase 2 and near, trigger Dash & incoming QTE dodge ring
+                if (e.phase === 2 && dist < 500 && !player.incomingActive) {
+                  player.incomingActive = true;
+                  player.incomingLockTimer = 0.0;
+                }
+              }
+            }
+
+            e.mesh.position.addScaledVector(eFwd, (e.speed + (e.phase === 2 ? 35 : 0)) * dt);
+          } else {
+            e.mesh.position.addScaledVector(eFwd, e.speed * dt);
+          }
+
+          e.mesh.position.y += ((player.pos.y + Math.sin(performance.now() * 0.0015 + i) * 35) - e.mesh.position.y) * dt;
+          e.mesh.quaternion.setFromEuler(eEuler);
+
+          if (dist > 1300 && !e.isBoss) {
+            const ang = player.yaw + (Math.random() - 0.5) * 1.4;
+            e.mesh.position.set(player.pos.x - Math.sin(ang) * 520, player.pos.y + (Math.random() - 0.5) * 80, player.pos.z - Math.cos(ang) * 520);
+          }
+
+          // Lock-on cone check (Boss gets lock priority)
+          const toKaiju = e.mesh.position.clone().sub(player.pos);
+          const kd = toKaiju.length() || 1;
+          const dot = toKaiju.normalize().dot(fwd);
+          if (dot > bestDot && kd < 780) {
+            bestDot = dot;
+            bestTarget = e;
+          }
+
+          // Regular Kaiju Fireball lock-on warning
+          if (!e.isBoss && params.enemiesAttack && !player.incomingActive && !player.transforming) {
+            e.attackCooldown -= dt;
+            if (e.attackCooldown <= 0 && kd < 540) {
+              e.attackCooldown = 6.5 + Math.random() * 4;
+              player.incomingActive = true;
+              player.incomingLockTimer = 0.0;
+            }
+          }
+        }
+
+        if (bestTarget) {
+          player.lockedEnemy = bestTarget;
+          player.lockProgress = Math.min(1.0, player.lockProgress + rawDt * 1.35);
+        } else {
+          player.lockedEnemy = null;
+          player.lockProgress = 0;
+        }
+
+        // Incoming Kaiju / Boss warning ring (QTE Dodge)
+        if (player.incomingActive) {
+          player.incomingLockTimer += rawDt * 0.56;
+          if (player.incomingLockTimer >= 1.05) {
+            player.incomingActive = false;
+            player.incomingLockTimer = 0;
+            camState.shake = 14;
+            soundEngine.playExplosion();
+            gamepadState.vibrate(300, 0.6, 0.9);
+            player.hull = Math.max(0, player.hull - 1);
+            if (player.hull === 0) triggerLightTransform();
+          }
+        }
+
+        // Update Enemy Projectiles (Chaos Orbs)
+        for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+          const ep = enemyProjectiles[i];
+          if (ep.homing) {
+            const desired = player.pos.clone().sub(ep.mesh.position).normalize().multiplyScalar(220);
+            ep.vel.lerp(desired, Math.min(1, dt * 2.8));
+          }
+          ep.mesh.position.addScaledVector(ep.vel, dt);
+          ep.life -= dt;
+
+          const toPlayerDist = ep.mesh.position.distanceTo(player.pos);
+          let epHit = false;
+
+          if (toPlayerDist < 18 && !player.transforming) {
+            epHit = true;
+            if (player.rollAnim > 0) {
+              // Dodged during roll
+              showBanner('🌀 穿梭回避！闪避混沌能量球！', 'bg-cyan-400 text-slate-950');
+            } else {
+              player.hull = Math.max(0, player.hull - 1);
+              soundEngine.playExplosion();
+              camState.shake = 14;
+              gamepadState.vibrate(280, 0.5, 0.85);
+              spawnVoxelExplosion(ep.mesh.position, 18, 0xf43f5e);
+              if (player.hull === 0) triggerLightTransform();
+            }
+          }
+
+          if (epHit || ep.life <= 0) {
+            scene.remove(ep.mesh);
+            enemyProjectiles.splice(i, 1);
+          }
+        }
+
+        // Update Hero Projectiles & Collision against Kaiju / Boss
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+          const p = projectiles[i];
+          if (p.homingTarget && p.homingTarget.mesh) {
+            const desired = p.homingTarget.mesh.position.clone().sub(p.mesh.position).normalize().multiplyScalar(290);
+            p.vel.lerp(desired, Math.min(1, dt * 6));
+          }
+          p.mesh.position.addScaledVector(p.vel, dt);
+          if (!p.isBeam) p.mesh.rotation.y += dt * 22;
+          p.life -= dt;
+
+          let hit = false;
+          for (let j = 0; j < enemies.length; j++) {
+            const e = enemies[j];
+            const hitDist = e.isBoss ? 44 : 22;
+            if (p.mesh.position.distanceTo(e.mesh.position) < hitDist) {
+              hit = true;
+              const dmg = p.isBeam ? 3 : 1;
+              e.hp -= dmg;
+
+              // Voxel debris peeling effect
+              spawnHitSparks(p.mesh.position, e.isBoss ? 0xf43f5e : 0x38bdf8, e.isBoss || e.hp <= 0);
+
+              if (e.hp <= 0) {
+                if (e.isBoss) {
+                  onBossDefeated(e);
+                  enemies.splice(j, 1);
+                } else {
+                  player.kills += 1;
+                  waveState.killsInWave += 1;
+                  spawnVoxelExplosion(p.mesh.position, 28, 0xf97316);
+
+                  // Check wave boss spawn
+                  if (!waveState.bossActive && waveState.killsInWave >= waveState.targetKills) {
+                    spawnBoss();
+                  } else {
+                    e.hp = 3;
+                    const ang = player.yaw + (Math.random() - 0.5) * 1.5;
+                    e.mesh.position.set(player.pos.x - Math.sin(ang) * 560, player.pos.y + (Math.random() - 0.5) * 100, player.pos.z - Math.cos(ang) * 560);
+                  }
+                }
+              }
+              break;
+            }
+          }
+          if (hit || p.life <= 0) {
+            scene.remove(p.mesh);
+            projectiles.splice(i, 1);
+          }
+        }
+
+        // Update Peeling Voxel Debris
+        for (let i = debrisParticles.length - 1; i >= 0; i--) {
+          const dp = debrisParticles[i];
+          dp.mesh.position.addScaledVector(dp.vel, dt);
+          dp.vel.y -= 25 * dt; // gravity
+          dp.mesh.rotation.x += dp.rotVel.x * dt;
+          dp.mesh.rotation.y += dp.rotVel.y * dt;
+          dp.life -= dt;
+          const s = Math.max(0.01, dp.life / dp.maxLife);
+          dp.mesh.scale.setScalar(s);
+          if (dp.life <= 0) {
+            scene.remove(dp.mesh);
+            debrisParticles.splice(i, 1);
+          }
+        }
+
+        // Update Explosion Voxel Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.mesh.position.addScaledVector(pt.vel, dt);
+          pt.mesh.rotation.x += dt * 6;
+          pt.mesh.rotation.y += dt * 6;
+          pt.life -= dt;
+          pt.mesh.scale.setScalar(Math.max(0.01, pt.life));
+          if (pt.life <= 0) {
+            scene.remove(pt.mesh);
+            particles.splice(i, 1);
+          }
+        }
+
+        // Smooth 3-View Camera Transitions
+        const rate = 1.0 / Math.max(0.15, params.viewChange);
+        const tTop = params.view === 'top' ? 1.0 : 0.0;
+        const tFirst = params.view === 'cockpit' ? 1.0 : 0.0;
+        camState.blendTop += (tTop - camState.blendTop) * Math.min(1, rawDt * rate * 2.8);
+        camState.blendFirst += (tFirst - camState.blendFirst) * Math.min(1, rawDt * rate * 2.8);
+        camState.shake = Math.max(0, camState.shake - rawDt * 24);
+
+        const chaseEuler = new THREE.Euler(player.pitch * 0.45, player.yaw, 0, 'YXZ');
+        const backDir = new THREE.Vector3(0, 0, 1).applyEuler(chaseEuler);
+        const chaseDist = params.chaseDist * 26;
+        const chaseElev = Math.sin((params.chaseHeight * Math.PI) / 180) * chaseDist;
+
+        const chasePos = player.pos.clone().addScaledVector(backDir, chaseDist).add(new THREE.Vector3(0, chaseElev, 0));
+        const topPos = player.pos.clone().add(new THREE.Vector3(0, 165, 25));
+        const firstPos = player.pos.clone().addScaledVector(fwd, 4);
+
+        const finalPos = chasePos.clone().lerp(topPos, camState.blendTop).lerp(firstPos, camState.blendFirst);
+        if (camState.shake > 0.2) {
+          finalPos.x += (Math.random() - 0.5) * camState.shake * 0.4;
+          finalPos.y += (Math.random() - 0.5) * camState.shake * 0.4;
+        }
+        camera.position.copy(finalPos);
+
+        const lookTarget = player.pos.clone().addScaledVector(fwd, camState.blendFirst > 0.5 ? 120 : 28);
+        camera.lookAt(lookTarget);
+
+        heroMesh.visible = !player.transforming && camState.blendFirst < 0.72;
+
+        updateHUD();
+      }
+
+      // ==========================================
+      // 9. RENDER & 2D HUD RETICLE OVERLAY
+      // ==========================================
+      function renderFrame() {
+        const rect = glCanvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const W = Math.floor(rect.width);
+        const H = Math.floor(rect.height);
+        const pxDiv = Math.max(1, params.pixelSize);
+        const rtW = Math.max(240, Math.floor(W / pxDiv));
+        const rtH = Math.max(140, Math.floor(H / pxDiv));
+
+        if (glCanvas.width !== W || glCanvas.height !== H) {
+          renderer.setSize(W, H, false);
+          camera.aspect = W / H;
+          camera.updateProjectionMatrix();
+          hudCanvas.width = W;
+          hudCanvas.height = H;
+        }
+        if (rtScene.width !== rtW || rtScene.height !== rtH) {
+          rtScene.setSize(rtW, rtH);
+          rtBloomA.setSize(Math.max(120, Math.floor(rtW / 2)), Math.max(70, Math.floor(rtH / 2)));
+          rtBloomB.setSize(Math.max(120, Math.floor(rtW / 2)), Math.max(70, Math.floor(rtH / 2)));
+        }
+
+        // Pass 1: Render 3D Scene to Pixelated RenderTarget
+        renderer.setRenderTarget(rtScene);
+        renderer.render(scene, camera);
+
+        // Pass 2: Extract High-Luminance Glow + Horizontal Blur
+        postQuad.material = blurMat;
+        blurMat.uniforms.tDiffuse.value = rtScene.texture;
+        blurMat.uniforms.uResolution.value.set(rtBloomA.width, rtBloomA.height);
+        blurMat.uniforms.uDirection.value.set(1.2, 0.0);
+        blurMat.uniforms.uThresholdOnly.value = 1.0;
+        renderer.setRenderTarget(rtBloomA);
+        renderer.render(postScene, postCam);
+
+        // Pass 3: Vertical Blur
+        blurMat.uniforms.tDiffuse.value = rtBloomA.texture;
+        blurMat.uniforms.uDirection.value.set(0.0, 1.2);
+        blurMat.uniforms.uThresholdOnly.value = 0.0;
+        renderer.setRenderTarget(rtBloomB);
+        renderer.render(postScene, postCam);
+
+        // Pass 4: Composite to Main Screen (Subpixel AA + Optical Diffraction + Bayer Dither)
+        postQuad.material = compositeMat;
+        compositeMat.uniforms.tScene.value = rtScene.texture;
+        compositeMat.uniforms.tBloom.value = rtBloomB.texture;
+        compositeMat.uniforms.uBloomStrength.value = params.glow;
+        compositeMat.uniforms.uDiffraction.value = params.diffraction;
+        compositeMat.uniforms.uDitherStrength.value = params.ditherStrength;
+        compositeMat.uniforms.uSubpixelSmooth.value = params.subpixelSmooth ? 1.0 : 0.0;
+        compositeMat.uniforms.uResolution.value.set(W, H);
+        compositeMat.uniforms.uRtResolution.value.set(rtW, rtH);
+        compositeMat.uniforms.uVignette.value = params.vignette;
+        compositeMat.uniforms.uGrain.value = params.filmGrain;
+        compositeMat.uniforms.uTime.value = performance.now() * 0.001;
+        renderer.setRenderTarget(null);
+        renderer.render(postScene, postCam);
+
+        // Draw crisp 2D HUD indicators (Lock-on box, Offscreen Kaiju/Boss arrows, QTE Dodge Ring)
+        hctx.clearRect(0, 0, W, H);
+        if (gameState === 'TITLE') return; // Clean screen during cinematic title demo
+
+        for (let i = 0; i < enemies.length; i++) {
+          const e = enemies[i];
+          const p = e.mesh.position.clone().project(camera);
+          const sx = (p.x * 0.5 + 0.5) * W;
+          const sy = (-p.y * 0.5 + 0.5) * H;
+          const behind = p.z > 1.0;
+
+          if (behind || sx < 16 || sx > W - 16 || sy < 16 || sy > H - 16) {
+            const ang = Math.atan2(sy - H * 0.5, sx - W * 0.5) + (behind ? Math.PI : 0);
+            const ix = Math.max(16, Math.min(W - 16, W * 0.5 + Math.cos(ang) * (W * 0.46)));
+            const iy = Math.max(16, Math.min(H - 16, H * 0.5 + Math.sin(ang) * (H * 0.44)));
+
+            if (e.isBoss) {
+              hctx.fillStyle = '#f43f5e';
+              hctx.fillRect(ix - 7, iy - 7, 14, 14);
+              hctx.strokeStyle = '#facc15';
+              hctx.lineWidth = 1.5;
+              hctx.strokeRect(ix - 9, iy - 9, 18, 18);
+              hctx.font = 'bold 9px monospace';
+              hctx.fillText('BOSS', ix - 11, iy - 12);
+            } else {
+              hctx.fillStyle = '#f43f5e';
+              hctx.fillRect(ix - 4, iy - 4, 8, 8);
+            }
+          } else if (player.lockedEnemy === e) {
+            const isLocked = player.lockProgress >= 0.95;
+            const r = e.isBoss ? 46 : 24;
+            hctx.strokeStyle = e.isBoss ? '#f43f5e' : (isLocked ? '#f43f5e' : '#facc15');
+            hctx.lineWidth = e.isBoss ? 3 : 2;
+            hctx.strokeRect(sx - r, sy - r, r * 2, r * 2);
+
+            if (e.isBoss) {
+              hctx.fillStyle = '#f43f5e';
+              hctx.font = 'bold 10px monospace';
+              hctx.fillText(`CHAOS BOSS [${e.hp}/${e.maxHp}]`, sx - r, sy - r - 6);
+            }
+          }
+        }
+
+        // Offscreen / Onscreen Indicators for Chaos Orbs
+        for (let i = 0; i < enemyProjectiles.length; i++) {
+          const ep = enemyProjectiles[i];
+          const p = ep.mesh.position.clone().project(camera);
+          if (p.z <= 1.0) {
+            const sx = (p.x * 0.5 + 0.5) * W;
+            const sy = (-p.y * 0.5 + 0.5) * H;
+            if (sx >= 0 && sx <= W && sy >= 0 && sy <= H) {
+              hctx.strokeStyle = '#f43f5e';
+              hctx.lineWidth = 1.5;
+              hctx.beginPath();
+              hctx.arc(sx, sy, 7, 0, Math.PI * 2);
+              hctx.stroke();
+            }
+          }
+        }
+
+        // QTE Dual Shrinking Dodge Ring around Ultraman
+        if (player.incomingActive && !player.transforming) {
+          const hp = player.pos.clone().project(camera);
+          const hx = (hp.x * 0.5 + 0.5) * W;
+          const hy = (-hp.y * 0.5 + 0.5) * H;
+          const innerR = 38;
+          const outerR = 38 + (1.0 - Math.min(1.0, player.incomingLockTimer)) * 68;
+          const sweet = player.incomingLockTimer >= 0.55 && player.incomingLockTimer <= 0.98;
+
+          hctx.lineWidth = 2.5;
+          hctx.strokeStyle = '#ef4444';
+          hctx.beginPath(); hctx.arc(hx, hy, innerR, 0, Math.PI * 2); hctx.stroke();
+
+          hctx.strokeStyle = sweet ? '#22d3ee' : '#facc15';
+          hctx.beginPath(); hctx.arc(hx, hy, outerR, 0, Math.PI * 2); hctx.stroke();
+        }
+      }
+
+      // ==========================================
+      // 10. UI & PARAMETER BINDINGS
+      // ==========================================
+      function updateHUD() {
+        document.getElementById('hudKills').textContent = String(player.kills).padStart(2, '0');
+        document.getElementById('hudSpeed').textContent = Math.round(player.speed);
+        document.getElementById('hudView').textContent = params.view.toUpperCase();
+        document.getElementById('hudAmmo').textContent = player.ammo;
+
+        const reloadTag = document.getElementById('hudReloadTag');
+        if (player.reloadingTimer > 0) {
+          reloadTag.classList.remove('hidden');
+          reloadTag.textContent = `CHARGING ${player.reloadingTimer.toFixed(1)}s`;
+        } else {
+          reloadTag.classList.add('hidden');
+        }
+
+        const orb = document.getElementById('colorTimerOrb');
+        const hullEls = document.getElementById('hudHullBars').children;
+        const critical = player.hull <= 2;
+        orb.className = `w-5 h-5 rounded-full border-2 border-slate-200 transition-colors ${
+          critical ? 'bg-rose-500 shadow-[0_0_14px_#f43f5e] timer-critical' : 'bg-cyan-400 shadow-[0_0_12px_#22d3ee]'
+        }`;
+        for (let i = 0; i < hullEls.length; i++) {
+          hullEls[i].className = i < player.hull
+            ? `w-3.5 h-2 rounded-xs ${critical ? 'bg-rose-500' : 'bg-cyan-400'}`
+            : 'w-3.5 h-2 rounded-xs bg-slate-800';
+        }
+
+        const mslEls = document.getElementById('hudMissileBars').children;
+        for (let i = 0; i < mslEls.length; i++) {
+          mslEls[i].className = i < player.missiles
+            ? 'w-2 h-3.5 rounded-xs bg-cyan-400 shadow-[0_0_6px_#22d3ee]'
+            : 'w-2 h-3.5 rounded-xs bg-slate-800';
+        }
+      }
+
+      function updateViewUI() {
+        const on = 'bg-[#e11d48] text-white font-semibold';
+        const off = 'text-slate-400 hover:text-white';
+        ['top', 'chase', 'cockpit'].forEach((v) => {
+          const cap = v.charAt(0).toUpperCase() + v.slice(1);
+          const sb = document.getElementById('btnView' + cap);
+          const tb = document.getElementById('topBarView' + cap);
+          if (sb) sb.className = `py-1 rounded text-[11px] transition ${params.view === v ? on : off}`;
+          if (tb) tb.className = `px-2.5 py-1 rounded text-xs font-mono-tech transition-colors ${params.view === v ? on : off}`;
+        });
+      }
+
+      function updateNebulaUI() {
+        const on = 'bg-[#e11d48] text-white font-semibold';
+        const off = 'text-slate-400 hover:text-white';
+        const map = { nebula: 'btnTimeNebula', solar: 'btnTimeSolar', void: 'btnTimeVoid' };
+        Object.keys(map).forEach((k) => {
+          document.getElementById(map[k]).className = `py-1 rounded text-[11px] transition ${params.nebulaMode === k ? on : off}`;
+        });
+
+        if (params.nebulaMode === 'solar') {
+          skyUniforms.uColorA.value.set('#1a0b0e');
+          skyUniforms.uColorB.value.set('#431407');
+          skyUniforms.uNebulaAccent.value.set('#f97316');
+        } else if (params.nebulaMode === 'void') {
+          skyUniforms.uColorA.value.set('#02040a');
+          skyUniforms.uColorB.value.set('#0f172a');
+          skyUniforms.uNebulaAccent.value.set('#334155');
+        } else {
+          skyUniforms.uColorA.value.set('#060918');
+          skyUniforms.uColorB.value.set('#1e1b4b');
+          skyUniforms.uNebulaAccent.value.set('#0284c7');
+        }
+      }
+
+      function toggleIntelModal(force) {
+        const m = document.getElementById('intelModal');
+        isPaused = typeof force === 'boolean' ? force : !isPaused;
+        m.classList.toggle('hidden', !isPaused);
+      }
+
+      function bindRange(id, valId, key, fmt, extra) {
+        const el = document.getElementById(id);
+        const val = document.getElementById(valId);
+        if (!el) return;
+        el.addEventListener('input', () => {
+          const v = parseFloat(el.value);
+          params[key] = v;
+          if (val) val.textContent = fmt ? fmt(v) : String(v);
+          if (extra) extra(v);
+        });
+      }
+
+      bindRange('ctrlHeroScale', 'valHeroScale', 'heroScale', (v) => v.toFixed(2));
+      bindRange('ctrlSliceSpacing', 'valSliceSpacing', 'sliceSpacing', (v) => v.toFixed(1));
+      bindRange('ctrlPixelSize', 'valPixelSize', 'pixelSize', (v) => String(Math.round(v)));
+      bindRange('ctrlViewChange', 'valViewChange', 'viewChange', (v) => v.toFixed(1));
+      bindRange('ctrlChaseDist', 'valChaseDist', 'chaseDist', (v) => v.toFixed(1));
+      bindRange('ctrlChaseHeight', 'valChaseHeight', 'chaseHeight', (v) => `${Math.round(v)}°`);
+      bindRange('ctrlSpeed', 'valSpeed', 'speed', (v) => String(Math.round(v)));
+      bindRange('ctrlBoost', 'valBoost', 'boostMultiplier', (v) => v.toFixed(1));
+      bindRange('ctrlTurnRate', 'valTurnRate', 'turnRate', (v) => v.toFixed(2));
+      bindRange('ctrlBankAngle', 'valBankAngle', 'bankAngle', (v) => `${Math.round(v)}°`);
+      bindRange('ctrlEnemyCount', 'valEnemyCount', 'enemyCount', (v) => String(Math.round(v)), () => syncEnemies());
+      bindRange('ctrlDodgeSlowMo', 'valDodgeSlowMo', 'dodgeSlowMo', (v) => v.toFixed(1));
+      bindRange('ctrlPlanets', 'valPlanets', 'planetCount', (v) => String(Math.round(v)), () => rebuildCosmosWorld());
+      bindRange('ctrlAsteroids', 'valAsteroids', 'asteroidsDensity', (v) => v.toFixed(2), () => rebuildCosmosWorld());
+      bindRange('ctrlWorldSeed', 'valWorldSeed', 'worldSeed', (v) => String(Math.round(v)), (v) => {
+        skyUniforms.uSeed.value = v;
+        rebuildCosmosWorld();
+      });
+      bindRange('ctrlGlow', 'valGlow', 'glow', (v) => v.toFixed(2));
+      bindRange('ctrlDiffraction', 'valDiffraction', 'diffraction', (v) => v.toFixed(2));
+      bindRange('ctrlDither', 'valDither', 'ditherStrength', (v) => v.toFixed(2));
+      bindRange('ctrlVignette', 'valVignette', 'vignette', (v) => v.toFixed(2));
+      bindRange('ctrlFilmGrain', 'valFilmGrain', 'filmGrain', (v) => v.toFixed(2));
+
+      const ctrlSubpixelEl = document.getElementById('ctrlSubpixel');
+      if (ctrlSubpixelEl) {
+        ctrlSubpixelEl.addEventListener('change', (e) => {
+          params.subpixelSmooth = e.target.checked;
+        });
+      }
+
+      document.getElementById('ctrlExplodeSlices').addEventListener('change', (e) => { params.explodeSlices = e.target.checked; });
+      document.getElementById('ctrlSteerPointer').addEventListener('change', (e) => { params.steerWithPointer = e.target.checked; });
+      document.getElementById('ctrlEnemiesAttack').addEventListener('change', (e) => { params.enemiesAttack = e.target.checked; });
+      document.getElementById('ctrlWingTrails').addEventListener('change', (e) => { params.wingtipTrails = e.target.checked; });
+
+      document.getElementById('ctrlColorBody').addEventListener('input', (e) => {
+        params.colorBody = e.target.value;
+        document.getElementById('valColorBody').textContent = e.target.value.toUpperCase();
+        heroMesh.userData.matSilver.color.set(params.colorBody);
+      });
+      document.getElementById('ctrlColorAccent').addEventListener('input', (e) => {
+        params.colorAccent = e.target.value;
+        document.getElementById('valColorAccent').textContent = e.target.value.toUpperCase();
+        heroMesh.userData.matRed.color.set(params.colorAccent);
+      });
+      document.getElementById('ctrlColorTimer').addEventListener('input', (e) => {
+        params.colorTimer = e.target.value;
+        document.getElementById('valColorTimer').textContent = e.target.value.toUpperCase();
+      });
+
+      ['top', 'chase', 'cockpit'].forEach((v) => {
+        const cap = v.charAt(0).toUpperCase() + v.slice(1);
+        document.getElementById('btnView' + cap).addEventListener('click', () => setCameraView(v));
+        document.getElementById('topBarView' + cap).addEventListener('click', () => setCameraView(v));
+      });
+
+      ['nebula', 'solar', 'void'].forEach((m) => {
+        const cap = m.charAt(0).toUpperCase() + m.slice(1);
+        document.getElementById('btnTime' + cap).addEventListener('click', () => {
+          params.nebulaMode = m;
+          updateNebulaUI();
+        });
+      });
+
+      function replayStackIntro() {
+        player.stackIntroProgress = 0.0;
+        showBanner('✨ 14层 3D 体素切片逐层合体演示', 'bg-cyan-400 text-slate-950');
+      }
+      const btnIntro = document.getElementById('btnTriggerStackIntro');
+      if (btnIntro) btnIntro.addEventListener('click', replayStackIntro);
+      const btnIntroHeader = document.getElementById('btnStackIntroHeader');
+      if (btnIntroHeader) btnIntroHeader.addEventListener('click', replayStackIntro);
+
+      // Title & Demo Showcase Buttons
+      const btnTitleHeader = document.getElementById('btnTitleModeHeader');
+      if (btnTitleHeader) btnTitleHeader.addEventListener('click', returnToTitle);
+
+      const btnLaunch = document.getElementById('btnLaunchGame');
+      if (btnLaunch) btnLaunch.addEventListener('click', launchGame);
+
+      const logoClick = document.getElementById('logoHeroClick');
+      if (logoClick) logoClick.addEventListener('click', launchGame);
+
+      const btnDemoP = document.getElementById('btnDemoPrev');
+      if (btnDemoP) {
+        btnDemoP.addEventListener('click', (e) => {
+          e.stopPropagation();
+          demoPhase = (demoPhase + 2) % 3;
+          demoTimer = demoPhase * 7.5;
+          updateDemoUI();
+        });
+      }
+
+      const btnDemoN = document.getElementById('btnDemoNext');
+      if (btnDemoN) {
+        btnDemoN.addEventListener('click', (e) => {
+          e.stopPropagation();
+          demoPhase = (demoPhase + 1) % 3;
+          demoTimer = demoPhase * 7.5;
+          updateDemoUI();
+        });
+      }
+
+      document.getElementById('btnAudioToggle').addEventListener('click', () => {
+        soundEngine.init();
+        soundEngine.muted = !soundEngine.muted;
+        document.getElementById('btnAudioToggle').textContent = soundEngine.muted ? 'SFX: OFF' : 'SFX: ON';
+      });
+      document.getElementById('btnIntel').addEventListener('click', () => toggleIntelModal());
+      document.getElementById('btnCloseIntel').addEventListener('click', () => toggleIntelModal(false));
+      document.getElementById('btnResumeFlight').addEventListener('click', () => toggleIntelModal(false));
+      document.getElementById('btnTutorial').addEventListener('click', () => document.getElementById('tutorialCard').classList.toggle('hidden'));
+      document.getElementById('btnCloseTutorial').addEventListener('click', () => document.getElementById('tutorialCard').classList.add('hidden'));
+      document.getElementById('btnToggleControls').addEventListener('click', () => document.getElementById('controlsPanel').classList.toggle('hidden'));
+
+      document.getElementById('paramSearch').addEventListener('input', (e) => {
+        const q = e.target.value.trim().toLowerCase();
+        document.querySelectorAll('.param-group').forEach((sec) => {
+          const kw = (sec.getAttribute('data-keywords') || '') + ' ' + sec.textContent.toLowerCase();
+          sec.style.display = (!q || kw.includes(q)) ? '' : 'none';
+        });
+      });
+
+      document.getElementById('btnResetParams').addEventListener('click', () => {
+        Object.assign(params, DEFAULT_PARAMS);
+        document.getElementById('ctrlHeroScale').value = params.heroScale;
+        document.getElementById('valHeroScale').textContent = params.heroScale.toFixed(2);
+        document.getElementById('ctrlSliceSpacing').value = params.sliceSpacing;
+        document.getElementById('valSliceSpacing').textContent = params.sliceSpacing.toFixed(1);
+        document.getElementById('ctrlPixelSize').value = params.pixelSize;
+        document.getElementById('valPixelSize').textContent = String(params.pixelSize);
+        document.getElementById('ctrlExplodeSlices').checked = false;
+        document.getElementById('ctrlPlanets').value = params.planetCount;
+        document.getElementById('valPlanets').textContent = String(params.planetCount);
+        document.getElementById('ctrlGlow').value = params.glow;
+        document.getElementById('valGlow').textContent = params.glow.toFixed(2);
+        if (document.getElementById('ctrlDiffraction')) {
+          document.getElementById('ctrlDiffraction').value = params.diffraction;
+          document.getElementById('valDiffraction').textContent = params.diffraction.toFixed(2);
+        }
+        if (document.getElementById('ctrlDither')) {
+          document.getElementById('ctrlDither').value = params.ditherStrength;
+          document.getElementById('valDither').textContent = params.ditherStrength.toFixed(2);
+        }
+        if (document.getElementById('ctrlSubpixel')) {
+          document.getElementById('ctrlSubpixel').checked = params.subpixelSmooth;
+        }
+        if (document.getElementById('ctrlFilmGrain')) {
+          document.getElementById('ctrlFilmGrain').value = params.filmGrain;
+          document.getElementById('valFilmGrain').textContent = params.filmGrain.toFixed(2);
+        }
+        heroMesh.userData.matSilver.color.set(params.colorBody);
+        heroMesh.userData.matRed.color.set(params.colorAccent);
+        rebuildCosmosWorld();
+        syncEnemies();
+        updateViewUI();
+        updateNebulaUI();
+      });
+
+      // Bottom action deck bindings (safe existence checks)
+      const bindBtn = (id, evt, fn) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(evt, fn);
+      };
+      bindBtn('actBoost', 'pointerdown', () => { soundEngine.init(); holdBoostBtn = true; });
+      bindBtn('actCannon', 'pointerdown', () => { soundEngine.init(); holdCannonBtn = true; });
+      window.addEventListener('pointerup', () => { holdBoostBtn = false; holdCannonBtn = false; });
+      bindBtn('actRoll', 'click', () => { soundEngine.init(); triggerBarrelRoll(1); });
+      bindBtn('actLoop', 'click', () => { soundEngine.init(); triggerLoop(1); });
+      bindBtn('actMissile', 'click', () => { soundEngine.init(); fireSpaciumSalvo(1); });
+      bindBtn('actEject', 'click', () => { soundEngine.init(); triggerLightTransform(); });
+
+      updateDemoUI();
+      window.__gameDebug = { player, pointer, projectiles, launchGame, returnToTitle, fireUltraSlash, triggerBarrelRoll, getGameState: () => gameState };
+
+      // ==========================================
+      // 11. MAIN ANIMATION LOOP
+      // ==========================================
+      let lastTime = performance.now();
+      let animId = null;
+
+      function animate(now) {
+        const rawDt = (now - lastTime) / 1000;
+        lastTime = now;
+        updateSimulation(rawDt);
+        renderFrame();
+        animId = requestAnimationFrame(animate);
+      }
+
+      function startLoop() {
+        if (animId) return;
+        lastTime = performance.now();
+        animId = requestAnimationFrame(animate);
+      }
+
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        startLoop();
+      } else {
+        window.addEventListener('DOMContentLoaded', startLoop);
+        window.addEventListener('load', startLoop);
+      }
+      // Direct invocation ensures game loop runs immediately
+      startLoop();
+    })();
+  </script>
+</body>
+</html>
