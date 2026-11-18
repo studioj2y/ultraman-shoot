@@ -88,15 +88,43 @@
     .pip.off { background: #1e293b; box-shadow: none; }
     @keyframes critPulse { from { opacity: 0.45; } to { opacity: 1; } }
 
-    /* Boss Bar */
-    #bossBarWrap {
-      display: none; position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
-      width: min(380px, 88vw); background: rgba(20, 8, 18, 0.9);
+    /* Boss Bar & Crisis Event Bar */
+    #bossBarWrap, #eventHud {
+      display: none; position: absolute; top: 54px; left: 50%; transform: translateX(-50%);
+      width: min(390px, 90vw); background: rgba(20, 8, 18, 0.9);
       border: 1px solid rgba(244, 63, 94, 0.7); border-radius: 7px; padding: 6px 10px;
       z-index: 16; pointer-events: none; text-align: center;
     }
+    #eventHud { background: rgba(10, 18, 34, 0.9); border-color: rgba(56, 189, 248, 0.75); }
     .boss-bar-bg { height: 7px; background: #1e1b2e; border-radius: 4px; overflow: hidden; margin-top: 4px; }
     #bossBarFill { height: 100%; width: 100%; background: linear-gradient(90deg, #e11d48, #fbbf24); transition: width 0.1s; }
+    #eventBarFill { height: 100%; width: 100%; background: linear-gradient(90deg, #38bdf8, #34d399); transition: width 0.1s; }
+
+    /* Difficulty Selector & Perk Draft Cards */
+    .diff-row { display: flex; justify-content: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .diff-btn {
+      padding: 6px 12px; font-size: 11px; font-weight: 800; font-family: inherit;
+      border-radius: 6px; border: 1px solid #334155; background: #111827; color: #94a3b8;
+      cursor: pointer; transition: all 0.14s;
+    }
+    .diff-btn:hover { color: #f8fafc; border-color: #64748b; }
+    .diff-btn.active { background: rgba(14, 165, 233, 0.25); border-color: #38bdf8; color: #e0f2fe; box-shadow: 0 0 12px rgba(56, 189, 248, 0.35); }
+    .perk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 600px) { .perk-grid { grid-template-columns: 1fr; } }
+    .perk-card {
+      position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
+      gap: 6px; padding: 14px 10px 12px; border-radius: 10px;
+      background: linear-gradient(160deg, #0f172a, #1e1b4b); border: 1.5px solid rgba(56, 189, 248, 0.45);
+      color: #f8fafc; cursor: pointer; font-family: inherit; transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+    }
+    .perk-card:hover { transform: translateY(-3px); border-color: #fbbf24; box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3); }
+    .perk-ico { font-size: 24px; line-height: 1; }
+    .perk-nm { font-size: 12px; font-weight: 900; color: #fde68a; }
+    .perk-ds { font-size: 10.5px; color: #cbd5e1; line-height: 1.45; }
+    .perk-key {
+      font-size: 9px; font-weight: 800; color: #38bdf8; background: rgba(14, 165, 233, 0.18);
+      padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4);
+    }
 
     /* Banner */
     #bannerMsg {
@@ -209,7 +237,7 @@
       position: absolute; bottom: 16px; right: 12px; z-index: 22; touch-action: none;
       flex-direction: column; align-items: flex-end; gap: 7px;
     }
-    .deck-top { display: flex; gap: 7px; padding-right: 4px; align-items: center; }
+    .deck-top { display: flex; gap: 5px; padding-right: 2px; align-items: center; }
     .deck-main { display: flex; align-items: flex-end; gap: 10px; }
     .deck-sub-col { display: flex; flex-direction: column; gap: 8px; }
 
@@ -219,9 +247,9 @@
       cursor: pointer; touch-action: none; transition: transform 0.08s;
     }
     .tbtn:active { transform: scale(0.92); filter: brightness(1.2); }
-    .tbtn-view { width: 38px; height: 38px; font-size: 9px; background: rgba(15,23,42,0.9); border: 1px solid #64748b; color: #cbd5e1; }
+    .tbtn-view { width: 35px; height: 35px; font-size: 9px; background: rgba(15,23,42,0.9); border: 1px solid #64748b; color: #cbd5e1; }
     .tbtn-sphere {
-      width: 42px; height: 42px; font-size: 10px;
+      width: 39px; height: 39px; font-size: 9.5px;
       background: radial-gradient(circle, #f59e0b, #b91c1c);
       border: 1.5px solid #fde68a; color: #fffbeb;
       box-shadow: 0 0 12px rgba(245, 158, 11, 0.55);
@@ -264,7 +292,7 @@
     <div class="brand">
       <span class="dot"></span>
       <span class="brand-title">Forge | ultraman-sprite</span>
-      <span class="badge">Forward Formation · 4 Sectors · 2 Bosses · Lv.3 Homing Slash</span>
+      <span class="badge">3 Stances · Bullet Reflect · Crisis Ops · 3 Bosses · M78 Perks</span>
     </div>
     <div class="hdr-actions">
       <a href="index.html" class="hdr-btn switch-3d" title="切换回 Three.js WebGL 3D 微体素版进行对比">
@@ -290,6 +318,7 @@
           <div class="hud-row">
             <div><span class="stat-lbl">TIMER </span><span class="hull-pips" id="hullPips"></span></div>
             <div><span class="stat-lbl">SCORE </span><span class="stat-val stat-cyan" id="hudScore">0</span></div>
+            <div><span class="stat-lbl">COMBO </span><span class="stat-val stat-amber" id="hudCombo">×1.0</span></div>
             <div><span class="stat-lbl">BEST </span><span class="stat-val stat-emerald" id="hudBest">0</span></div>
             <div><span class="stat-lbl">WAVE </span><span class="stat-val stat-amber" id="hudWave">1</span></div>
             <div><span class="stat-lbl">SECTOR </span><span class="stat-val stat-cyan" id="hudSector">M78 翡翠星云</span></div>
@@ -302,6 +331,15 @@
             <div><span class="stat-lbl">FPS </span><span class="stat-val" id="hudFps">60</span></div>
           </div>
         </div>
+      </div>
+
+      <!-- Dynamic Mid-Wave Crisis Event Bar -->
+      <div id="eventHud">
+        <div style="font-size:11px;font-weight:800;color:#bae6fd;display:flex;justify-content:space-between;gap:8px;">
+          <span id="eventTitle">🛰️ 突发使命：护卫科特队飞燕号</span>
+          <span id="eventTimerTxt">18.0s</span>
+        </div>
+        <div class="boss-bar-bg"><div id="eventBarFill"></div></div>
       </div>
 
       <!-- Boss HP Bar -->
@@ -318,10 +356,12 @@
       <!-- Bottom-Left Weapon Energy HUD -->
       <div class="hud-card" id="energyHud">
         <div class="hud-row">
+          <button id="hudFormPill" type="button" class="sphere-pill" style="pointer-events:auto;cursor:pointer;background:rgba(37,99,235,0.28);border-color:#60a5fa;color:#dbeafe;" title="按 Tab 或 1/2/3 切换月神/日冕/日蚀形态">🌙 月神 LUNA</button>
           <div><span class="stat-lbl">光轮 </span><span class="stat-val stat-cyan" id="hudAmmo">300</span></div>
           <div id="hudSlashLv" class="sphere-pill" style="background:rgba(14,165,233,0.2);border-color:rgba(56,189,248,0.65);color:#bae6fd;">💠 LV.1</div>
           <div><span class="stat-lbl">光线</span><span class="beam-dots" id="hudBeams"></span></div>
           <div id="hudSpherePill" class="sphere-pill" title="按 E 键或点击红球释放红色能量光球并回满体力">🔴 红球×1</div>
+          <span id="hudWingman" class="stat-lbl" style="color:#fde68a;display:none;font-weight:800;">🤖×1</span>
         </div>
       </div>
 
@@ -329,16 +369,20 @@
       <div id="titleOverlay" class="overlay-mask">
         <div></div>
         <div class="modal-box">
-          <div class="pixel-tag">PURE CPU SPRITE-STACKING · FORWARD FORMATION EDITION</div>
+          <div class="pixel-tag">PURE CPU SPRITE-STACKING · TACTICAL COMBAT OVERHAUL</div>
           <h1 class="main-h1">ULTRAMAN PIXEL STACK</h1>
           <p class="sub-desc">
-            纯 CPU <code>Uint32Array</code> 正面迎击流像素空战完全体：<br/>
-            4800m 无界流式星海 · 4大动态星域 · 前向伴飞编队与防绕圈跃迁 · Lv.3 曲射追踪光轮 · 爆裂熔岩陨石 &amp; 加速星环 · 双重星域 Boss
+            三形态高斯变身切换 · 翻滚奥特念力弹反 · 突发护航 / 陨石雨 / 指挥舰使命 · 3 大浮游炮破甲 Boss · 乌英达姆胶囊僚机 · M78 潜能三选一构筑
           </p>
+          <div class="diff-row">
+            <button id="diffBtn0" type="button" class="diff-btn active">🛡️ 标准 NORMAL</button>
+            <button id="diffBtn1" type="button" class="diff-btn">⚔️ 警备队 VETERAN</button>
+            <button id="diffBtn2" type="button" class="diff-btn">🔥 奥特传奇 ULTRA</button>
+          </div>
           <button id="btnStartGame" type="button" class="start-btn">▶ 立即出击 (SHUWATCH)</button>
           <div style="margin-top:12px;font-size:11px;color:#94a3b8;line-height:1.6;">
-            PC: 鼠标瞄准 · 右键/C 三段追踪光轮 · 左键/R 翻滚弹反 · X/Ctrl 减速悬停迎战 · Shift 冲刺 · M 斯派修姆光线 · E 红球<br/>
-            手机: 左摇杆航向 · 右侧【减速】控制接敌节奏 ·【八分光轮】78px 主键连射 ·【红球】救急突围
+            PC: 鼠标瞄准 · 右键/C 八分光轮 · 左键/R 翻滚弹反 · Tab / 1·2·3 切换形态 · X/Ctrl 减速 · Shift 冲刺 · M 光线 · E 红球<br/>
+            手机: 左摇杆航向 · 右排【形态】【减速】自由切档 · 78px【八分光轮】连射 ·【翻滚】弹反 ·【红球】突围
           </div>
         </div>
         <div style="font-size:11px;color:#64748b;">点击顶部「🌐 Three.js版」可随时一键切换对比两大引擎</div>
@@ -350,14 +394,28 @@
           <div class="pixel-tag">PAUSED · FLIGHT BRIEFING</div>
           <h2 style="font-size:20px;font-weight:900;color:#fff;margin-bottom:8px;">M78 宇宙空战暂停中</h2>
           <div style="font-size:11px;color:#cbd5e1;text-align:left;line-height:1.75;background:#111827;padding:12px;border-radius:8px;border:1px solid #1e293b;">
-            • <strong>前向编队正面交锋</strong>：怪兽与 Boss 会保持在正前方 300m–600m 编队伴飞对抗，越过身后时自动折跃回前场；按 <strong>X / Ctrl（或触屏减速）</strong> 可降速拉稳准星正面点射！<br/>
-            • <strong>四大星域与特殊天体</strong>：每波次自动跃迁新星域；击碎 <strong>🔥 熔岩陨石</strong> 引发 145m 范围引爆清弹；击碎 <strong>💎 光晶矿石</strong> 掉落核心升级 <strong>Lv.1→3 多重追踪八分光轮</strong>；穿过 <strong>✨ 星环</strong> 加速充能！<br/>
-            • <strong>四大怪兽与双星域 Boss</strong>：巴尔坦幻影分身、杰顿护盾兽（光线秒破盾）、金古桥狙击炮、贝蒙斯坦分裂星雷，以及交替登场的 <strong>超级杰顿 / 三首黄金帝王龙</strong>！<br/>
-            • <strong>完美闪避与翻滚弹反</strong>：敌弹进入 105m 绿环（或近距缠斗 95m 内）按 <strong>翻滚 (左键/R)</strong> 触发子弹时间 + 免费斯派修姆反击；濒死按 <strong>E / 红球</strong> 满血突围！
+            • <strong>三形态实时切换 (Tab / 1·2·3)</strong>：<strong>🌙 月神</strong> 高速连射+超强追踪+宽容闪避；<strong>☀️ 日冕</strong> 高伤溅射+2.5倍破盾/拆浮游炮；击败第1波 Boss 解锁兼顾攻速穿透的 <strong>✨ 日蚀形态</strong>！<br/>
+            • <strong>念力翻滚弹反 (左键 / R)</strong>：敌人弹幕进入绿环时翻滚，不仅触发子弹时间与斯派修姆反击，还会将周围敌弹化为金色高伤反击光矢射回敌机！<br/>
+            • <strong>突发战区使命与浮游炮破甲</strong>：每波先锋战后触发「护卫飞燕号 / 陨石火雨 / 精英指挥舰」使命（成功能召唤 🤖 乌英达姆胶囊僚机）；拆光 Boss 浮游护盾可触发 4.6秒 <strong>ARMOR BREAK 弱点双倍暴击</strong>！<br/>
+            • <strong>波次三选一潜能觉醒</strong>：击破星域 Boss（超级杰顿 / 黄金帝王龙 / 暗黑扎基）可永久抽取强力构筑技能并冲击最高连击评级！
           </div>
           <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
             <button id="btnResumeGame" type="button" class="start-btn" style="margin-top:0;">▶ 继续战斗 (ESC)</button>
             <button id="btnRestartPause" type="button" class="hdr-btn" style="padding:10px 16px;font-size:12px;">↺ 重新开局</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Between-Wave Roguelite Perk Draft Overlay -->
+      <div id="perkOverlay" class="overlay-mask hidden">
+        <div class="modal-box" style="max-width:620px;border-color:rgba(251,191,36,0.65);">
+          <div class="pixel-tag" style="background:rgba(245,158,11,0.22);border-color:#fbbf24;color:#fde68a;">M78 NEBULA UPGRADE · BOSS DEFEATED</div>
+          <h2 style="font-size:21px;font-weight:900;color:#fff;margin-bottom:4px;">🌟 光之国潜能觉醒（三选一）</h2>
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:12px;">点击卡片或按键盘 1 / 2 / 3 选择一项永久强化并跃迁至下一星域</div>
+          <div class="perk-grid">
+            <button id="perkCard0" type="button" class="perk-card"><div id="perkIcon0" class="perk-ico">⚔️</div><div id="perkName0" class="perk-nm">强化1</div><div id="perkDesc0" class="perk-ds">描述</div><span class="perk-key">[1]</span></button>
+            <button id="perkCard1" type="button" class="perk-card"><div id="perkIcon1" class="perk-ico">🤖</div><div id="perkName1" class="perk-nm">强化2</div><div id="perkDesc1" class="perk-ds">描述</div><span class="perk-key">[2]</span></button>
+            <button id="perkCard2" type="button" class="perk-card"><div id="perkIcon2" class="perk-ico">🪞</div><div id="perkName2" class="perk-nm">强化3</div><div id="perkDesc2" class="perk-ds">描述</div><span class="perk-key">[3]</span></button>
           </div>
         </div>
       </div>
@@ -372,6 +430,8 @@
             <div class="go-cell"><div class="go-k">历史最高 BEST</div><div id="goBest" class="go-v" style="color:#34d399;">0</div></div>
             <div class="go-cell"><div class="go-k">抵达波次 WAVE</div><div id="goWave" class="go-v" style="color:#fbbf24;">1</div></div>
             <div class="go-cell"><div class="go-k">击破怪兽 KILLS</div><div id="goKills" class="go-v" style="color:#fb7185;">0</div></div>
+            <div class="go-cell"><div class="go-k">最高连击 COMBO</div><div id="goCombo" class="go-v" style="color:#38bdf8;">0</div></div>
+            <div class="go-cell"><div class="go-k">综合评级 RANK</div><div id="goRank" class="go-v" style="color:#fde047;">A</div></div>
           </div>
           <button id="btnRetryGame" type="button" class="start-btn">▶ 再次出击 (SHUWATCH)</button>
         </div>
@@ -385,6 +445,7 @@
       <!-- Mobile Right Action Deck -->
       <div id="mobileDeck" class="touch-ui">
         <div class="deck-top">
+          <button id="tBtnForm" type="button" class="tbtn tbtn-view" style="border-color:#60a5fa;color:#93c5fd;" title="切换月神/日冕/日蚀形态">形态</button>
           <button id="tBtnBrake" type="button" class="tbtn tbtn-view" title="长按减速悬停迎击">减速</button>
           <button id="tBtnView" type="button" class="tbtn tbtn-view">视角</button>
           <button id="tBtnSphere" type="button" class="tbtn tbtn-sphere" title="化身红色光球满血复活与冲撞">红球</button>
@@ -463,11 +524,11 @@
       </div>
 
       <div class="ctrl-sec" style="font-size:11px;color:#94a3b8;line-height:1.55;">
-        <div class="ctrl-sec-title" style="color:#fda4af;">正面空战与星域内容</div>
-        • 前向编队 AI + 1380m 曲射追踪八分光轮 (Lv.1~3)。<br/>
-        • X/Ctrl 减速悬停 · 4大动态星域与 4800m 无界星海。<br/>
-        • 爆裂熔岩陨石、光晶矿石、加速星环、4种差异化怪兽。<br/>
-        • 超级杰顿 / 三首黄金帝王龙双 Boss 交替镇守波次！
+        <div class="ctrl-sec-title" style="color:#fda4af;">核心玩法与挑战要素</div>
+        • 月神 / 日冕 / 日蚀三形态实时变身（Tab / 1·2·3）。<br/>
+        • 翻滚念力弹反敌弹 + 绿环子弹时间贯穿光线。<br/>
+        • 突发护航/陨石雨/指挥舰使命 &amp; 乌英达姆胶囊僚机。<br/>
+        • 超级杰顿 / 黄金帝王龙 / 暗黑扎基 + 破甲 Boss 战 + 三选一构筑！
       </div>
     </aside>
   </div>
@@ -509,7 +570,9 @@
       15:[packHex(0x67e8f9), packHex(0xa5f3fc), packHex(0xe0f2fe), packHex(0xffffff), packHex(0xffffff)],
       16:[packHex(0x064e3b), packHex(0x0f766e), packHex(0x14b8a6), packHex(0x2dd4bf), packHex(0x99f6e4)],
       17:[packHex(0x78350f), packHex(0xb45309), packHex(0xd97706), packHex(0xfbbf24), packHex(0xfef08a)],
-      18:[packHex(0x059669), packHex(0x10b981), packHex(0x34d399), packHex(0xa7f3d0), packHex(0xffffff)]
+      18:[packHex(0x059669), packHex(0x10b981), packHex(0x34d399), packHex(0xa7f3d0), packHex(0xffffff)],
+      19:[packHex(0x1e3a8a), packHex(0x1d4ed8), packHex(0x2563eb), packHex(0x3b82f6), packHex(0x93c5fd)],
+      20:[packHex(0x4c1d95), packHex(0x6d28d9), packHex(0xd97706), packHex(0xfbbf24), packHex(0xfef08a)]
     };
     const EMISSIVE_MAT = new Uint8Array(24);
     EMISSIVE_MAT[3] = 1; EMISSIVE_MAT[5] = 2; EMISSIVE_MAT[10] = 2; EMISSIVE_MAT[11] = 3; EMISSIVE_MAT[13] = 3; EMISSIVE_MAT[15] = 2; EMISSIVE_MAT[18] = 4;
@@ -557,10 +620,13 @@
       dodge()     { this.tone(420, 920, 0.16, 'triangle', 0.09); },
       roar()      { this.tone(160, 42, 0.42, 'sawtooth', 0.12); },
       warnBeep()  { this.tone(880, 880, 0.09, 'sine', 0.06, 0); this.tone(660, 660, 0.11, 'sine', 0.055, 0.12); },
-      transform() { this.tone(330, 1320, 0.38, 'triangle', 0.10, 0); this.tone(523, 1567, 0.32, 'sine', 0.08, 0.08); },
-      powerup()   { this.tone(523, 1046, 0.14, 'triangle', 0.09, 0); this.tone(784, 1568, 0.18, 'sine', 0.08, 0.09); },
-      ring()      { this.tone(660, 1320, 0.16, 'sine', 0.08, 0); },
-      shieldHit() { this.tone(320, 180, 0.07, 'triangle', 0.07, 0); },
+      transform()  { this.tone(330, 1320, 0.38, 'triangle', 0.10, 0); this.tone(523, 1567, 0.32, 'sine', 0.08, 0.08); },
+      powerup()    { this.tone(523, 1046, 0.14, 'triangle', 0.09, 0); this.tone(784, 1568, 0.18, 'sine', 0.08, 0.09); },
+      ring()       { this.tone(660, 1320, 0.16, 'sine', 0.08, 0); },
+      shieldHit()  { this.tone(320, 180, 0.07, 'triangle', 0.07, 0); },
+      reflect()    { this.tone(580, 1480, 0.14, 'triangle', 0.10, 0); },
+      formSwap()   { this.tone(440, 880, 0.12, 'sine', 0.08, 0); this.tone(660, 1320, 0.14, 'triangle', 0.07, 0.06); },
+      armorBreak() { this.tone(240, 90, 0.22, 'sawtooth', 0.12, 0); this.tone(880, 440, 0.18, 'square', 0.09, 0.05); },
       stepBgm(rawDt, isPlaying, bossPhase2) {
         if (!this.bgmOn || this.muted || !this.ctx || !isPlaying) return;
         const interval = bossPhase2 ? 0.145 : 0.195;
@@ -699,7 +765,7 @@
       const ang = Math.atan2(z, x);
       const tooth = Math.sin(ang * 8) > 0.15 ? 1.25 : 0.0;
       if (r >= 2.2 && r <= 3.9 + tooth) {
-        return r <= 3.1 ? 15 : 5;
+        return r <= 3.1 ? 15 : 2;
       }
       return 0;
     });
@@ -801,7 +867,71 @@
       }
       return 0;
     });
-    const BOSS_STACKS = [BOSS_ZETTON_STACK, BOSS_DRAGON_STACK];
+
+    // Dark Ultra Evil Titan (Dark Zagi) Boss Model
+    const BOSS_ZAGI_STACK = compileSpriteStack(18, -19, 19, -12, 12, 8.5, (x, s, z) => {
+      const ax = Math.abs(x);
+      if (z >= -17 && z <= -10 && s >= 7 && s <= 17) {
+        if (ax === 0 && s >= 11 && s <= 17 && z >= -16) return 11;
+        if ((ax / 2.9) ** 2 + ((s - 10.6) / 3.8) ** 2 + ((z + 13.5) / 3.8) ** 2 <= 1.0) {
+          if (z <= -15 && ax >= 1 && ax <= 2 && Math.abs(s - 10.5) <= 1.0) return 13;
+          return 8;
+        }
+      }
+      if (z >= -9 && z <= 7 && s >= 3 && s <= 14) {
+        const w = z < -1 ? 5.2 : 4.2;
+        if ((ax / w) ** 2 + ((s - 8.5) / 4.2) ** 2 <= 1.0) {
+          if (s <= 5 && Math.hypot(ax, z + 4.5) <= 1.5) return 13;
+          if (ax >= w - 1.2 || (z <= -2 && z >= -6 && Math.abs(ax - (z + 6) * 0.6) <= 1.1)) return 11;
+          return 8;
+        }
+      }
+      if (z >= -4 && z <= 5 && s >= 8 && s <= 13 && ax >= 5 && ax <= 11 && ax - 5 <= (z + 4) * 0.8) {
+        return ax >= 10 ? 13 : 8;
+      }
+      if (z >= -19 && z <= -6 && s >= 7 && s <= 11 && Math.abs(ax - (5.6 - (-6 - z) * 0.14)) <= 1.3) {
+        return z <= -15 ? 11 : 8;
+      }
+      if (z >= 7 && z <= 19 && s >= 6 && s <= 11 && Math.abs(ax - 1.8) <= 1.3) {
+        return z >= 15 ? 11 : 8;
+      }
+      return 0;
+    });
+    const BOSS_STACKS = [BOSS_ZETTON_STACK, BOSS_DRAGON_STACK, BOSS_ZAGI_STACK];
+
+    // Science Patrol Escort Jet VTOL (科特队飞燕号护卫战机)
+    const SSSP_JET_STACK = compileSpriteStack(9, -12, 10, -10, 10, 4.0, (x, s, z) => {
+      const ax = Math.abs(x);
+      if (z >= -12 && z <= 10 && s >= 3 && s <= 6 && ax <= Math.max(0.8, 2.2 - Math.max(0, -z - 4) * 0.22)) {
+        if (z >= -8 && z <= -4 && s >= 5 && ax <= 1) return 5;
+        if (z >= 9 && ax === 1 && s === 4) return 3;
+        return z % 4 === 0 ? 2 : 1;
+      }
+      if (z >= -2 && z <= 8 && s === 4 && ax >= 2 && ax <= Math.min(10, 2 + (z + 2) * 0.9)) {
+        return ax >= 9 ? 4 : (z >= 5 ? 2 : 1);
+      }
+      if (z >= 3 && z <= 9 && s >= 5 && s <= 8 && ax === 0) return 2;
+      return 0;
+    });
+
+    // Windom Capsule Monster Autonomous Wingman Drone
+    const WINGMAN_STACK = compileSpriteStack(7, -3, 3, -3, 3, 3.0, (x, s, z) => {
+      const ax = Math.abs(x);
+      if (s === 6 && ax <= 1 && Math.abs(z) <= 1) return 3;
+      if (z <= -2 && s >= 3 && s <= 4 && ax <= 2) return 10;
+      if ((x / 2.8) ** 2 + ((s - 3) / 2.8) ** 2 + (z / 2.8) ** 2 <= 1.0) {
+        return ax >= 2 ? 17 : 1;
+      }
+      return 0;
+    });
+
+    // Boss & Carrier Orbiting Shield Funnel Bit
+    const SHIELD_BIT_STACK = compileSpriteStack(6, -3, 3, -3, 3, 2.5, (x, s, z) => {
+      const d = Math.abs(x) + Math.abs(s - 2.5) + Math.abs(z);
+      if (d <= 1.2) return 5;
+      if (d <= 2.9) return (Math.abs(x) === 2 || Math.abs(z) === 2) ? 11 : 8;
+      return 0;
+    });
 
     const AST_SMALL = compileSpriteStack(7, -3, 3, -3, 3, 3.0, (x, s, z) => {
       const d = (x / 3.1) ** 2 + ((s - 3) / 2.8) ** 2 + (z / 3.0) ** 2;
@@ -932,7 +1062,7 @@
     // =========================================================================
     const _tmpC = { x: 0, y: 0, z: 0 };
 
-    function drawSpriteStack(stack, wx, wy, wz, yaw, pitch, roll, scale, spreadMul, maskId, flashWhite, timerOverrideMat) {
+    function drawSpriteStack(stack, wx, wy, wz, yaw, pitch, roll, scale, spreadMul, maskId, flashWhite, timerOverrideMat, accentOverrideMat = 0) {
       worldToCam(wx, wy, wz, _tmpC);
       const cz = _tmpC.z;
       if (cz < 6 || cz > 4800) return;
@@ -1032,6 +1162,7 @@
 
           let matId = M[v];
           if (timerOverrideMat && matId === 5) matId = timerOverrideMat;
+          if (accentOverrideMat && matId === 2) matId = accentOverrideMat;
           const glowType = EMISSIVE_MAT[matId];
           let col;
           if (flashWhite) {
@@ -1315,26 +1446,114 @@
     }
 
     // =========================================================================
-    // 7. GAMEPLAY STATE, FORWARD-ARC FORMATION AI, STREAMING COSMOS & WEAPONS
+    // 7. GAMEPLAY STATE, FORMS, DIFFICULTY, PERKS, STREAMING COSMOS & WEAPONS
     // =========================================================================
-    let gameState = 'TITLE'; // 'TITLE' | 'PLAY' | 'PAUSED' | 'GAMEOVER'
+    let gameState = 'TITLE'; // 'TITLE' | 'PLAY' | 'PAUSED' | 'PERK_SELECT' | 'GAMEOVER'
+    let difficulty = 0; // 0: NORMAL, 1: VETERAN, 2: ULTRA
     let score = 0, wave = 1, kills = 0;
     let bestScore = 0;
     try { bestScore = parseInt(localStorage.getItem('ultraman_sprite_best') || '0', 10) || 0; } catch (_) {}
     let slowMoTimer = 0, bannerTimer = 0, warnBeepTimer = 0, dmgFlashTimer = 0, hitStopTimer = 0;
-    let waveStage = 'VANGUARD'; // 'VANGUARD' | 'MAIN' | 'BOSS'
+    let waveStage = 'VANGUARD'; // 'VANGUARD' | 'CRISIS' | 'MAIN' | 'BOSS'
     let nextEnemyUid = 1;
     let lastLockedUid = 0;
+
+    const DIFF_CFG = [
+      { key: 'NORMAL', name: '标准 NORMAL', hpMul: 1.0, spdMul: 1.0, rateMul: 1.0, scoreMul: 1.0, startEclipse: false },
+      { key: 'VETERAN', name: '老兵 VETERAN', hpMul: 1.28, spdMul: 1.14, rateMul: 1.22, scoreMul: 1.5, startEclipse: true },
+      { key: 'ULTRA', name: '究极 ULTRA', hpMul: 1.60, spdMul: 1.28, rateMul: 1.45, scoreMul: 2.2, startEclipse: true }
+    ];
+
+    const FORM_CFG = {
+      LUNA: {
+        name: '🌙 月神 LUNA', pill: '🌙 月神 LUNA [Tab]',
+        spdMul: 1.14, fireCd: 0.14, dmgMul: 1.0, splashRad: 0,
+        deflectWin: 0.56, scoreBonus: 1.0,
+        accentMat: 19, slashMat: 5, trailHex: 0x38bdf8,
+        uiColor: '#7dd3fc', uiBg: 'rgba(14,116,144,0.34)', uiBorder: 'rgba(56,189,248,0.65)'
+      },
+      CORONA: {
+        name: '☀️ 日冕 CORONA', pill: '☀️ 日冕 CORONA [Tab]',
+        spdMul: 1.03, fireCd: 0.125, dmgMul: 1.32, splashRad: 28,
+        deflectWin: 0.40, scoreBonus: 1.08,
+        accentMat: 0, slashMat: 2, trailHex: 0xf97316,
+        uiColor: '#fdba74', uiBg: 'rgba(154,52,18,0.36)', uiBorder: 'rgba(251,146,60,0.68)'
+      },
+      ECLIPSE: {
+        name: '✨ 日蚀 ECLIPSE', pill: '✨ 日蚀 ECLIPSE [Tab]',
+        spdMul: 1.10, fireCd: 0.11, dmgMul: 1.25, splashRad: 22,
+        deflectWin: 0.48, scoreBonus: 1.28,
+        accentMat: 20, slashMat: 20, trailHex: 0xc084fc,
+        uiColor: '#e9d5ff', uiBg: 'rgba(107,33,168,0.38)', uiBorder: 'rgba(192,132,252,0.72)'
+      }
+    };
+
+    const PERK_POOL = [
+      {
+        id: 'overdrive', icon: '⚡', name: '斯派修姆增压',
+        desc: '光线蓄能上限 +2 并立即 +2，光线与绝招伤害 +25%',
+        apply: p => { p.perks.beamMul *= 1.25; p.maxBeams += 2; p.beams = Math.min(p.maxBeams, p.beams + 2); }
+      },
+      {
+        id: 'twin_slash', icon: '🌀', name: '多重幻影光轮',
+        desc: '八分光轮每次额外发射 1 枚散射刃，追踪转向 +35%',
+        apply: p => { p.perks.extraSlash += 1; p.perks.homingMul *= 1.35; }
+      },
+      {
+        id: 'chrono_deflect', icon: '🪞', name: '念力弹反大师',
+        desc: '翻滚弹反判定窗口大幅延长，弹反追踪光弹伤害 +45%',
+        apply: p => { p.perks.reflectBonus += 0.14; p.perks.reflectDmgMul *= 1.45; }
+      },
+      {
+        id: 'windom', icon: '🤖', name: '胶囊怪兽温德姆',
+        desc: '召唤 1 架温德姆自律僚机协同锁敌射击（最多 2 架，满编转为僚机伤害 +35%）',
+        apply: p => { if (p.wingmen < 2) p.wingmen++; else p.perks.wingmanDmgMul *= 1.35; updateWingmanUI(); }
+      },
+      {
+        id: 'titan_core', icon: '💚', name: '宇宙能量核心',
+        desc: '机体生命上限 +2 并立即回复 3 点，补充光球与全光轮弹药',
+        apply: p => { p.maxHull += 2; p.hull = Math.min(p.maxHull, p.hull + 3); p.spheres = Math.min(2, p.spheres + 1); p.ammo = 300; p.reloadTimer = 0; }
+      },
+      {
+        id: 'magnet_ring', icon: '🧲', name: '星环引力雷暴',
+        desc: '补给吸附半径 +65%，穿过加速星环释放脉冲震伤附近敌机',
+        apply: p => { p.perks.magnetMul *= 1.65; p.perks.ringZap += 1; }
+      },
+      {
+        id: 'corona_blast', icon: '🔥', name: '爆裂光波强化',
+        desc: '日冕/日蚀溅射半径 +45%，光球与陨石引爆伤害 +35%',
+        apply: p => { p.perks.splashMul *= 1.45; p.perks.blastMul *= 1.35; }
+      },
+      {
+        id: 'rapid_core', icon: '💨', name: '高频粒子装填',
+        desc: '光轮连射冷却缩短 18%，换弹加速且全武器伤害 +12%',
+        apply: p => { p.perks.fireRateMul *= 0.82; p.perks.globalDmgMul *= 1.12; }
+      }
+    ];
+
+    function defaultPerks() {
+      return {
+        beamMul: 1, extraSlash: 0, homingMul: 1,
+        reflectBonus: 0, reflectDmgMul: 1, wingmanDmgMul: 1,
+        magnetMul: 1, ringZap: 0, splashMul: 1, blastMul: 1,
+        fireRateMul: 1, globalDmgMul: 1
+      };
+    }
 
     const player = {
       x: 0, y: 0, z: 0,
       yaw: 0, pitch: 0, roll: 0,
       speed: 105,
-      hull: 6,
+      hull: 6, maxHull: 6,
       ammo: 300,
-      beams: 6,
+      beams: 6, maxBeams: 6,
       spheres: 1,
       slashLv: 1,
+      form: 'LUNA',
+      eclipseUnlocked: false,
+      combo: 0, comboTimer: 0, maxCombo: 0,
+      wingmen: 0, wingmanCd: 0,
+      perks: defaultPerks(),
       lockProgress: 0,
       reloadTimer: 0,
       fireCd: 0,
@@ -1351,12 +1570,88 @@
     const starRings = [];
     const pickups = [];
     const enemies = [];
+    const bossBits = [];
+    const crisisMeteors = [];
+    let escortShip = null;
+    let crisisState = { active: false, type: -1, timer: 0, maxTimer: 0, spawnCd: 0 };
+    let perkChoices = [];
     const projectiles = [];
     const enemyProjectiles = [];
     const particles = [];
     const ribbonsL = [];
     const ribbonsR = [];
     const ghosts = [];
+
+    function getComboMult() {
+      return Math.min(8.0, 1 + Math.floor(player.combo / 2) * 0.25);
+    }
+
+    function addScore(basePts) {
+      const mul = DIFF_CFG[difficulty].scoreMul * FORM_CFG[player.form].scoreBonus * getComboMult();
+      score += Math.round(basePts * mul);
+      if (score > bestScore) {
+        bestScore = score;
+        try { localStorage.setItem('ultraman_sprite_best', String(bestScore)); } catch (_) {}
+      }
+    }
+
+    function bumpCombo(amount = 1) {
+      player.combo += amount;
+      player.comboTimer = 5.2;
+      if (player.combo > player.maxCombo) player.maxCombo = player.combo;
+    }
+
+    function updateFormUI() {
+      const f = FORM_CFG[player.form];
+      const pill = document.getElementById('hudFormPill');
+      if (pill) {
+        pill.textContent = f.pill + (player.eclipseUnlocked ? '' : ' · 日蚀未解锁');
+        pill.style.color = f.uiColor;
+        pill.style.background = f.uiBg;
+        pill.style.borderColor = f.uiBorder;
+      }
+      const btn = document.getElementById('tBtnForm');
+      if (btn) {
+        btn.style.borderColor = f.uiBorder;
+        btn.style.color = f.uiColor;
+      }
+    }
+
+    function updateWingmanUI() {
+      const el = document.getElementById('hudWingman');
+      if (!el) return;
+      if (player.wingmen > 0) {
+        el.style.display = 'inline-flex';
+        el.textContent = `🤖 温德姆×${player.wingmen}`;
+      } else {
+        el.style.display = 'none';
+      }
+    }
+
+    function setForm(nextKey, silent = false) {
+      if (!FORM_CFG[nextKey]) return false;
+      if (nextKey === 'ECLIPSE' && !player.eclipseUnlocked) {
+        if (!silent) showBanner('🔒 击败第 1 波首领或选择老兵/究极难度即可解锁日蚀形态！');
+        return false;
+      }
+      if (player.form === nextKey) return true;
+      player.form = nextKey;
+      updateFormUI();
+      if (!silent) {
+        sfx.formSwap();
+        hitStopTimer = Math.max(hitStopTimer, 0.025);
+        spawnSparks(player.x, player.y, player.z, 18, FORM_CFG[nextKey].trailHex, 95);
+        showBanner(`✨ 形态切换 · ${FORM_CFG[nextKey].name}！`);
+      }
+      return true;
+    }
+
+    function cycleForm() {
+      const order = player.eclipseUnlocked ? ['LUNA', 'CORONA', 'ECLIPSE'] : ['LUNA', 'CORONA'];
+      const curIdx = order.indexOf(player.form);
+      const nextKey = order[(curIdx + 1) % order.length];
+      setForm(nextKey, false);
+    }
 
     function heroForward() {
       const cp = Math.cos(player.pitch), sp = Math.sin(player.pitch);
@@ -1514,25 +1809,92 @@
     }
 
     function spawnPickup(x, y, z, forcedType) {
-      if (pickups.length >= 10) pickups.shift();
+      if (pickups.length >= 12) pickups.shift();
       let type = forcedType;
       if (type === undefined) {
         if (player.slashLv < 3 && Math.random() < 0.45) type = 0;
-        else if (player.hull <= 4 && Math.random() < 0.55) type = 2;
+        else if (player.hull <= Math.max(4, player.maxHull - 2) && Math.random() < 0.55) type = 2;
         else type = Math.random() < 0.5 ? 0 : 1;
       }
       pickups.push({ x, y, z, type, life: 16.0, spin: Math.random() * 6 });
+    }
+
+    function spawnShieldBits(boss, count, rage = false) {
+      for (let i = bossBits.length - 1; i >= 0; i--) {
+        if (bossBits[i].ownerUid === boss.uid) bossBits.splice(i, 1);
+      }
+      const bHp = Math.max(3, Math.round((3 + wave * 0.75) * DIFF_CFG[difficulty].hpMul));
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2;
+        bossBits.push({
+          uid: nextEnemyUid++,
+          ownerUid: boss.uid,
+          angle,
+          orbitDist: rage ? 50 : 44,
+          orbitY: (i % 2 === 0 ? 12 : -12),
+          hp: bHp, maxHp: bHp,
+          flash: 0,
+          rage,
+          x: boss.x + Math.cos(angle) * 44,
+          y: boss.y + (i % 2 === 0 ? 12 : -12),
+          z: boss.z + Math.sin(angle) * 44
+        });
+      }
+    }
+
+    function pushKaiju(opts) {
+      const { w, variant, i, spawnD, offR, offU, slotDist, slotSide, isElite = false, isCarrier = false } = opts;
+      const fwd = heroForward();
+      const basis = basisFromFwd(fwd);
+      const diff = DIFF_CFG[difficulty];
+      let baseHp = (6 + w * 2) + (variant === 1 ? 3 : 0);
+      if (isElite) baseHp *= 1.85;
+      if (isCarrier) baseHp *= 2.55;
+      const hp = Math.max(4, Math.round(baseHp * diff.hpMul));
+      const spd = (82 + w * 4) * diff.spdMul * (isElite ? 1.1 : 1.0) * (isCarrier ? 0.85 : 1.0);
+      enemies.push({
+        uid: nextEnemyUid++,
+        isBoss: false,
+        isElite,
+        isCarrier,
+        variant,
+        x: player.x + fwd.x * spawnD + basis.r.x * offR + basis.u.x * offU,
+        y: player.y + fwd.y * spawnD + basis.r.y * offR + basis.u.y * offU,
+        z: player.z + fwd.z * spawnD + basis.r.z * offR + basis.u.z * offU,
+        yaw: Math.atan2(fwd.x, fwd.z), pitch: 0, roll: 0,
+        speed: spd,
+        hp, maxHp: hp,
+        flash: 0,
+        aiMode: 'FRONT_WEAVE',
+        slotDist,
+        slotSide,
+        slotAmpX: isCarrier ? 120 : (variant === 0 ? 225 : (variant === 2 ? 150 : 175)),
+        slotAmpY: 48 + (i % 3) * 18,
+        weavePhase: i * 1.45,
+        behindTimer: 0,
+        shieldTimer: 0,
+        shieldHp: 0,
+        shieldCd: 3.0 + i * 0.9,
+        phantomCd: 4.5 + i * 0.8,
+        chargeTimer: 0,
+        atkCd: Math.max(0.7, (1.8 + i * 0.65) / diff.rateMul),
+        ramCd: 0
+      });
     }
 
     function spawnSquadron(w, isMain = false) {
       enemies.length = 0;
       enemyProjectiles.length = 0;
       ghosts.length = 0;
+      bossBits.length = 0;
+      crisisMeteors.length = 0;
+      escortShip = null;
+      crisisState.active = false;
+      const evHud = document.getElementById('eventHud');
+      if (evHud) evHud.style.display = 'none';
       waveStage = isMain ? 'MAIN' : 'VANGUARD';
       updateSectorHUD();
 
-      const fwd = heroForward();
-      const basis = basisFromFwd(fwd);
       const count = 4 + Math.min(3, w) + (isMain ? 1 : 0);
       const slotDists = [430, 390, 640, 500];
 
@@ -1542,48 +1904,123 @@
         const spawnD = (840 + Math.abs(side) * 95 + i * 35) * cfg.engageRange;
         const offR = side * 145;
         const offU = ((i % 2 === 0 ? 1 : -1) * 45) + (Math.random() - 0.5) * 40;
-        const hp = (6 + w * 2) + (variant === 1 ? 3 : 0);
-        enemies.push({
-          uid: nextEnemyUid++,
-          isBoss: false,
-          variant,
-          x: player.x + fwd.x * spawnD + basis.r.x * offR + basis.u.x * offU,
-          y: player.y + fwd.y * spawnD + basis.r.y * offR + basis.u.y * offU,
-          z: player.z + fwd.z * spawnD + basis.r.z * offR + basis.u.z * offU,
-          yaw: Math.atan2(fwd.x, fwd.z), pitch: 0, roll: 0,
-          speed: 82 + w * 4,
-          hp, maxHp: hp,
-          flash: 0,
-          aiMode: 'FRONT_WEAVE',
+        const isElite = (isMain && (i === 0 || (w >= 2 && i === count - 1))) || (!isMain && w >= 2 && i === 0);
+        pushKaiju({
+          w, variant, i, spawnD, offR, offU,
           slotDist: slotDists[variant],
           slotSide: side === 0 ? (i % 2 === 0 ? 0.6 : -0.6) : side,
-          slotAmpX: variant === 0 ? 225 : (variant === 2 ? 150 : 175),
-          slotAmpY: 48 + (i % 3) * 18,
-          weavePhase: i * 1.45,
-          behindTimer: 0,
-          shieldTimer: 0,
-          shieldHp: 0,
-          shieldCd: 3.0 + i * 0.9,
-          phantomCd: 4.5 + i * 0.8,
-          chargeTimer: 0,
-          atkCd: 1.8 + i * 0.65,
-          ramCd: 0
+          isElite
         });
       }
       document.getElementById('bossBarWrap').style.display = 'none';
       const secName = getCurrentSector().name;
-      showBanner(isMain ? `🚀 [${secName}] 敌军主力混编舰队正面突进！` : `🌌 WAVE ${w} [${secName}] · 先锋怪兽编队正前方接敌！`);
+      showBanner(isMain ? `🚀 [${secName}] 敌军主力混编舰队正面突进！` : `🌌 WAVE ${w} [${secName}] · ${DIFF_CFG[difficulty].name} 先锋怪兽接敌！`);
+    }
+
+    function startCrisisEvent(w) {
+      enemies.length = 0;
+      enemyProjectiles.length = 0;
+      ghosts.length = 0;
+      bossBits.length = 0;
+      crisisMeteors.length = 0;
+      escortShip = null;
+      waveStage = 'CRISIS';
+      const type = (w - 1) % 3; // 0: Escort SSSP Jet, 1: Supernova Meteor Shower, 2: Elite Carrier
+      const dur = type === 1 ? 13.0 : (type === 0 ? 18.0 : 20.0);
+      crisisState = { active: true, type, timer: dur, maxTimer: dur, spawnCd: 0.35 };
+      const evHud = document.getElementById('eventHud');
+      const evTitle = document.getElementById('eventTitle');
+      const evTimer = document.getElementById('eventTimerTxt');
+      const evFill = document.getElementById('eventBarFill');
+      if (evHud) evHud.style.display = 'block';
+      if (evTimer) evTimer.textContent = `${dur.toFixed(1)}s`;
+      if (evFill) evFill.style.width = '100%';
+
+      const fwd = heroForward();
+      const basis = basisFromFwd(fwd);
+      if (type === 0) {
+        escortShip = {
+          x: player.x + fwd.x * 230 + basis.r.x * 38,
+          y: player.y + fwd.y * 230 - basis.u.y * 16,
+          z: player.z + fwd.z * 230 + basis.r.z * 38,
+          yaw: player.yaw, pitch: player.pitch,
+          hp: 10, maxHp: 10, flash: 0, bobPhase: 0
+        };
+        const raiders = 3 + Math.min(2, w);
+        for (let i = 0; i < raiders; i++) {
+          const side = i - (raiders - 1) * 0.5;
+          pushKaiju({
+            w, variant: i % 3, i,
+            spawnD: (760 + Math.abs(side) * 70) * cfg.engageRange,
+            offR: side * 125, offU: (i % 2 === 0 ? 35 : -35),
+            slotDist: 420, slotSide: side === 0 ? 0.5 : side,
+            isElite: i === 0
+          });
+        }
+        if (evTitle) evTitle.textContent = '🛰️ 突发使命：护卫科特队飞燕号';
+        showBanner('🛰️ 紧急呼叫！护卫科特队飞燕号突围，歼灭袭扰敌机！');
+      } else if (type === 1) {
+        if (evTitle) evTitle.textContent = '☄️ 突发异象：超新星熔岩陨石雨';
+        showBanner('☄️ 警报！超新星陨石火雨袭来 · 击碎陨石赚取高倍连击！');
+      } else {
+        pushKaiju({
+          w, variant: 1, i: 0, spawnD: 820 * cfg.engageRange, offR: 0, offU: 20,
+          slotDist: 560, slotSide: 0, isElite: true, isCarrier: true
+        });
+        pushKaiju({
+          w, variant: 0, i: 1, spawnD: 760 * cfg.engageRange, offR: -170, offU: 35,
+          slotDist: 440, slotSide: -1.1, isElite: true
+        });
+        pushKaiju({
+          w, variant: 2, i: 2, spawnD: 760 * cfg.engageRange, offR: 170, offU: -25,
+          slotDist: 460, slotSide: 1.1, isElite: true
+        });
+        if (evTitle) evTitle.textContent = '🛸 突发拦截：精英指挥母舰阻击';
+        showBanner('🛸 警告！暗黑指挥母舰编队限时突袭，全力击破抢夺重赏！');
+      }
+      sfx.warnBeep();
+    }
+
+    function finishCrisisEvent(success) {
+      if (!crisisState.active) return;
+      const evType = crisisState.type;
+      crisisState.active = false;
+      escortShip = null;
+      crisisMeteors.length = 0;
+      const evHud = document.getElementById('eventHud');
+      if (evHud) evHud.style.display = 'none';
+      if (success) {
+        addScore(evType === 2 ? 1100 : (evType === 0 ? 900 : 700));
+        bumpCombo(3);
+        player.hull = Math.min(player.maxHull, player.hull + 1);
+        player.beams = Math.min(player.maxBeams, player.beams + 1);
+        const f = heroForward();
+        spawnPickup(player.x + f.x * 160, player.y + f.y * 160, player.z + f.z * 160, 0);
+        sfx.powerup();
+        showBanner(evType === 0 ? '🛰️ 飞燕号安全脱离！生命+1 · 赏金暴涨！' : (evType === 1 ? '☄️ 陨石火雨突破成功！高额连击奖励到手！' : '🛸 指挥母舰全歼！光线充能+1 · 大量赏金！'));
+      } else {
+        showBanner('⚠️ 突发事件结束，敌军主力编队已逼近！');
+      }
+      spawnSquadron(wave, true);
     }
 
     function spawnBoss() {
       enemyProjectiles.length = 0;
       ghosts.length = 0;
+      bossBits.length = 0;
+      crisisMeteors.length = 0;
+      escortShip = null;
+      crisisState.active = false;
+      const evHud = document.getElementById('eventHud');
+      if (evHud) evHud.style.display = 'none';
+
       waveStage = 'BOSS';
       const fwd = heroForward();
       const basis = basisFromFwd(fwd);
-      const bossType = (wave - 1) % 2; // 0: Hyper Zetton, 1: King Ghidorah
+      const bossType = (wave - 1) % 3; // 0: Hyper Zetton, 1: King Ghidorah, 2: Dark Zagi
       const d = 760 * cfg.engageRange;
-      const hp = 56 + wave * 14;
+      const diff = DIFF_CFG[difficulty];
+      const hp = Math.round((56 + wave * 14) * diff.hpMul);
       const e = {
         uid: nextEnemyUid++,
         isBoss: true,
@@ -1593,24 +2030,62 @@
         y: player.y + fwd.y * d + basis.u.y * 24,
         z: player.z + fwd.z * d + basis.u.z * 24,
         yaw: Math.atan2(fwd.x, fwd.z), pitch: 0, roll: 0,
-        speed: 90 + wave * 4,
+        speed: (90 + wave * 4) * diff.spdMul,
         hp, maxHp: hp,
         flash: 0,
         phase: 1,
+        stunTimer: 0,
+        blinkCd: 3.6,
         dashState: 'ORBIT', // 'ORBIT' | 'WINDUP' | 'DASH'
         dashTimer: 0,
-        dashCooldown: 5.5,
+        dashCooldown: Math.max(2.6, 5.5 / diff.rateMul),
         dashVx: -fwd.x, dashVy: -fwd.y, dashVz: -fwd.z,
         spiralPhase: 0,
         atkCd: 2.1,
         behindTimer: 0
       };
       enemies.push(e);
-      const bossLabel = bossType === 1 ? '🐉 KING GHIDORAH · 三首黄金帝王龙' : '👾 HYPER ZETTON · 宇宙恐龙杰顿';
+      spawnShieldBits(e, 3, false);
+      const bossLabel = bossType === 2
+        ? '😈 DARK ZAGI · 暗黑破坏神扎基'
+        : (bossType === 1 ? '🐉 KING GHIDORAH · 三首黄金帝王龙' : '👾 HYPER ZETTON · 宇宙恐龙杰顿');
       document.getElementById('bossTitle').textContent = `${bossLabel} (Phase 1)`;
       document.getElementById('bossBarWrap').style.display = 'block';
       sfx.roar();
-      showBanner(`⚠️ WARNING: ${bossLabel} 于正前方空域降临！`);
+      showBanner(`⚠️ WARNING: ${bossLabel} 携 3 枚护盾浮游炮降临！击碎浮游炮可触发破防！`);
+    }
+
+    function openPerkDraft() {
+      const pool = PERK_POOL.slice();
+      perkChoices = [];
+      while (perkChoices.length < 3 && pool.length > 0) {
+        const pickIdx = Math.floor(Math.random() * pool.length);
+        perkChoices.push(pool.splice(pickIdx, 1)[0]);
+      }
+      for (let i = 0; i < 3; i++) {
+        const pk = perkChoices[i];
+        document.getElementById(`perkIcon${i}`).textContent = pk.icon;
+        document.getElementById(`perkName${i}`).textContent = pk.name;
+        document.getElementById(`perkDesc${i}`).textContent = pk.desc;
+      }
+      for (const k in keys) keys[k] = false;
+      gameState = 'PERK_SELECT';
+      document.getElementById('perkOverlay').classList.remove('hidden');
+      sfx.powerup();
+    }
+
+    function pickPerk(slotIdx) {
+      if (gameState !== 'PERK_SELECT' || !perkChoices[slotIdx]) return;
+      const pk = perkChoices[slotIdx];
+      pk.apply(player);
+      document.getElementById('perkOverlay').classList.add('hidden');
+      gameState = 'PLAY';
+      lastT = performance.now();
+      sfx.transform();
+      updateHudDOM();
+      spawnSparks(player.x, player.y, player.z, 26, 0x38bdf8, 110);
+      showBanner(`✨ 奥特进化：获得 [${pk.name}]！第 ${wave} 波开启！`);
+      spawnSquadron(wave, false);
     }
 
     function showBanner(txt) {
@@ -1639,13 +2114,45 @@
       }
     }
 
+    function damageBossBit(bIdx, dmg, isBeam) {
+      if (bIdx < 0 || bIdx >= bossBits.length) return false;
+      const b = bossBits[bIdx];
+      b.hp -= dmg * (isBeam ? 1.5 : 1.0);
+      b.flash = 0.09;
+      sfx.hit();
+      spawnSparks(b.x, b.y, b.z, 5, 0x38bdf8, 55);
+      if (b.hp <= 0) {
+        const ownerUid = b.ownerUid;
+        const bx = b.x, by = b.y, bz = b.z;
+        bossBits.splice(bIdx, 1);
+        addScore(180);
+        bumpCombo(1);
+        sfx.boom();
+        spawnSparks(bx, by, bz, 18, 0x67e8f9, 95);
+        const left = bossBits.some(bit => bit.ownerUid === ownerUid);
+        if (!left) {
+          const boss = enemies.find(en => en.uid === ownerUid && en.isBoss);
+          if (boss) {
+            boss.stunTimer = 4.6;
+            sfx.armorBreak();
+            hitStopTimer = Math.max(hitStopTimer, 0.055);
+            spawnSparks(boss.x, boss.y, boss.z, 38, 0xfef08a, 130);
+            showBanner('💥 ARMOR BREAK！护盾浮游炮全灭 · 首领陷入 4.6s 破防虚弱 (2× 伤害)！');
+          }
+        }
+      }
+      return true;
+    }
+
     function damageEnemy(idx, dmg, isBeam) {
       if (idx < 0 || idx >= enemies.length) return false;
       const e = enemies[idx];
       if (!e.isBoss && e.shieldTimer > 0) {
         if (isBeam) {
           e.shieldTimer = 0; e.shieldHp = 0;
-          dmg *= 2; score += 150;
+          dmg *= 2;
+          addScore(150);
+          bumpCombo(1);
           hitStopTimer = Math.max(hitStopTimer, 0.032);
           spawnSparks(e.x, e.y, e.z, 18, 0xfbbf24, 110);
           showBanner('💥 斯派修姆光线粉碎杰顿能量盾！');
@@ -1661,32 +2168,51 @@
         }
       }
 
+      if (e.isBoss) {
+        if (e.stunTimer > 0) dmg *= 2.0;
+        else if (bossBits.some(b => b.ownerUid === e.uid)) dmg *= 0.52;
+      }
+
       e.hp -= dmg;
       e.flash = 0.09;
       sfx.hit();
       if (isBeam) hitStopTimer = Math.max(hitStopTimer, 0.022);
+      if (e.isBoss) bumpCombo(1);
 
       if (e.hp <= 0) {
-        score += e.isBoss ? 1500 : 250;
+        const basePts = e.isBoss ? 1500 : (e.isCarrier ? 750 : (e.isElite ? 450 : 250));
+        addScore(basePts);
+        bumpCombo(e.isBoss ? 4 : (e.isElite ? 2 : 1));
         kills++;
         sfx.boom();
         hitStopTimer = Math.max(hitStopTimer, 0.032);
-        spawnSparks(e.x, e.y, e.z, e.isBoss ? 40 : 22, e.isBoss ? 0xfbbf24 : 0xfacc15, 120);
+        spawnSparks(e.x, e.y, e.z, e.isBoss ? 40 : (e.isElite ? 28 : 22), e.isBoss ? 0xfbbf24 : 0xfacc15, 120);
         const wasBoss = e.isBoss;
+        const wasElite = e.isElite;
         const ex = e.x, ey = e.y, ez = e.z;
+        for (let bi = bossBits.length - 1; bi >= 0; bi--) {
+          if (bossBits[bi].ownerUid === e.uid) bossBits.splice(bi, 1);
+        }
         enemies.splice(idx, 1);
 
         if (wasBoss) {
           spawnPickup(ex - 14, ey, ez, 0);
           spawnPickup(ex + 14, ey, ez, 2);
+          const unlockedNow = !player.eclipseUnlocked;
+          if (unlockedNow) {
+            player.eclipseUnlocked = true;
+            updateFormUI();
+          }
           wave++;
-          player.spheres = 1;
+          player.spheres = Math.min(2, player.spheres + 1);
           updateSphereUI();
-          spawnSquadron(wave, false);
+          if (unlockedNow) showBanner('✨ 通关首领！传说形态 [✨ 日蚀 ECLIPSE] 已解锁 · 请选择奥特强化！');
+          openPerkDraft();
         } else {
-          if (Math.random() < 0.42) spawnPickup(ex, ey, ez);
+          if (Math.random() < (wasElite ? 0.72 : 0.42)) spawnPickup(ex, ey, ez);
           if (enemies.length === 0) {
-            if (waveStage === 'VANGUARD') spawnSquadron(wave, true);
+            if (waveStage === 'VANGUARD') startCrisisEvent(wave);
+            else if (waveStage === 'CRISIS') finishCrisisEvent(true);
             else spawnBoss();
           }
         }
@@ -1699,11 +2225,20 @@
       player.shake = Math.min(18, player.shake + 7);
       spawnSparks(mx, my, mz, 28, 0xf97316, 130);
       let hitAny = false;
+      const blastDmg = 8 * player.perks.blastMul * player.perks.globalDmgMul;
       for (let j = enemies.length - 1; j >= 0; j--) {
         if (j >= enemies.length) continue;
         const e = enemies[j];
         if (Math.hypot(e.x - mx, e.y - my, e.z - mz) <= 155) {
-          damageEnemy(j, 8, true);
+          damageEnemy(j, blastDmg, true);
+          hitAny = true;
+        }
+      }
+      for (let bi = bossBits.length - 1; bi >= 0; bi--) {
+        if (bi >= bossBits.length) continue;
+        const b = bossBits[bi];
+        if (Math.hypot(b.x - mx, b.y - my, b.z - mz) <= 155) {
+          damageBossBit(bi, blastDmg, true);
           hitAny = true;
         }
       }
@@ -1711,11 +2246,12 @@
         const ep = enemyProjectiles[k];
         if (Math.hypot(ep.x - mx, ep.y - my, ep.z - mz) <= 155) {
           enemyProjectiles.splice(k, 1);
-          score += 25;
+          addScore(25);
         }
       }
       if (hitAny) {
-        score += 80;
+        addScore(80);
+        bumpCombo(1);
         showBanner('💥 爆裂熔岩陨石引爆 · 清扫周围弹幕并重创敌机！');
       }
     }
@@ -1740,7 +2276,7 @@
     function fireUltraSlash() {
       if (player.reloadTimer > 0 || player.ammo <= 0 || player.lightSphereTimer > 0) return;
       player.ammo--;
-      if (player.ammo <= 0 && player.beams <= 0) player.reloadTimer = 4.0;
+      if (player.ammo <= 0 && player.beams <= 0) player.reloadTimer = Math.max(2.2, 4.0 * player.perks.fireRateMul);
       sfx.slash();
       const f = heroForward();
       const basis = basisFromFwd(f);
@@ -1757,8 +2293,13 @@
         dx /= dl; dy /= dl; dz /= dl;
       }
 
+      const fCfg = FORM_CFG[player.form];
+      const dmgMul = fCfg.dmgMul * player.perks.globalDmgMul;
+      const homingTurn = (player.slashLv >= 2 ? 2.4 : 0.8) * player.perks.homingMul + (player.form === 'ECLIPSE' ? 0.75 : 0);
+      const splashRad = fCfg.splashRad * player.perks.splashMul;
+      const matColor = fCfg.slashMat;
       const lv = player.slashLv;
-      const spd = 820;
+      const spd = 840;
       const spawnBlade = (ox, oy, oz, fanAng, dmg) => {
         const c = Math.cos(fanAng), s = Math.sin(fanAng);
         let vx = dx * c + basis.r.x * s;
@@ -1771,7 +2312,9 @@
           vx: vx * spd, vy: vy * spd, vz: vz * spd, speed: spd,
           yaw: Math.atan2(-vx, -vz),
           pitch: Math.asin(Math.max(-1, Math.min(1, vy))),
-          life: 2.2, isBeam: false, dmg, pierceLeft: 2, spin: 0,
+          life: 2.2, isBeam: false, isReflect: false,
+          dmg: dmg * dmgMul, pierceLeft: 2, spin: 0,
+          homingTurn, matColor, splashRad,
           target, hitIds: new Set()
         });
       };
@@ -1786,13 +2329,18 @@
         spawnBlade(-basis.r.x * 5, -basis.r.y * 5, -basis.r.z * 5, -0.075, 2.4);
         spawnBlade(basis.r.x * 5, basis.r.y * 5, basis.r.z * 5, 0.075, 2.4);
       }
+      for (let ex = 0; ex < player.perks.extraSlash; ex++) {
+        const dirSign = ex % 2 === 0 ? -1 : 1;
+        const ang = dirSign * (0.095 + Math.floor(ex / 2) * 0.045);
+        spawnBlade(basis.r.x * dirSign * 7, basis.r.y * dirSign * 7, basis.r.z * dirSign * 7, ang, 2.25);
+      }
     }
 
     function fireSpaciumBeam(freeCounter = false, aimTarget = null) {
       if (!freeCounter) {
         if (player.reloadTimer > 0 || player.beams <= 0) return;
         player.beams--;
-        if (player.ammo <= 0 && player.beams <= 0) player.reloadTimer = 4.0;
+        if (player.ammo <= 0 && player.beams <= 0) player.reloadTimer = Math.max(2.2, 4.0 * player.perks.fireRateMul);
       }
       sfx.beam();
       player.shake = Math.min(16, player.shake + 8);
@@ -1804,7 +2352,11 @@
         const td = Math.hypot(tx, ty, tz) || 1;
         dx = tx / td; dy = ty / td; dz = tz / td;
       }
-      spawnSparks(player.x + dx * 12, player.y + dy * 12, player.z + dz * 12, 16, 0x67e8f9, 85);
+      const fCfg = FORM_CFG[player.form];
+      const beamDmg = 5 * fCfg.dmgMul * player.perks.beamMul * player.perks.globalDmgMul;
+      const homingTurn = 2.2 * player.perks.homingMul;
+      const splashRad = fCfg.splashRad * player.perks.splashMul;
+      spawnSparks(player.x + dx * 12, player.y + dy * 12, player.z + dz * 12, 16, fCfg.trailHex, 85);
       const hitIds = new Set();
       for (let k = 0; k < 9; k++) {
         projectiles.push({
@@ -1813,7 +2365,9 @@
           z: player.z + dz * (16 + k * 8),
           vx: dx * 1060, vy: dy * 1060, vz: dz * 1060, speed: 1060,
           yaw: 0, pitch: 0,
-          life: 2.0, isBeam: true, dmg: 5, pierceLeft: 3, spin: k,
+          life: 2.0, isBeam: true, isReflect: false,
+          dmg: beamDmg, pierceLeft: 3, spin: k,
+          homingTurn, matColor: fCfg.slashMat, splashRad,
           target: tgt, hitIds
         });
       }
@@ -1824,9 +2378,9 @@
       player.spheres--;
       player.lightSphereTimer = 1.85;
       player.invulnTimer = Math.max(player.invulnTimer, 2.0);
-      player.hull = 6;
+      player.hull = player.maxHull;
       player.ammo = Math.max(player.ammo, 180);
-      player.beams = Math.max(player.beams, 3);
+      player.beams = Math.max(player.beams, Math.min(player.maxBeams, 3));
       player.reloadTimer = 0;
       sfx.transform();
       player.shake = 10;
@@ -1848,13 +2402,13 @@
       }
     }
 
-    function spawnEnemyProjectile(x, y, z, vx, vy, vz, speed, homing, radius, colCore, colOuter, glowType, isCluster = false) {
+    function spawnEnemyProjectile(x, y, z, vx, vy, vz, speed, homing, radius, colCore, colOuter, glowType, isCluster = false, targetShip = null) {
       if (enemyProjectiles.length >= 44) enemyProjectiles.shift();
       enemyProjectiles.push({
         x, y, z, vx, vy, vz, speed, homing, radius,
         colCore: packHex(colCore),
         colOuter: packHex(colOuter),
-        glowType, isCluster, destructible: true,
+        glowType, isCluster, destructible: true, targetShip,
         life: 5.0, age: 0
       });
     }
@@ -1886,13 +2440,60 @@
       player.invulnTimer = Math.max(player.invulnTimer, 0.65);
       sfx.dodge();
 
+      const fCfg = FORM_CFG[player.form];
+      const reflectRadius = 115 * (fCfg.deflectWin / 0.42) + player.perks.reflectBonus * 140;
+      const f = heroForward();
+      let reflectedCount = 0;
+
+      for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+        const ep = enemyProjectiles[i];
+        const d = Math.hypot(player.x - ep.x, player.y - ep.y, player.z - ep.z);
+        if (d <= reflectRadius) {
+          enemyProjectiles.splice(i, 1);
+          const tgt = getLockedEnemy(f) || (enemies.length > 0 ? enemies[0] : null);
+          let dx = f.x, dy = f.y, dz = f.z;
+          if (tgt) {
+            const tx = tgt.x - ep.x, ty = tgt.y - ep.y, tz = tgt.z - ep.z;
+            const tl = Math.hypot(tx, ty, tz) || 1;
+            dx = tx / tl; dy = ty / tl; dz = tz / tl;
+          }
+          const spd = 920;
+          projectiles.push({
+            x: ep.x, y: ep.y, z: ep.z,
+            vx: dx * spd, vy: dy * spd, vz: dz * spd, speed: spd,
+            yaw: Math.atan2(-dx, -dz),
+            pitch: Math.asin(Math.max(-1, Math.min(1, dy))),
+            life: 2.5, isBeam: false, isReflect: true,
+            homingTurn: 5.5 * player.perks.homingMul,
+            matColor: 3,
+            splashRad: 26 * player.perks.splashMul,
+            dmg: 6.5 * player.perks.reflectDmgMul * player.perks.globalDmgMul,
+            pierceLeft: 2, spin: 0, target: tgt, hitIds: new Set()
+          });
+          spawnSparks(ep.x, ep.y, ep.z, 10, 0xfde047, 75);
+          reflectedCount++;
+        }
+      }
+
+      if (reflectedCount > 0) {
+        sfx.reflect();
+        slowMoTimer = Math.max(slowMoTimer, 0.85);
+        hitStopTimer = Math.max(hitStopTimer, 0.04);
+        addScore(180 * reflectedCount);
+        bumpCombo(reflectedCount);
+        spawnSparks(player.x, player.y, player.z, 18, 0xfef08a, 105);
+        showBanner(`🪞 奥特念力弹反 ×${reflectedCount}！金色追踪光弹反杀！`);
+        return;
+      }
+
       const threat = findClosestThreat();
       if (threat && threat.dist <= 105) {
         for (let ep of enemyProjectiles) {
           if (Math.hypot(player.x - ep.x, player.y - ep.y, player.z - ep.z) < 165) ep.homing = 0;
         }
         slowMoTimer = 1.3;
-        score += 150;
+        addScore(150);
+        bumpCombo(1);
         showBanner('⚡ 极限完美闪避！1.3秒子弹时间 + 斯派修姆贯穿反击！');
         fireSpaciumBeam(true, threat.kind === 'boss' ? threat.obj : null);
       }
@@ -1908,6 +2509,8 @@
     function damagePlayer(amt, msg) {
       if (player.invulnTimer > 0 || player.lightSphereTimer > 0 || gameState !== 'PLAY') return;
       player.hull = Math.max(0, player.hull - amt);
+      player.combo = 0;
+      player.comboTimer = 0;
       if (player.slashLv > 1) {
         player.slashLv = Math.max(1, player.slashLv - 1);
         updateSlashUI();
@@ -1932,10 +2535,19 @@
         bestScore = score;
         try { localStorage.setItem('ultraman_sprite_best', String(bestScore)); } catch (_) {}
       }
+      const rank = (score >= 60000 || wave >= 5) ? 'S+'
+        : (score >= 28000 || wave >= 3) ? 'S'
+        : (score >= 10000 || wave >= 2) ? 'A' : 'B';
       document.getElementById('goScore').textContent = score;
       document.getElementById('goBest').textContent = bestScore;
       document.getElementById('goWave').textContent = wave;
       document.getElementById('goKills').textContent = kills;
+      document.getElementById('goCombo').textContent = player.maxCombo;
+      const rkEl = document.getElementById('goRank');
+      if (rkEl) {
+        rkEl.textContent = rank;
+        rkEl.style.color = rank === 'S+' ? '#fde047' : (rank === 'S' ? '#f472b6' : (rank === 'A' ? '#38bdf8' : '#cbd5e1'));
+      }
       document.getElementById('gameOverOverlay').classList.remove('hidden');
       spawnSparks(player.x, player.y, player.z, 36, 0xf43f5e, 110);
       sfx.roar();
@@ -1963,9 +2575,19 @@
     window.addEventListener('keydown', e => {
       sfx.init();
       keys[e.code] = true;
+      if (gameState === 'PERK_SELECT') {
+        if (e.code === 'Digit1' || e.code === 'Numpad1') { e.preventDefault(); pickPerk(0); }
+        else if (e.code === 'Digit2' || e.code === 'Numpad2') { e.preventDefault(); pickPerk(1); }
+        else if (e.code === 'Digit3' || e.code === 'Numpad3') { e.preventDefault(); pickPerk(2); }
+        return;
+      }
       if (e.code === 'Escape' || e.code === 'KeyP') { togglePause(); return; }
       if (gameState !== 'PLAY') return;
       if (e.code === 'Space') { e.preventDefault(); toggleView(); }
+      if (e.code === 'Tab') { e.preventDefault(); cycleForm(); }
+      if (e.code === 'Digit1') setForm('LUNA');
+      if (e.code === 'Digit2') setForm('CORONA');
+      if (e.code === 'Digit3') setForm('ECLIPSE');
       if (e.code === 'KeyR') triggerRoll(1);
       if (e.code === 'KeyQ' || e.code === 'KeyF') triggerLoop();
       if (e.code === 'KeyM') fireSpaciumBeam(false);
@@ -1986,7 +2608,11 @@
       sfx.init();
       if (gameState === 'TITLE') { startGame(); return; }
       if (gameState !== 'PLAY') return;
-      if (e.button === 2) { ptr.downR = true; fireUltraSlash(); player.fireCd = 0.095; }
+      if (e.button === 2) {
+        ptr.downR = true;
+        fireUltraSlash();
+        player.fireCd = FORM_CFG[player.form].fireCd * player.perks.fireRateMul;
+      }
       else if (e.button === 0) { ptr.downL = true; ptr.downTime = performance.now(); }
       else if (e.button === 1) { fireSpaciumBeam(false); }
     });
@@ -2033,7 +2659,10 @@
       if (e.cancelable) e.preventDefault();
       sfx.init(); holdTouchSlash = true;
       if (navigator.vibrate) { try { navigator.vibrate(18); } catch (_) {} }
-      if (gameState === 'PLAY' && player.fireCd <= 0) { fireUltraSlash(); player.fireCd = 0.095; }
+      if (gameState === 'PLAY' && player.fireCd <= 0) {
+        fireUltraSlash();
+        player.fireCd = FORM_CFG[player.form].fireCd * player.perks.fireRateMul;
+      }
     };
     const endSlash = () => { holdTouchSlash = false; };
     tSlash.addEventListener('touchstart', startSlash, { passive: false });
@@ -2064,6 +2693,23 @@
     document.getElementById('tBtnSphere').addEventListener('click', () => { sfx.init(); activateLightSphere(); });
     document.getElementById('tBtnView').addEventListener('touchstart', e => { e.preventDefault(); toggleView(); }, { passive: false });
     document.getElementById('tBtnView').addEventListener('click', () => toggleView());
+    document.getElementById('tBtnForm').addEventListener('touchstart', e => { e.preventDefault(); sfx.init(); if (gameState === 'PLAY') cycleForm(); }, { passive: false });
+    document.getElementById('tBtnForm').addEventListener('click', () => { sfx.init(); if (gameState === 'PLAY') cycleForm(); });
+    document.getElementById('hudFormPill').addEventListener('click', () => { sfx.init(); if (gameState === 'PLAY') cycleForm(); });
+
+    for (let i = 0; i < 3; i++) {
+      document.getElementById(`diffBtn${i}`).addEventListener('click', () => {
+        sfx.init();
+        difficulty = i;
+        for (let j = 0; j < 3; j++) {
+          document.getElementById(`diffBtn${j}`).classList.toggle('active', j === i);
+        }
+      });
+      document.getElementById(`perkCard${i}`).addEventListener('click', () => {
+        sfx.init();
+        pickPerk(i);
+      });
+    }
 
     function toggleView() {
       const order = ['chase', 'cockpit', 'top'];
@@ -2133,20 +2779,33 @@
       gameState = 'PLAY';
       document.getElementById('titleOverlay').classList.add('hidden');
       document.getElementById('pauseOverlay').classList.add('hidden');
+      document.getElementById('perkOverlay').classList.add('hidden');
       document.getElementById('gameOverOverlay').classList.add('hidden');
+      document.getElementById('eventHud').style.display = 'none';
       player.x = 0; player.y = 0; player.z = 0;
       player.yaw = 0; player.pitch = 0; player.roll = 0;
       player.speed = cfg.speed;
-      player.hull = 6; player.ammo = 300; player.beams = 6; player.spheres = 1;
+      player.maxHull = 6; player.hull = 6; player.ammo = 300;
+      player.maxBeams = 6; player.beams = 6; player.spheres = 1;
       player.slashLv = 1; player.lockProgress = 0; lastLockedUid = 0;
+      player.form = 'LUNA';
+      player.eclipseUnlocked = DIFF_CFG[difficulty].startEclipse;
+      player.combo = 0; player.comboTimer = 0; player.maxCombo = 0;
+      player.wingmen = 0; player.wingmanCd = 0;
+      player.perks = defaultPerks();
       player.reloadTimer = 0; player.invulnTimer = 0; player.lightSphereTimer = 0;
       player.ringBoostTimer = 0; player.ringsCleared = 0;
       score = 0; wave = 1; kills = 0; slowMoTimer = 0; hitStopTimer = 0;
       projectiles.length = 0; enemyProjectiles.length = 0; particles.length = 0;
       ribbonsL.length = 0; ribbonsR.length = 0; ghosts.length = 0; pickups.length = 0;
+      bossBits.length = 0; crisisMeteors.length = 0; escortShip = null;
+      crisisState = { active: false, type: -1, timer: 0, maxTimer: 0, spawnCd: 0 };
+      perkChoices = [];
       document.getElementById('hudBest').textContent = bestScore;
       updateSphereUI();
       updateSlashUI();
+      updateFormUI();
+      updateWingmanUI();
       initStreamingCosmos();
       spawnSquadron(1, false);
     }
@@ -2159,17 +2818,22 @@
       document.getElementById('hudAmmo').textContent = player.reloadTimer > 0 ? `充能 ${player.reloadTimer.toFixed(1)}s` : player.ammo;
       document.getElementById('hudFps').textContent = fps;
       document.getElementById('hudMs').textContent = `${cpuMs.toFixed(1)}ms`;
+      const comboEl = document.getElementById('hudCombo');
+      if (comboEl) {
+        comboEl.textContent = player.combo > 0 ? `×${getComboMult().toFixed(1)} (${player.combo})` : '×1.0';
+      }
 
       let pipsHtml = '';
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < player.maxHull; i++) {
         const cls = i < player.hull ? (player.hull <= 2 ? 'pip crit' : 'pip') : 'pip off';
         pipsHtml += `<span class="${cls}"></span>`;
       }
       document.getElementById('hullPips').innerHTML = pipsHtml;
 
       let dotsHtml = '';
-      for (let i = 0; i < 8; i++) {
-        if (i < 6 || player.beams > i) dotsHtml += `<span class="bdot ${i < player.beams ? '' : 'off'}"></span>`;
+      const dotTotal = Math.max(6, player.maxBeams);
+      for (let i = 0; i < dotTotal; i++) {
+        if (i < player.maxBeams || player.beams > i) dotsHtml += `<span class="bdot ${i < player.beams ? '' : 'off'}"></span>`;
       }
       document.getElementById('hudBeams').innerHTML = dotsHtml;
     }
@@ -2203,6 +2867,8 @@
     initStreamingCosmos();
     updateSectorHUD();
     updateSlashUI();
+    updateFormUI();
+    updateWingmanUI();
     syncBufferSize();
     document.getElementById('hudBest').textContent = bestScore;
 
@@ -2225,7 +2891,7 @@
       const rawDt = Math.min(0.05, (now - lastT) * 0.001);
       lastT = now;
 
-      if (gameState === 'PAUSED' || gameState === 'GAMEOVER') return;
+      if (gameState === 'PAUSED' || gameState === 'PERK_SELECT' || gameState === 'GAMEOVER') return;
       syncBufferSize();
 
       if (bannerTimer > 0) {
@@ -2250,7 +2916,7 @@
         const dist = 68;
         setCameraLookAt(Math.cos(ang) * dist, 18 + Math.sin(sec * 0.8) * 10, Math.sin(ang) * dist, 0, 0, 0);
         clearAndDrawCosmos(sec);
-        drawSpriteStack(HERO_STACK, 0, Math.sin(sec * 1.6) * 1.5, 0, 0, 0, Math.sin(sec * 1.1) * 0.1, cfg.heroScale * 1.15, cfg.spread, 1, false, 0);
+        drawSpriteStack(HERO_STACK, 0, Math.sin(sec * 1.6) * 1.5, 0, 0, 0, Math.sin(sec * 1.1) * 0.1, cfg.heroScale * 1.15, cfg.spread, 1, false, 0, FORM_CFG[player.form].accentMat);
         applyPostPixelFX();
         ctx.putImageData(imgData, 0, 0);
         hctx.clearRect(0, 0, hudOverlay.width, hudOverlay.height);
@@ -2278,17 +2944,22 @@
 
       if (!freezeSim) {
         if (player.reloadTimer > 0) {
-          player.reloadTimer -= rawDt;
-          if (player.reloadTimer <= 0) { player.reloadTimer = 0; player.ammo = 300; player.beams = 6; }
+          player.reloadTimer -= rawDt / player.perks.fireRateMul;
+          if (player.reloadTimer <= 0) { player.reloadTimer = 0; player.ammo = 300; player.beams = player.maxBeams; }
         }
         if (player.invulnTimer > 0) player.invulnTimer = Math.max(0, player.invulnTimer - rawDt);
         if (player.lightSphereTimer > 0) player.lightSphereTimer = Math.max(0, player.lightSphereTimer - rawDt);
         if (player.ringBoostTimer > 0) player.ringBoostTimer = Math.max(0, player.ringBoostTimer - rawDt);
+        if (player.comboTimer > 0) {
+          player.comboTimer -= dt;
+          if (player.comboTimer <= 0) { player.combo = 0; player.comboTimer = 0; }
+        }
 
+        const fCfg = FORM_CFG[player.form];
         const braking = keys['KeyX'] || keys['ControlLeft'] || keys['ControlRight'] || holdTouchBrake;
         const boosting = keys['ShiftLeft'] || keys['ShiftRight'] || holdTouchBoost || (ptr.downL && now - ptr.downTime >= 250) || player.lightSphereTimer > 0 || player.ringBoostTimer > 0;
         const spdMulPlayer = player.lightSphereTimer > 0 ? 2.15 : (player.ringBoostTimer > 0 ? 2.1 : (boosting ? 1.9 : (braking ? 0.48 : 1.0)));
-        const targetSpd = cfg.speed * spdMulPlayer;
+        const targetSpd = cfg.speed * spdMulPlayer * fCfg.spdMul;
         player.speed += (targetSpd - player.speed) * Math.min(1, rawDt * 5.5);
 
         let turnIn = 0, pitchIn = 0;
@@ -2324,7 +2995,7 @@
         player.fireCd = Math.max(0, player.fireCd - rawDt);
         if ((ptr.downR || keys['KeyC'] || holdTouchSlash) && player.fireCd <= 0) {
           fireUltraSlash();
-          player.fireCd = 0.095;
+          player.fireCd = fCfg.fireCd * player.perks.fireRateMul;
         }
 
         // Wingtip Dual Light Ribbons
@@ -2361,11 +3032,25 @@
             player.ringBoostTimer = 1.65;
             player.ammo = Math.min(300, player.ammo + 60);
             player.ringsCleared++;
-            score += 200;
+            addScore(200);
+            bumpCombo(1);
             sfx.ring();
-            if (player.ringsCleared % 2 === 0 && player.hull < 6) player.hull = Math.min(6, player.hull + 1);
+            if (player.ringsCleared % 2 === 0 && player.hull < player.maxHull) player.hull = Math.min(player.maxHull, player.hull + 1);
             spawnSparks(sr.x, sr.y, sr.z, 22, 0x67e8f9, 95);
-            showBanner('✨ 穿越光之加速星环！极速推进 + 光轮补给 (+200)');
+            if (player.perks.ringZap > 0) {
+              const zapDmg = 3.5 * player.perks.ringZap * player.perks.globalDmgMul;
+              for (let j = enemies.length - 1; j >= 0; j--) {
+                if (j >= enemies.length) continue;
+                const en = enemies[j];
+                if (Math.hypot(en.x - sr.x, en.y - sr.y, en.z - sr.z) < 360) {
+                  spawnSparks(en.x, en.y, en.z, 14, 0xfef08a, 95);
+                  damageEnemy(j, zapDmg, false);
+                }
+              }
+              showBanner('⚡ 穿越光之星环！触发星环雷暴震伤周围敌机！');
+            } else {
+              showBanner('✨ 穿越光之加速星环！极速推进 + 光轮补给 (+200)');
+            }
           }
         }
 
@@ -2374,8 +3059,8 @@
           pk.life -= dt; pk.spin += dt * 4.5;
           const dx = player.x - pk.x, dy = player.y - pk.y, dz = player.z - pk.z;
           const d = Math.hypot(dx, dy, dz) || 1;
-          if (d < 145) {
-            const pull = Math.min(d, (player.speed + 160) * dt);
+          if (d < 145 * player.perks.magnetMul) {
+            const pull = Math.min(d, (player.speed + 185) * dt);
             pk.x += (dx / d) * pull; pk.y += (dy / d) * pull; pk.z += (dz / d) * pull;
           }
           if (d < 22) {
@@ -2387,17 +3072,111 @@
               updateSlashUI();
               showBanner(`💠 吸收 M78 光能核心！八分光轮强化至 LV.${player.slashLv}！`);
             } else if (pk.type === 1) {
-              player.beams = Math.min(8, player.beams + 2);
+              player.beams = Math.min(player.maxBeams + 2, player.beams + 2);
               showBanner('💎 吸收斯派修姆水晶！必杀光线能量 +2！');
             } else {
-              player.hull = Math.min(6, player.hull + 2);
+              player.hull = Math.min(player.maxHull, player.hull + 2);
               updateSphereUI();
               showBanner('💚 吸收生命粒子！计时器体力恢复 +2！');
             }
-            score += 120;
+            addScore(120);
+            bumpCombo(1);
             pickups.splice(i, 1);
           } else if (pk.life <= 0) {
             pickups.splice(i, 1);
+          }
+        }
+
+        // 0.5. Dynamic Crisis Event & Autonomous Windom Wingmen
+        if (crisisState.active) {
+          crisisState.timer -= dt;
+          const evTimerEl = document.getElementById('eventTimerTxt');
+          const evFillEl = document.getElementById('eventBarFill');
+          if (evTimerEl) evTimerEl.textContent = `${Math.max(0, crisisState.timer).toFixed(1)}s`;
+          if (evFillEl) evFillEl.style.width = `${Math.max(0, Math.min(100, (crisisState.timer / crisisState.maxTimer) * 100))}%`;
+
+          if (crisisState.type === 0 && escortShip) {
+            escortShip.bobPhase += dt * 2.4;
+            escortShip.flash = Math.max(0, escortShip.flash - rawDt);
+            const eGoalX = player.x + fwd.x * 235 + right.x * (Math.sin(escortShip.bobPhase * 0.6) * 58 + 38);
+            const eGoalY = player.y + fwd.y * 235 + up.y * (Math.cos(escortShip.bobPhase) * 24 - 14);
+            const eGoalZ = player.z + fwd.z * 235 + right.z * (Math.sin(escortShip.bobPhase * 0.6) * 58 + 38);
+            escortShip.x += (eGoalX - escortShip.x) * Math.min(1, dt * 3.8);
+            escortShip.y += (eGoalY - escortShip.y) * Math.min(1, dt * 3.8);
+            escortShip.z += (eGoalZ - escortShip.z) * Math.min(1, dt * 3.8);
+            escortShip.yaw = player.yaw;
+            escortShip.pitch = player.pitch * 0.5;
+            if (escortShip.hp <= 0) {
+              spawnSparks(escortShip.x, escortShip.y, escortShip.z, 32, 0xf97316, 110);
+              sfx.boom();
+              showBanner('💥 科特队飞燕号被迫紧急迫降！未获得护卫赏金');
+              finishCrisisEvent(false);
+            }
+          } else if (crisisState.type === 1) {
+            crisisState.spawnCd -= dt;
+            if (crisisState.spawnCd <= 0 && crisisMeteors.length < 14) {
+              crisisState.spawnCd = Math.max(0.45, 0.92 / DIFF_CFG[difficulty].rateMul);
+              const mp = warpAheadPos(fwd, basis, 920, 260, 120);
+              crisisMeteors.push({
+                x: mp.x, y: mp.y, z: mp.z,
+                vx: -fwd.x * 245 + (Math.random() - 0.5) * 45,
+                vy: -fwd.y * 245 + (Math.random() - 0.5) * 30,
+                vz: -fwd.z * 245 + (Math.random() - 0.5) * 45,
+                hp: 3, radius: 13, spin: Math.random() * 6, life: 5.5
+              });
+            }
+          }
+
+          for (let mi = crisisMeteors.length - 1; mi >= 0; mi--) {
+            const m = crisisMeteors[mi];
+            m.x += m.vx * dt; m.y += m.vy * dt; m.z += m.vz * dt;
+            m.spin += dt * 4.5; m.life -= dt;
+            const md = Math.hypot(player.x - m.x, player.y - m.y, player.z - m.z);
+            if (md < heroR + m.radius) {
+              if (boosting || player.lightSphereTimer > 0 || player.rollAnim > 0) {
+                addScore(180); bumpCombo(1); sfx.boom();
+                spawnSparks(m.x, m.y, m.z, 18, 0xf97316, 95);
+              } else {
+                damagePlayer(1, '☄️ 被超新星熔岩陨石撞击！冲刺或翻滚可直接撞碎陨石！');
+                spawnSparks(m.x, m.y, m.z, 18, 0xf97316, 95);
+              }
+              crisisMeteors.splice(mi, 1);
+              continue;
+            }
+            if (m.life <= 0) crisisMeteors.splice(mi, 1);
+          }
+
+          if (crisisState.active && crisisState.timer <= 0) {
+            finishCrisisEvent(crisisState.type === 1 || (crisisState.type === 0 && escortShip && escortShip.hp > 0));
+          }
+        }
+
+        if (player.wingmen > 0 && enemies.length > 0) {
+          player.wingmanCd -= dt;
+          if (player.wingmanCd <= 0) {
+            player.wingmanCd = 0.72 * player.perks.fireRateMul;
+            const tgt = getLockedEnemy(fwd) || enemies[0];
+            for (let wi = 0; wi < player.wingmen; wi++) {
+              const side = wi === 0 ? -1 : 1;
+              const wx = player.x + right.x * side * 34 - fwd.x * 16;
+              const wy = player.y + right.y * side * 34 + up.y * 8;
+              const wz = player.z + right.z * side * 34 - fwd.z * 16;
+              const tx = tgt.x - wx, ty = tgt.y - wy, tz = tgt.z - wz;
+              const tl = Math.hypot(tx, ty, tz) || 1;
+              const spd = 880;
+              projectiles.push({
+                x: wx, y: wy, z: wz,
+                vx: (tx / tl) * spd, vy: (ty / tl) * spd, vz: (tz / tl) * spd, speed: spd,
+                yaw: Math.atan2(-(tx / tl), -(tz / tl)),
+                pitch: Math.asin(Math.max(-1, Math.min(1, ty / tl))),
+                life: 1.9, isBeam: false, isReflect: false,
+                homingTurn: 3.4 * player.perks.homingMul,
+                matColor: 19, splashRad: 0,
+                dmg: 2.1 * player.perks.wingmanDmgMul * player.perks.globalDmgMul,
+                pierceLeft: 1, spin: 0, target: tgt, hitIds: new Set()
+              });
+              spawnSparks(wx, wy, wz, 4, 0xfde047, 40);
+            }
           }
         }
 
@@ -2455,7 +3234,20 @@
           }
         }
 
-        // 3. Forward-Arc Pacing Formation AI + 2-Boss System
+        // 3. Forward-Arc Pacing Formation AI + Boss Shield-Bits & 3-Boss System
+        const dRate = DIFF_CFG[difficulty].rateMul;
+        const dSpd = DIFF_CFG[difficulty].spdMul;
+        for (let bi = bossBits.length - 1; bi >= 0; bi--) {
+          const b = bossBits[bi];
+          const boss = enemies.find(en => en.uid === b.ownerUid && en.isBoss);
+          if (!boss) { bossBits.splice(bi, 1); continue; }
+          b.flash = Math.max(0, b.flash - rawDt);
+          b.angle += dt * (b.rage ? 3.2 : 2.1);
+          b.x = boss.x + Math.cos(b.angle) * b.orbitDist;
+          b.y = boss.y + b.orbitY + Math.sin(sec * 3.0 + b.uid) * 4;
+          b.z = boss.z + Math.sin(b.angle) * b.orbitDist;
+        }
+
         for (let i = enemies.length - 1; i >= 0; i--) {
           if (i >= enemies.length) continue;
           const e = enemies[i];
@@ -2469,129 +3261,173 @@
           const forwardDist = rx * fwd.x + ry * fwd.y + rz * fwd.z;
 
           if (e.isBoss) {
-            const bossLabel = e.bossType === 1 ? '🐉 KING GHIDORAH · 三首黄金帝王龙' : '👾 HYPER ZETTON · 宇宙恐龙杰顿';
+            const bossLabel = e.bossType === 2
+              ? '😈 DARK ZAGI · 暗黑破坏神扎基'
+              : (e.bossType === 1 ? '🐉 KING GHIDORAH · 三首黄金帝王龙' : '👾 HYPER ZETTON · 宇宙恐龙杰顿');
             if (e.phase === 1 && e.hp <= e.maxHp * 0.5) {
               e.phase = 2;
+              e.stunTimer = 0;
+              spawnShieldBits(e, 3, true);
               document.getElementById('bossTitle').textContent = `${bossLabel} (Phase 2 · 狂暴时空冲撞)`;
               sfx.roar();
               player.shake = 16;
-              showBanner(`⚠️ ${bossLabel} 半血狂暴：315 极速冲撞 & 全方位弹幕觉醒！`);
+              showBanner(`⚠️ ${bossLabel} 半血狂暴：重启狂暴护盾浮游炮 & 全方位弹幕觉醒！`);
             }
 
-            if (e.phase === 2 && e.dashState === 'ORBIT') {
-              e.dashCooldown -= dt;
-              if (e.dashCooldown <= 0 && dist > 200) {
-                e.dashState = 'WINDUP';
-                e.dashTimer = 0.80;
-                e.dashCooldown = 6.2;
-                e.dashVx = tx / dist; e.dashVy = ty / dist; e.dashVz = tz / dist;
-                e.yaw = Math.atan2(-tx, -tz);
-                sfx.roar();
-                showBanner('🔥 WARNING: BOSS 蓄力锁定 · 准备狂暴时空冲撞！');
-              }
-            }
-
-            if (e.dashState === 'WINDUP') {
-              e.dashTimer -= dt;
-              e.dashVx = tx / dist; e.dashVy = ty / dist; e.dashVz = tz / dist;
-              e.yaw = Math.atan2(-tx, -tz);
-              if (Math.random() < 0.65) spawnSparks(e.x, e.y, e.z, 2, e.bossType === 1 ? 0xfbbf24 : 0xf43f5e, 45);
-              if (e.dashTimer <= 0) {
-                e.dashState = 'DASH';
-                e.dashTimer = 1.35;
-                sfx.beam();
-                player.shake = Math.min(18, player.shake + 7);
-              }
-            } else if (e.dashState === 'DASH') {
-              e.dashTimer -= dt;
-              const dashSpd = 315;
-              e.x += e.dashVx * dashSpd * dt;
-              e.y += e.dashVy * dashSpd * dt;
-              e.z += e.dashVz * dashSpd * dt;
-              if (ghosts.length < 10 && ((now * 25) | 0) % 2 === 0) {
-                ghosts.push({ x: e.x, y: e.y, z: e.z, yaw: e.yaw, stack: BOSS_STACKS[e.bossType], scale: 1.85, life: 0.25 });
-              }
-              if (Math.random() < 0.28) {
-                const sa = (e.spiralPhase += 0.9);
-                spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(sa) * 130, 0, Math.sin(sa) * 130, 130, 0, 2.3, 0xfef08a, e.bossType === 1 ? 0xfbbf24 : 0xf43f5e, e.bossType === 1 ? 1 : 3);
-              }
-              if (e.dashTimer <= 0) {
-                e.dashState = 'ORBIT';
-                if (forwardDist < 140) {
-                  spawnSparks(e.x, e.y, e.z, 18, 0x38bdf8, 85);
-                  const wp = warpAheadPos(fwd, basis, 560 * cfg.engageRange, 180, 60);
-                  e.x = wp.x; e.y = wp.y; e.z = wp.z;
-                  spawnSparks(e.x, e.y, e.z, 18, 0xfbbf24, 95);
+            if (e.stunTimer > 0) {
+              e.stunTimer = Math.max(0, e.stunTimer - dt);
+              const stunGoalX = player.x + fwd.x * (360 * cfg.engageRange);
+              const stunGoalY = player.y + fwd.y * (360 * cfg.engageRange) + up.y * 12;
+              const stunGoalZ = player.z + fwd.z * (360 * cfg.engageRange);
+              e.x += (stunGoalX - e.x) * Math.min(1, dt * 2.2);
+              e.y += (stunGoalY - e.y) * Math.min(1, dt * 2.2);
+              e.z += (stunGoalZ - e.z) * Math.min(1, dt * 2.2);
+              e.roll = Math.sin(sec * 16) * 0.25;
+            } else {
+              if (e.phase === 2 && e.dashState === 'ORBIT') {
+                e.dashCooldown -= dt * dRate;
+                if (e.dashCooldown <= 0 && dist > 200) {
+                  e.dashState = 'WINDUP';
+                  e.dashTimer = 0.80;
+                  e.dashCooldown = Math.max(3.2, 6.2 / dRate);
+                  e.dashVx = tx / dist; e.dashVy = ty / dist; e.dashVz = tz / dist;
+                  e.yaw = Math.atan2(-tx, -tz);
+                  sfx.roar();
+                  showBanner('🔥 WARNING: BOSS 蓄力锁定 · 准备狂暴时空冲撞！');
                 }
               }
-            } else {
-              // Forward-Arc Arena Orbit: Boss stays proudly ahead of Ultraman!
-              if (forwardDist < -160 || dist > 1850 * cfg.engageRange) {
-                spawnSparks(e.x, e.y, e.z, 16, 0x38bdf8, 80);
-                const wp = warpAheadPos(fwd, basis, 540 * cfg.engageRange, 190, 65);
-                e.x = wp.x; e.y = wp.y; e.z = wp.z;
-                spawnSparks(e.x, e.y, e.z, 16, 0xfbbf24, 90);
-              }
-              const swayX = Math.sin(sec * 0.85) * 195 * cfg.engageRange;
-              const swayY = Math.cos(sec * 1.15) * 65;
-              const goalX = player.x + fwd.x * (500 * cfg.engageRange) + right.x * swayX + up.x * swayY;
-              const goalY = player.y + fwd.y * (500 * cfg.engageRange) + right.y * swayX + up.y * swayY;
-              const goalZ = player.z + fwd.z * (500 * cfg.engageRange) + right.z * swayX + up.z * swayY;
-              const cx = goalX - e.x, cy = goalY - e.y, cz = goalZ - e.z;
-              const cLen = Math.hypot(cx, cy, cz) || 1;
-              const corrSpd = Math.min(240, cLen * 1.35);
-              e.x += (fwd.x * player.speed * 0.90 + (cx / cLen) * corrSpd) * dt;
-              e.y += (fwd.y * player.speed * 0.90 + (cy / cLen) * corrSpd) * dt;
-              e.z += (fwd.z * player.speed * 0.90 + (cz / cLen) * corrSpd) * dt;
 
-              const desiredYaw = Math.atan2(-tx, -tz);
-              let diff = desiredYaw - e.yaw;
-              while (diff > Math.PI) diff -= Math.PI * 2;
-              while (diff < -Math.PI) diff += Math.PI * 2;
-              e.yaw += diff * Math.min(1, dt * 4.2);
-              e.roll = Math.max(-0.55, Math.min(0.55, Math.cos(sec * 0.85) * 0.35));
-
-              e.atkCd -= dt;
-              if (e.atkCd <= 0 && dist < 960 * cfg.engageRange) {
-                if (e.bossType === 1) {
-                  // King Ghidorah: Gravity Lightning + Golden Tempest
-                  if (e.phase === 2) {
-                    e.atkCd = 2.0; e.spiralPhase += 0.5;
-                    for (let k = 0; k < 8; k++) {
-                      const ang = e.spiralPhase + (k / 8) * Math.PI * 2;
-                      spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 185, (ty / dist) * 65, Math.sin(ang) * 185, 190, 0.25, 2.6, 0xffffff, 0xfde047, 1);
-                    }
-                  } else {
-                    e.atkCd = 2.4;
-                    for (let k = -1; k <= 1; k++) {
-                      const bx = tx / dist + right.x * (k * 0.16);
-                      const by = ty / dist + right.y * (k * 0.16);
-                      const bz = tz / dist + right.z * (k * 0.16);
-                      const bl = Math.hypot(bx, by, bz) || 1;
-                      spawnEnemyProjectile(e.x + right.x * k * 16, e.y, e.z + right.z * k * 16, (bx / bl) * 205, (by / bl) * 205, (bz / bl) * 205, 205, 1.15, 2.8, 0xffffff, 0xfbbf24, 1);
-                    }
+              if (e.dashState === 'WINDUP') {
+                e.dashTimer -= dt;
+                e.dashVx = tx / dist; e.dashVy = ty / dist; e.dashVz = tz / dist;
+                e.yaw = Math.atan2(-tx, -tz);
+                if (Math.random() < 0.65) spawnSparks(e.x, e.y, e.z, 2, e.bossType === 2 ? 0xc084fc : (e.bossType === 1 ? 0xfbbf24 : 0xf43f5e), 45);
+                if (e.dashTimer <= 0) {
+                  e.dashState = 'DASH';
+                  e.dashTimer = 1.35;
+                  sfx.beam();
+                  player.shake = Math.min(18, player.shake + 7);
+                }
+              } else if (e.dashState === 'DASH') {
+                e.dashTimer -= dt;
+                const dashSpd = (e.bossType === 2 ? 345 : 315) * dSpd;
+                e.x += e.dashVx * dashSpd * dt;
+                e.y += e.dashVy * dashSpd * dt;
+                e.z += e.dashVz * dashSpd * dt;
+                if (ghosts.length < 10 && ((now * 25) | 0) % 2 === 0) {
+                  ghosts.push({ x: e.x, y: e.y, z: e.z, yaw: e.yaw, stack: BOSS_STACKS[e.bossType], scale: 1.85, life: 0.25 });
+                }
+                if (Math.random() < 0.28) {
+                  const sa = (e.spiralPhase += 0.9);
+                  const boltCol = e.bossType === 2 ? 0xc084fc : (e.bossType === 1 ? 0xfbbf24 : 0xf43f5e);
+                  spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(sa) * 135, 0, Math.sin(sa) * 135, 135, 0, 2.3, 0xfef08a, boltCol, e.bossType === 1 ? 1 : 3);
+                }
+                if (e.dashTimer <= 0) {
+                  e.dashState = 'ORBIT';
+                  if (forwardDist < 140) {
+                    spawnSparks(e.x, e.y, e.z, 18, 0x38bdf8, 85);
+                    const wp = warpAheadPos(fwd, basis, 560 * cfg.engageRange, 180, 60);
+                    e.x = wp.x; e.y = wp.y; e.z = wp.z;
+                    spawnSparks(e.x, e.y, e.z, 18, 0xfbbf24, 95);
                   }
-                } else {
-                  // Hyper Zetton: Crimson Rings & Heavy Meteors
-                  if (e.phase === 2) {
-                    e.atkCd = 2.0; e.spiralPhase += 0.45;
-                    for (let k = 0; k < 8; k++) {
-                      const ang = e.spiralPhase + (k / 8) * Math.PI * 2;
-                      spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 180, (ty / dist) * 55, Math.sin(ang) * 180, 185, 0.2, 2.5, 0xffffff, 0xf43f5e, 3);
-                    }
-                  } else {
-                    e.atkCd = 2.6; e.spiralPhase++;
-                    if ((e.spiralPhase & 1) === 0) {
-                      for (let k = 0; k < 6; k++) {
-                        const ang = Math.atan2(tz, tx) + ((k - 2.5) * 0.24);
-                        spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 170, (ty / dist) * 75, Math.sin(ang) * 170, 180, 0.35, 2.4, 0xfee2e2, 0xf43f5e, 3);
+                }
+              } else {
+                // Forward-Arc Arena Orbit: Boss stays proudly ahead of Ultraman!
+                if (forwardDist < -160 || dist > 1850 * cfg.engageRange) {
+                  spawnSparks(e.x, e.y, e.z, 16, 0x38bdf8, 80);
+                  const wp = warpAheadPos(fwd, basis, 540 * cfg.engageRange, 190, 65);
+                  e.x = wp.x; e.y = wp.y; e.z = wp.z;
+                  spawnSparks(e.x, e.y, e.z, 16, 0xfbbf24, 90);
+                }
+                if (e.bossType === 2) {
+                  e.blinkCd -= dt * dRate;
+                  if (e.blinkCd <= 0 && dist < 950) {
+                    e.blinkCd = Math.max(2.1, 3.8 / dRate);
+                    ghosts.push({ x: e.x, y: e.y, z: e.z, yaw: e.yaw, stack: BOSS_STACKS[2], scale: 1.85, life: 0.42 });
+                    const dir = Math.random() < 0.5 ? 1 : -1;
+                    e.x += right.x * dir * 130; e.y += right.y * dir * 130 + up.y * ((Math.random() - 0.5) * 40); e.z += right.z * dir * 130;
+                    spawnSparks(e.x, e.y, e.z, 14, 0xc084fc, 85);
+                  }
+                }
+                const swayX = Math.sin(sec * 0.85) * 195 * cfg.engageRange;
+                const swayY = Math.cos(sec * 1.15) * 65;
+                const goalX = player.x + fwd.x * (500 * cfg.engageRange) + right.x * swayX + up.x * swayY;
+                const goalY = player.y + fwd.y * (500 * cfg.engageRange) + right.y * swayX + up.y * swayY;
+                const goalZ = player.z + fwd.z * (500 * cfg.engageRange) + right.z * swayX + up.z * swayY;
+                const cx = goalX - e.x, cy = goalY - e.y, cz = goalZ - e.z;
+                const cLen = Math.hypot(cx, cy, cz) || 1;
+                const corrSpd = Math.min(240 * dSpd, cLen * 1.35);
+                e.x += (fwd.x * player.speed * 0.90 + (cx / cLen) * corrSpd) * dt;
+                e.y += (fwd.y * player.speed * 0.90 + (cy / cLen) * corrSpd) * dt;
+                e.z += (fwd.z * player.speed * 0.90 + (cz / cLen) * corrSpd) * dt;
+
+                const desiredYaw = Math.atan2(-tx, -tz);
+                let diff = desiredYaw - e.yaw;
+                while (diff > Math.PI) diff -= Math.PI * 2;
+                while (diff < -Math.PI) diff += Math.PI * 2;
+                e.yaw += diff * Math.min(1, dt * 4.2);
+                e.roll = Math.max(-0.55, Math.min(0.55, Math.cos(sec * 0.85) * 0.35));
+
+                e.atkCd -= dt * dRate;
+                if (e.atkCd <= 0 && dist < 960 * cfg.engageRange) {
+                  if (e.bossType === 2) {
+                    // Dark Zagi: Lightning Zagi & Dark Homing Lances
+                    if (e.phase === 2) {
+                      e.atkCd = 1.75; e.spiralPhase += 0.55;
+                      for (let k = 0; k < 8; k++) {
+                        const ang = e.spiralPhase + (k / 8) * Math.PI * 2;
+                        spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 195, (ty / dist) * 65, Math.sin(ang) * 195, 195, 0.35, 2.5, 0xffffff, 0xc084fc, 3);
                       }
                     } else {
-                      for (let s = -1; s <= 1; s += 2) {
-                        const bx = tx / dist + s * 0.2;
-                        const bz = tz / dist;
-                        const bl = Math.hypot(bx, bz) || 1;
-                        spawnEnemyProjectile(e.x + s * 14, e.y, e.z, (bx / bl) * 165, (ty / dist) * 110, (bz / bl) * 165, 170, 1.85, 3.0, 0xffffff, 0xfbbf24, 1);
+                      e.atkCd = 2.15;
+                      for (let k = -2; k <= 2; k++) {
+                        const bx = tx / dist + right.x * (k * 0.12);
+                        const by = ty / dist + right.y * (k * 0.12);
+                        const bz = tz / dist + right.z * (k * 0.12);
+                        const bl = Math.hypot(bx, by, bz) || 1;
+                        spawnEnemyProjectile(e.x + right.x * k * 10, e.y, e.z + right.z * k * 10, (bx / bl) * 215, (by / bl) * 215, (bz / bl) * 215, 215, k === 0 ? 1.5 : 0.4, 2.5, 0xfde047, 0xf43f5e, 3);
+                      }
+                    }
+                  } else if (e.bossType === 1) {
+                    // King Ghidorah: Gravity Lightning + Golden Tempest
+                    if (e.phase === 2) {
+                      e.atkCd = 2.0; e.spiralPhase += 0.5;
+                      for (let k = 0; k < 8; k++) {
+                        const ang = e.spiralPhase + (k / 8) * Math.PI * 2;
+                        spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 185, (ty / dist) * 65, Math.sin(ang) * 185, 190, 0.25, 2.6, 0xffffff, 0xfde047, 1);
+                      }
+                    } else {
+                      e.atkCd = 2.4;
+                      for (let k = -1; k <= 1; k++) {
+                        const bx = tx / dist + right.x * (k * 0.16);
+                        const by = ty / dist + right.y * (k * 0.16);
+                        const bz = tz / dist + right.z * (k * 0.16);
+                        const bl = Math.hypot(bx, by, bz) || 1;
+                        spawnEnemyProjectile(e.x + right.x * k * 16, e.y, e.z + right.z * k * 16, (bx / bl) * 205, (by / bl) * 205, (bz / bl) * 205, 205, 1.15, 2.8, 0xffffff, 0xfbbf24, 1);
+                      }
+                    }
+                  } else {
+                    // Hyper Zetton: Crimson Rings & Heavy Meteors
+                    if (e.phase === 2) {
+                      e.atkCd = 2.0; e.spiralPhase += 0.45;
+                      for (let k = 0; k < 8; k++) {
+                        const ang = e.spiralPhase + (k / 8) * Math.PI * 2;
+                        spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 180, (ty / dist) * 55, Math.sin(ang) * 180, 185, 0.2, 2.5, 0xffffff, 0xf43f5e, 3);
+                      }
+                    } else {
+                      e.atkCd = 2.6; e.spiralPhase++;
+                      if ((e.spiralPhase & 1) === 0) {
+                        for (let k = 0; k < 6; k++) {
+                          const ang = Math.atan2(tz, tx) + ((k - 2.5) * 0.24);
+                          spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 170, (ty / dist) * 75, Math.sin(ang) * 170, 180, 0.35, 2.4, 0xfee2e2, 0xf43f5e, 3);
+                        }
+                      } else {
+                        for (let s = -1; s <= 1; s += 2) {
+                          const bx = tx / dist + s * 0.2;
+                          const bz = tz / dist;
+                          const bl = Math.hypot(bx, bz) || 1;
+                          spawnEnemyProjectile(e.x + s * 14, e.y, e.z, (bx / bl) * 165, (ty / dist) * 110, (bz / bl) * 165, 170, 1.85, 3.0, 0xffffff, 0xfbbf24, 1);
+                        }
                       }
                     }
                   }
@@ -2600,10 +3436,10 @@
             }
 
             const pct = Math.max(0, Math.round((e.hp / e.maxHp) * 100));
-            document.getElementById('bossHpTxt').textContent = `${pct}%`;
+            document.getElementById('bossHpTxt').textContent = e.stunTimer > 0 ? `💥破防 ${e.stunTimer.toFixed(1)}s` : `${pct}%`;
             document.getElementById('bossBarFill').style.width = `${pct}%`;
           } else {
-            // Regular Kaiju: Forward-Arc Pacing Formation + Anti-Tail-Chase Regroup!
+            // Regular / Elite / Carrier Kaiju: Forward-Arc Pacing Formation AI
             e.weavePhase += dt * 1.85;
             if (forwardDist < 40) e.behindTimer += dt;
             else e.behindTimer = Math.max(0, e.behindTimer - dt * 2.5);
@@ -2639,7 +3475,7 @@
               const gz = player.z + fwd.z * targetD + right.z * wx + up.z * wy;
               const cx = gx - e.x, cy = gy - e.y, cz = gz - e.z;
               const cLen = Math.hypot(cx, cy, cz) || 1;
-              const corrSpd = Math.min(205, cLen * 1.35);
+              const corrSpd = Math.min(205 * dSpd, cLen * 1.35);
               e.x += (fwd.x * player.speed * 0.88 + (cx / cLen) * corrSpd) * dt;
               e.y += (fwd.y * player.speed * 0.88 + (cy / cLen) * corrSpd) * dt;
               e.z += (fwd.z * player.speed * 0.88 + (cz / cLen) * corrSpd) * dt;
@@ -2655,32 +3491,29 @@
             e.pitch += (desiredPitch - e.pitch) * Math.min(1, dt * 4.0);
             e.roll += (targetRoll - e.roll) * Math.min(1, dt * 5.0);
 
-            // Archetype Combat Specials (in forward view!)
             if (e.variant === 0) {
-              // Baltan Lateral Phantom Dash
-              e.phantomCd -= dt;
+              e.phantomCd -= dt * dRate;
               if (e.phantomCd <= 0 && forwardDist > 160 && dist < 850) {
                 e.phantomCd = 4.6 + Math.random() * 1.6;
                 const dir = Math.random() < 0.5 ? 1 : -1;
-                ghosts.push({ x: e.x, y: e.y, z: e.z, yaw: e.yaw, stack: KAIJU_STACKS[0], scale: 1.25, life: 0.35 });
+                ghosts.push({ x: e.x, y: e.y, z: e.z, yaw: e.yaw, stack: KAIJU_STACKS[0], scale: e.isElite ? 1.46 : 1.25, life: 0.35 });
                 e.x += right.x * dir * 82; e.y += right.y * dir * 82; e.z += right.z * dir * 82;
                 spawnSparks(e.x, e.y, e.z, 8, 0x22d3ee, 55);
               }
             } else if (e.variant === 1) {
-              // Zetton Amber Frontal Barrier
               if (e.shieldTimer > 0) e.shieldTimer = Math.max(0, e.shieldTimer - dt);
               else {
-                e.shieldCd -= dt;
+                e.shieldCd -= dt * dRate;
                 if (e.shieldCd <= 0 && forwardDist > 140 && dist < 780) {
                   e.shieldCd = 5.4 + Math.random() * 1.6;
-                  e.shieldTimer = 2.4;
-                  e.shieldHp = 6;
+                  e.shieldTimer = e.isCarrier ? 3.2 : 2.4;
+                  e.shieldHp = e.isCarrier ? 10 : 6;
                 }
               }
             }
 
             if (forwardDist > 110 && dist < 960 * cfg.engageRange) {
-              e.atkCd -= dt;
+              e.atkCd -= dt * dRate;
               if (e.atkCd <= 0 && e.chargeTimer <= 0) {
                 e.chargeTimer = e.variant === 2 ? 0.65 : 0.35;
                 spawnSparks(e.x, e.y, e.z, 5, e.variant === 1 ? 0xf59e0b : (e.variant === 2 ? 0xfde047 : 0x22d3ee), 35);
@@ -2688,30 +3521,44 @@
               if (e.chargeTimer > 0) {
                 e.chargeTimer -= dt;
                 if (e.chargeTimer <= 0) {
-                  e.atkCd = (2.8 + Math.random() * 1.4);
-                  const vx0 = tx / dist, vy0 = ty / dist, vz0 = tz / dist;
-                  if (e.variant === 0) {
+                  e.atkCd = Math.max(0.85, (2.8 + Math.random() * 1.4) / dRate);
+                  const aimJet = (crisisState.active && crisisState.type === 0 && escortShip && Math.random() < 0.45) ? escortShip : null;
+                  let vx0 = tx / dist, vy0 = ty / dist, vz0 = tz / dist;
+                  if (aimJet) {
+                    const jx = aimJet.x - e.x, jy = aimJet.y - e.y, jz = aimJet.z - e.z;
+                    const jl = Math.hypot(jx, jy, jz) || 1;
+                    vx0 = jx / jl; vy0 = jy / jl; vz0 = jz / jl;
+                  }
+                  if (e.isCarrier) {
+                    spawnEnemyProjectile(e.x, e.y, e.z, vx0 * 155, vy0 * 155, vz0 * 155, 155, 0.45, 3.6, 0xa7f3d0, 0x10b981, 4, true, aimJet);
                     for (let s = -1; s <= 1; s += 2) {
-                      spawnEnemyProjectile(e.x + right.x * s * 10, e.y, e.z + right.z * s * 10, vx0 * 185 + right.x * s * 24, vy0 * 185, vz0 * 185 + right.z * s * 24, 185, 1.4, 2.3, 0xffffff, 0x22d3ee, 2);
+                      spawnEnemyProjectile(e.x + right.x * s * 14, e.y, e.z + right.z * s * 14, vx0 * 195 + right.x * s * 28, vy0 * 195, vz0 * 195 + right.z * s * 28, 195, 1.35, 2.5, 0xffffff, 0xf43f5e, 3, false, aimJet);
+                    }
+                  } else if (e.variant === 0) {
+                    for (let s = -1; s <= 1; s += 2) {
+                      spawnEnemyProjectile(e.x + right.x * s * 10, e.y, e.z + right.z * s * 10, vx0 * 185 + right.x * s * 24, vy0 * 185, vz0 * 185 + right.z * s * 24, 185, 1.4, 2.3, 0xffffff, 0x22d3ee, 2, false, aimJet);
                     }
                   } else if (e.variant === 1) {
-                    spawnEnemyProjectile(e.x, e.y, e.z, vx0 * 175, vy0 * 175, vz0 * 175, 175, 1.95, 3.0, 0xfef08a, 0xf97316, 1);
+                    spawnEnemyProjectile(e.x, e.y, e.z, vx0 * 175, vy0 * 175, vz0 * 175, 175, 1.95, 3.0, 0xfef08a, 0xf97316, 1, false, aimJet);
                   } else if (e.variant === 2) {
                     for (let k = -1; k <= 1; k++) {
                       const bx = vx0 + right.x * k * 0.14, by = vy0, bz = vz0 + right.z * k * 0.14;
                       const bl = Math.hypot(bx, by, bz) || 1;
-                      spawnEnemyProjectile(e.x, e.y, e.z, (bx / bl) * 245, (by / bl) * 245, (bz / bl) * 245, 245, 0.35, 2.3, 0xffffff, 0xfbbf24, 1);
+                      spawnEnemyProjectile(e.x, e.y, e.z, (bx / bl) * 245, (by / bl) * 245, (bz / bl) * 245, 245, 0.35, 2.3, 0xffffff, 0xfbbf24, 1, false, aimJet);
                     }
                   } else {
-                    spawnEnemyProjectile(e.x, e.y, e.z, vx0 * 145, vy0 * 145, vz0 * 145, 145, 0.35, 3.6, 0xa7f3d0, 0x10b981, 4, true);
+                    spawnEnemyProjectile(e.x, e.y, e.z, vx0 * 145, vy0 * 145, vz0 * 145, 145, 0.35, 3.6, 0xa7f3d0, 0x10b981, 4, true, aimJet);
+                  }
+                  if (e.isElite && !e.isCarrier) {
+                    spawnEnemyProjectile(e.x, e.y + 8, e.z, vx0 * 210, vy0 * 210, vz0 * 210, 210, 1.2, 2.4, 0xfef08a, 0xf43f5e, 3, false, aimJet);
                   }
                 }
               }
             }
           }
 
-          // Fair Melee / Spin Counter (NO cheap body-bump damage on regular Kaiju passes!)
-          const hitR = e.isBoss ? 32 : 20;
+          // Fair Melee / Spin Counter
+          const hitR = e.isBoss ? 32 : (e.isCarrier ? 26 : 20);
           if (dist < hitR + heroR) {
             if (player.lightSphereTimer > 0) {
               damageEnemy(i, 16 * dt, true);
@@ -2720,9 +3567,10 @@
               if (e.ramCd <= 0) {
                 e.ramCd = 0.65;
                 e.x += fwd.x * 95; e.y += fwd.y * 95; e.z += fwd.z * 95;
-                score += 120;
+                addScore(120);
+                bumpCombo(1);
                 showBanner('🌀 旋翼撞击弹反！将怪兽震飞前方并造成重创！');
-                damageEnemy(i, 4, false);
+                damageEnemy(i, 4 * player.perks.globalDmgMul, false);
               }
             } else if (e.isBoss && e.dashState === 'DASH') {
               damagePlayer(2, '💥 被霸主狂暴冲撞命中！绿环亮起时翻滚可完美反击！');
@@ -2737,8 +3585,10 @@
           const ep = enemyProjectiles[i];
           ep.life -= dt; ep.age += dt;
           if (ep.life <= 0) { enemyProjectiles.splice(i, 1); continue; }
+          if (ep.targetShip && (!escortShip || !crisisState.active)) ep.targetShip = null;
 
-          const dx = player.x - ep.x, dy = player.y - ep.y, dz = player.z - ep.z;
+          const aimObj = ep.targetShip || player;
+          const dx = aimObj.x - ep.x, dy = aimObj.y - ep.y, dz = aimObj.z - ep.z;
           const d = Math.hypot(dx, dy, dz) || 1;
 
           if (ep.isCluster && (ep.age > 1.05 || d < 125)) {
@@ -2750,7 +3600,7 @@
               const by = dy / d + right.y * Math.cos(ang) * 0.42 + up.y * Math.sin(ang) * 0.42;
               const bz = dz / d + right.z * Math.cos(ang) * 0.42 + up.z * Math.sin(ang) * 0.42;
               const bl = Math.hypot(bx, by, bz) || 1;
-              spawnEnemyProjectile(ep.x, ep.y, ep.z, (bx / bl) * 165, (by / bl) * 165, (bz / bl) * 165, 165, 0.65, 2.2, 0xe0f2fe, 0x2dd4bf, 4, false);
+              spawnEnemyProjectile(ep.x, ep.y, ep.z, (bx / bl) * 165, (by / bl) * 165, (bz / bl) * 165, 165, 0.65, 2.2, 0xe0f2fe, 0x2dd4bf, 4, false, ep.targetShip);
             }
             continue;
           }
@@ -2771,29 +3621,58 @@
           ep.x += ep.vx * dt; ep.y += ep.vy * dt; ep.z += ep.vz * dt;
           if (ep.homing > 1.2 && Math.random() < 0.35) spawnSparks(ep.x, ep.y, ep.z, 1, 0xf97316, 18);
 
-          if (d < heroR + ep.radius) {
+          if (escortShip && crisisState.active && Math.hypot(escortShip.x - ep.x, escortShip.y - ep.y, escortShip.z - ep.z) < 17 + ep.radius) {
+            enemyProjectiles.splice(i, 1);
+            escortShip.hp = Math.max(0, escortShip.hp - 1);
+            escortShip.flash = 0.14;
+            sfx.hit();
+            spawnSparks(escortShip.x, escortShip.y, escortShip.z, 12, 0xf97316, 75);
+            continue;
+          }
+
+          const pd = Math.hypot(player.x - ep.x, player.y - ep.y, player.z - ep.z);
+          if (pd < heroR + ep.radius) {
             enemyProjectiles.splice(i, 1);
             damagePlayer(1, '💥 被怪兽高能火球击中！绿环亮起时翻滚可完美躲避并反击');
           }
         }
 
-        // 5. Player Curving Homing Ultra Slashes & Beams
+        const applyFormSplash = (px, py, pz, rad, dmg, skipUid) => {
+          if (rad <= 0) return;
+          spawnSparks(px, py, pz, 12, FORM_CFG[player.form].trailHex, 85);
+          for (let j = enemies.length - 1; j >= 0; j--) {
+            if (j >= enemies.length) continue;
+            const en = enemies[j];
+            if (en.uid === skipUid) continue;
+            if (Math.hypot(en.x - px, en.y - py, en.z - pz) <= rad) {
+              damageEnemy(j, dmg * 0.45, false);
+            }
+          }
+        };
+
+        // 5. Player Curving Homing Ultra Slashes, Reflected Counter-Bolts & Beams
         for (let i = projectiles.length - 1; i >= 0; i--) {
           const p = projectiles[i];
-          if (!p.isBeam && p.target && enemies.indexOf(p.target) !== -1) {
-            const tx = p.target.x - p.x, ty = p.target.y - p.y, tz = p.target.z - p.z;
-            const td = Math.hypot(tx, ty, tz) || 1;
-            const cdot = (tx * p.vx + ty * p.vy + tz * p.vz) / (td * p.speed);
-            if (cdot > 0.05) {
-              const turn = Math.min(1, 2.6 * dt);
-              p.vx += ((tx / td) * p.speed - p.vx) * turn;
-              p.vy += ((ty / td) * p.speed - p.vy) * turn;
-              p.vz += ((tz / td) * p.speed - p.vz) * turn;
-              const nl = Math.hypot(p.vx, p.vy, p.vz) || 1;
-              p.vx = (p.vx / nl) * p.speed;
-              p.vy = (p.vy / nl) * p.speed;
-              p.vz = (p.vz / nl) * p.speed;
-              p.yaw = Math.atan2(-p.vx, -p.vz);
+          if ((!p.isBeam || p.homingTurn > 0)) {
+            if ((!p.target || enemies.indexOf(p.target) === -1) && p.isReflect && enemies.length > 0) {
+              p.target = enemies[0];
+            }
+            if (p.target && enemies.indexOf(p.target) !== -1) {
+              const tx = p.target.x - p.x, ty = p.target.y - p.y, tz = p.target.z - p.z;
+              const td = Math.hypot(tx, ty, tz) || 1;
+              const cdot = (tx * p.vx + ty * p.vy + tz * p.vz) / (td * p.speed);
+              if (cdot > 0.05 || p.isReflect) {
+                const turn = Math.min(1, (p.homingTurn || 2.6) * dt);
+                p.vx += ((tx / td) * p.speed - p.vx) * turn;
+                p.vy += ((ty / td) * p.speed - p.vy) * turn;
+                p.vz += ((tz / td) * p.speed - p.vz) * turn;
+                const nl = Math.hypot(p.vx, p.vy, p.vz) || 1;
+                p.vx = (p.vx / nl) * p.speed;
+                p.vy = (p.vy / nl) * p.speed;
+                p.vz = (p.vz / nl) * p.speed;
+                p.yaw = Math.atan2(-p.vx, -p.vz);
+                p.pitch = Math.asin(Math.max(-1, Math.min(1, p.vy / p.speed)));
+              }
             }
           }
 
@@ -2807,10 +3686,41 @@
             if (ep.destructible && Math.hypot(p.x - ep.x, p.y - ep.y, p.z - ep.z) < ep.radius + (p.isBeam ? 12 : 9)) {
               const wasCluster = ep.isCluster;
               enemyProjectiles.splice(k, 1);
-              score += wasCluster ? 60 : 30;
+              addScore(wasCluster ? 60 : 30);
               sfx.hit();
               spawnSparks(ep.x, ep.y, ep.z, wasCluster ? 10 : 6, 0x38bdf8, 65);
               if (!p.isBeam && --p.pierceLeft <= 0) { removeProj = true; break; }
+            }
+          }
+
+          if (!removeProj) {
+            for (let mi = crisisMeteors.length - 1; mi >= 0; mi--) {
+              const m = crisisMeteors[mi];
+              if (Math.hypot(p.x - m.x, p.y - m.y, p.z - m.z) < m.radius + (p.isBeam ? 12 : 8)) {
+                m.hp -= p.dmg;
+                spawnSparks(p.x, p.y, p.z, 6, 0xf97316, 65);
+                if (m.hp <= 0) {
+                  addScore(180);
+                  bumpCombo(1);
+                  sfx.boom();
+                  spawnSparks(m.x, m.y, m.z, 16, 0xf97316, 90);
+                  crisisMeteors.splice(mi, 1);
+                }
+                if (!p.isBeam && --p.pierceLeft <= 0) { removeProj = true; break; }
+              }
+            }
+          }
+
+          if (!removeProj) {
+            for (let bi = bossBits.length - 1; bi >= 0; bi--) {
+              if (bi >= bossBits.length) continue;
+              const b = bossBits[bi];
+              if (p.hitIds.has(b.uid)) continue;
+              if (Math.hypot(p.x - b.x, p.y - b.y, p.z - b.z) < (p.isBeam ? 24 : 18)) {
+                p.hitIds.add(b.uid);
+                damageBossBit(bi, p.dmg, p.isBeam);
+                if (--p.pierceLeft <= 0) { removeProj = true; break; }
+              }
             }
           }
 
@@ -2819,11 +3729,12 @@
               if (j >= enemies.length) continue;
               const e = enemies[j];
               if (p.hitIds.has(e.uid)) continue;
-              const hr = e.isBoss ? (p.isBeam ? 58 : 44) : (p.isBeam ? 34 : 24);
+              const hr = e.isBoss ? (p.isBeam ? 58 : 44) : (e.isCarrier ? 36 : (e.isElite ? 30 : (p.isBeam ? 34 : 24)));
               if (Math.hypot(p.x - e.x, p.y - e.y, p.z - e.z) < hr) {
                 p.hitIds.add(e.uid);
-                spawnSparks(p.x, p.y, p.z, p.isBeam ? 10 : 5, p.isBeam ? 0xf43f5e : 0x22d3ee, 75);
+                spawnSparks(p.x, p.y, p.z, p.isBeam ? 10 : 5, p.isBeam ? 0xf43f5e : FORM_CFG[player.form].trailHex, 75);
                 damageEnemy(j, p.dmg, p.isBeam);
+                if (p.splashRad > 0) applyFormSplash(p.x, p.y, p.z, p.splashRad, p.dmg, e.uid);
                 if (--p.pierceLeft <= 0) { removeProj = true; break; }
               }
             }
@@ -2900,24 +3811,38 @@
         drawSpriteStack(PICKUP_STACK, pk.x, pk.y, pk.z, pk.spin, pk.spin * 0.4, 0, 1.4, 1.0, 0, false, ovMat);
       }
 
+      for (let i = 0; i < crisisMeteors.length; i++) {
+        const m = crisisMeteors[i];
+        drawSpriteStack(AST_MAGMA, m.x, m.y, m.z, m.spin, m.spin * 0.5, 0, 1.55, 1.0, 0, false, 0, 0);
+      }
+
+      if (escortShip && crisisState.active) {
+        drawSpriteStack(SSSP_JET_STACK, escortShip.x, escortShip.y, escortShip.z, escortShip.yaw, escortShip.pitch, 0, 1.35, 1.0, 2, escortShip.flash > 0, 0, 0);
+      }
+
+      for (let i = 0; i < bossBits.length; i++) {
+        const b = bossBits[i];
+        drawSpriteStack(SHIELD_BIT_STACK, b.x, b.y, b.z, sec * 3.5 + b.uid, Math.sin(sec * 2 + b.uid) * 0.3, 0, 1.25, 1.0, 2, b.flash > 0, b.rage ? 11 : 0, 0);
+      }
+
       // Boss & Baltan Afterimage Ghosts
       for (let i = ghosts.length - 1; i >= 0; i--) {
         const g = ghosts[i];
         if (!freezeSim) g.life -= rawDt;
         if (g.life <= 0) { ghosts.splice(i, 1); continue; }
-        drawSpriteStack(g.stack || BOSS_ZETTON_STACK, g.x, g.y, g.z, g.yaw, 0, 0, g.scale || 1.85, 1.0, 0, false, 0);
+        drawSpriteStack(g.stack || BOSS_ZETTON_STACK, g.x, g.y, g.z, g.yaw, 0, 0, g.scale || 1.85, 1.0, 0, false, 0, 0);
       }
 
       for (let i = 0; i < enemies.length; i++) {
         const e = enemies[i];
         const st = e.isBoss ? BOSS_STACKS[e.bossType || 0] : KAIJU_STACKS[e.variant];
-        const sc = e.isBoss ? 1.85 : 1.25;
+        const sc = e.isBoss ? 1.85 : (e.isCarrier ? 1.72 : (e.isElite ? 1.46 : 1.25));
         const roll = e.isBoss ? e.roll : (e.roll + Math.sin(sec * 2 + i) * 0.1);
-        drawSpriteStack(st, e.x, e.y, e.z, e.yaw, e.pitch || 0, roll, sc, 1.0, 2, e.flash > 0, 0);
+        drawSpriteStack(st, e.x, e.y, e.z, e.yaw, e.pitch || 0, roll, sc, 1.0, 2, e.flash > 0, 0, e.isElite ? 18 : 0);
       }
 
       // Dual Wingtip Light Ribbons
-      const ribCol = packHex(0x38bdf8);
+      const ribCol = packHex(FORM_CFG[player.form].trailHex);
       for (let i = 0; i < ribbonsL.length; i++) {
         if (!freezeSim) ribbonsL[i].life -= rawDt;
         if (ribbonsL[i].life > 0) drawPixelBillboard(ribbonsL[i].x, ribbonsL[i].y, ribbonsL[i].z, 0.9, ribCol, 2);
@@ -2927,6 +3852,17 @@
         if (ribbonsR[i].life > 0) drawPixelBillboard(ribbonsR[i].x, ribbonsR[i].y, ribbonsR[i].z, 0.9, ribCol, 2);
       }
 
+      // Autonomous Windom Capsule Wingmen
+      if (player.wingmen > 0 && cfg.view !== 'cockpit') {
+        for (let wi = 0; wi < player.wingmen; wi++) {
+          const side = wi === 0 ? -1 : 1;
+          const wx = player.x + right.x * side * 30 - fwd.x * 14;
+          const wy = player.y + right.y * side * 30 + up.y * (6 + Math.sin(sec * 3.2 + wi) * 3);
+          const wz = player.z + right.z * side * 30 - fwd.z * 14;
+          drawSpriteStack(WINGMAN_STACK, wx, wy, wz, player.yaw, effPitch, player.roll * 0.5, 1.15, 1.0, 1, false, 0, 0);
+        }
+      }
+
       // Draw Hero Ultraman or Travel Light Sphere
       if (player.lightSphereTimer > 0) {
         drawPixelBillboard(player.x, player.y, player.z, 12.5, packHex(0xf43f5e), 3);
@@ -2934,7 +3870,7 @@
       } else if (cfg.view !== 'cockpit' && !(player.invulnTimer > 0 && ((sec * 22) | 0) % 2 === 0)) {
         const effRoll = player.roll + (player.rollAnim > 0 ? (Math.PI * 2 - player.rollAnim) * player.rollDir : 0);
         const timerOverride = player.hull <= 2 ? ((((sec * 4.5) | 0) % 2 === 0) ? 13 : 14) : 0;
-        drawSpriteStack(HERO_STACK, player.x, player.y, player.z, player.yaw, effPitch, effRoll, cfg.heroScale, cfg.spread, 1, false, timerOverride);
+        drawSpriteStack(HERO_STACK, player.x, player.y, player.z, player.yaw, effPitch, effRoll, cfg.heroScale, cfg.spread, 1, false, timerOverride, FORM_CFG[player.form].accentMat);
       }
 
       // Visible Two-Tone Enemy Homing Fireballs & Cluster Orbs
@@ -2944,15 +3880,15 @@
         drawPixelBillboard(ep.x, ep.y, ep.z, ep.radius * 0.55, ep.colCore, ep.glowType);
       }
 
-      // 3D Spinning Pixel Sawblade Ultra Slash + Piercing Spacium Beam
-      const beamCol = packHex(0x67e8f9), beamCoreCol = packHex(0xffffff);
+      // 3D Spinning Pixel Sawblade Ultra Slash + Reflected Counter-Bolts + Piercing Spacium Beam
+      const beamCol = packHex(FORM_CFG[player.form].trailHex), beamCoreCol = packHex(0xffffff);
       for (let i = 0; i < projectiles.length; i++) {
         const p = projectiles[i];
         if (p.isBeam) {
           drawPixelBillboard(p.x, p.y, p.z, 4.0, beamCol, 2);
           drawPixelBillboard(p.x, p.y, p.z, 2.0, beamCoreCol, 2);
         } else {
-          drawSpriteStack(SLASH_STACK, p.x, p.y, p.z, p.yaw, p.pitch, p.spin, 0.78, 1.0, 0, false, 0);
+          drawSpriteStack(SLASH_STACK, p.x, p.y, p.z, p.yaw, p.pitch, p.spin, p.isReflect ? 0.98 : 0.78, 1.0, 0, false, 0, p.matColor || 0);
         }
       }
 
@@ -2990,9 +3926,50 @@
       if (_tmpC.z > 5) {
         const rx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
         const ry = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
-        hctx.strokeStyle = locked ? '#fbbf24' : 'rgba(56, 189, 248, 0.85)';
+        hctx.strokeStyle = locked ? '#fbbf24' : FORM_CFG[player.form].uiColor;
         hctx.lineWidth = 1.8;
         hctx.strokeRect(rx - 10, ry - 10, 20, 20);
+      }
+
+      // Escort SSSP Jet Status Marker
+      if (escortShip && crisisState.active) {
+        worldToCam(escortShip.x, escortShip.y, escortShip.z, _tmpC);
+        const onScreen = _tmpC.z > 8;
+        const jx = onScreen ? (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx : -99;
+        const jy = onScreen ? (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy : -99;
+        if (onScreen && jx > 12 && jx < cssW - 12 && jy > 24 && jy < cssH - 12) {
+          hctx.strokeStyle = '#38bdf8';
+          hctx.lineWidth = 1.8;
+          hctx.strokeRect(jx - 14, jy - 14, 28, 28);
+          hctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+          hctx.fillRect(jx - 16, jy - 21, 32, 4);
+          hctx.fillStyle = '#38bdf8';
+          hctx.fillRect(jx - 16, jy - 21, 32 * Math.max(0, escortShip.hp / escortShip.maxHp), 4);
+          hctx.font = 'bold 9px monospace';
+          hctx.textAlign = 'center';
+          hctx.fillStyle = '#bae6fd';
+          hctx.fillText(`🛰️飞燕 ${escortShip.hp}/${escortShip.maxHp}`, jx, jy + 23);
+        } else {
+          drawEdgeArrow(escortShip.x, escortShip.y, escortShip.z, '#38bdf8', 9);
+        }
+      }
+
+      // Orbiting Shield-Bits Diamond Markers
+      for (let b of bossBits) {
+        worldToCam(b.x, b.y, b.z, _tmpC);
+        if (_tmpC.z > 8) {
+          const bbx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
+          const bby = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+          if (bbx > 8 && bbx < cssW - 8 && bby > 20 && bby < cssH - 8) {
+            hctx.save();
+            hctx.translate(bbx, bby);
+            hctx.rotate(Math.PI * 0.25);
+            hctx.strokeStyle = b.rage ? '#f43f5e' : '#38bdf8';
+            hctx.lineWidth = 1.8;
+            hctx.strokeRect(-7, -7, 14, 14);
+            hctx.restore();
+          }
+        }
       }
 
       // Highlight Forward Boost Star Rings & Pickups
@@ -3041,9 +4018,9 @@
         if (inView) {
           const ex = bx * sx, ey = by * sy;
           const isLock = e === locked;
-          hctx.strokeStyle = isLock ? '#22d3ee' : (e.isBoss ? '#f43f5e' : '#fbbf24');
+          hctx.strokeStyle = isLock ? '#22d3ee' : (e.isBoss ? '#f43f5e' : (e.isCarrier ? '#c084fc' : (e.isElite ? '#f59e0b' : '#fbbf24')));
           hctx.lineWidth = isLock ? 2.2 : 1.5;
-          const sz = e.isBoss ? 24 : 16;
+          const sz = e.isBoss ? 24 : (e.isCarrier ? 22 : (e.isElite ? 19 : 16));
           hctx.strokeRect(ex - sz, ey - sz, sz * 2, sz * 2);
 
           if (isLock) {
@@ -3055,12 +4032,22 @@
             hctx.stroke();
           }
 
-          // Mini HP Bar & Distance
+          // Mini HP Bar, Armor Break / Elite Tag & Distance
           const hpFrac = Math.max(0, e.hp / e.maxHp);
           hctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
           hctx.fillRect(ex - sz, ey - sz - 8, sz * 2, 4);
-          hctx.fillStyle = e.isBoss ? '#f43f5e' : '#22d3ee';
+          hctx.fillStyle = e.isBoss ? (e.stunTimer > 0 ? '#fde047' : '#f43f5e') : (e.isElite ? '#f59e0b' : '#22d3ee');
           hctx.fillRect(ex - sz, ey - sz - 8, sz * 2 * hpFrac, 4);
+          if (e.isBoss && e.stunTimer > 0) {
+            hctx.fillStyle = '#fde047';
+            hctx.fillText(`💥 BREAK ${e.stunTimer.toFixed(1)}s`, ex, ey - sz - 13);
+          } else if (e.isCarrier) {
+            hctx.fillStyle = '#e9d5ff';
+            hctx.fillText('🛸 母舰', ex, ey - sz - 13);
+          } else if (e.isElite) {
+            hctx.fillStyle = '#fde68a';
+            hctx.fillText('★ ELITE', ex, ey - sz - 13);
+          }
           hctx.fillStyle = isLock ? '#67e8f9' : '#cbd5e1';
           hctx.fillText(`${dPlayer}m`, ex, ey + sz + 11);
 
@@ -3103,21 +4090,29 @@
         }
       }
 
-      // Real Threat-Coupled Dual Concentric Perfect-Dodge Rings!
+      // Real Threat-Coupled Dual Concentric Perfect-Dodge & Deflect Rings!
       const threat = findClosestThreat();
       if (threat) {
         worldToCam(player.x, player.y, player.z, _tmpC);
         if (_tmpC.z > 5) {
           const hx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
           const hy = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+          const deflectRange = 115 * (FORM_CFG[player.form].deflectWin / 0.42) + player.perks.reflectBonus * 140;
           const innerR = 24;
-          const tNorm = Math.max(0, Math.min(1, (threat.dist - 24) / 150));
+          const tNorm = Math.max(0, Math.min(1, (threat.dist - 24) / Math.max(120, deflectRange)));
           const outerR = innerR + tNorm * 52;
-          const inWindow = threat.dist <= 105;
+          const inWindow = threat.kind === 'proj' ? (threat.dist <= deflectRange) : (threat.dist <= 105);
           hctx.beginPath(); hctx.arc(hx, hy, innerR, 0, Math.PI * 2);
           hctx.strokeStyle = '#22d3ee'; hctx.lineWidth = 2; hctx.stroke();
           hctx.beginPath(); hctx.arc(hx, hy, outerR, 0, Math.PI * 2);
-          hctx.strokeStyle = inWindow ? '#4ade80' : '#f43f5e'; hctx.lineWidth = 2.2; hctx.stroke();
+          hctx.strokeStyle = inWindow ? (threat.kind === 'proj' ? '#fde047' : '#4ade80') : '#f43f5e';
+          hctx.lineWidth = 2.4; hctx.stroke();
+          if (inWindow && threat.kind === 'proj') {
+            hctx.font = 'bold 10px monospace';
+            hctx.textAlign = 'center';
+            hctx.fillStyle = '#fde047';
+            hctx.fillText('🪞 DEFLECT [R/左键]', hx, hy - outerR - 6);
+          }
         }
       }
       hctx.restore();
