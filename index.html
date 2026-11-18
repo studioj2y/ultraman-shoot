@@ -811,9 +811,9 @@
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
               <label for="ctrlSharpness" class="text-slate-300" title="CAS 动态自适应边缘对比度锐化，消除一切模糊">Edge Sharpness (CAS 锐利度)</label>
-              <span id="valSharpness" class="text-slate-400">0.65</span>
+              <span id="valSharpness" class="text-slate-400">0.22</span>
             </div>
-            <input id="ctrlSharpness" type="range" min="0.0" max="1.0" step="0.05" value="0.65" class="w-full" />
+            <input id="ctrlSharpness" type="range" min="0.0" max="1.0" step="0.02" value="0.22" class="w-full" />
           </div>
 
           <div class="flex items-center justify-between pt-1">
@@ -1119,7 +1119,7 @@
         heroScale: 0.85,
         sliceSpacing: 1.0,
         pixelSize: 2,
-        sharpness: 0.75,
+        sharpness: 0.22,
         explodeSlices: false,
         view: 'chase',
         viewChange: 1.2,
@@ -2565,12 +2565,13 @@
         // 4. Build Faceted Asteroid Belt with Physical Interaction
         const astCount = Math.round(params.asteroidsDensity * 280);
         if (astCount > 0) {
-          const astGeo = new THREE.DodecahedronGeometry(1, 0);
+          const astGeo = new THREE.DodecahedronGeometry(1, 0).toNonIndexed();
+          astGeo.computeVertexNormals();
           const astMat = new THREE.MeshStandardMaterial({
             color: 0x64748b,
             metalness: 0.15,
             roughness: 0.80,
-            flatShading: true
+            flatShading: false
           });
           const astInst = new THREE.InstancedMesh(astGeo, astMat, astCount);
           const dummy = new THREE.Object3D();
@@ -2670,38 +2671,61 @@
 
         for (const [, v] of voxelGrid) {
           const { x, s, z, mat } = v;
+          const hasXP = voxelGrid.has(`${x + 1},${s},${z}`);
+          const hasXM = voxelGrid.has(`${x - 1},${s},${z}`);
+          const hasYP = voxelGrid.has(`${x},${s + 1},${z}`);
+          const hasYM = voxelGrid.has(`${x},${s - 1},${z}`);
+          const hasZP = voxelGrid.has(`${x},${s},${z + 1}`);
+          const hasZM = voxelGrid.has(`${x},${s},${z - 1}`);
+
+          // Only emit exposed outer shell voxels (skip 100% enclosed core)
+          const isSurface = !hasXP || !hasXM || !hasYP || !hasYM || !hasZP || !hasZM;
+          if (!isSurface) continue;
+
           const x0 = (x - 0.5) * stepSize;
           const x1 = (x + 0.5) * stepSize;
           const yc = keepSliceGroups ? 0 : (s - midSlice) * stepSize;
-          const y0 = yc - 0.5 * stepSize;
-          const y1 = yc + 0.5 * stepSize;
+          // 1.5% vertical overlap prevents sub-pixel horizontal slits when sliceSpacing === 1.0
+          const yWall0 = yc - 0.515 * stepSize;
+          const yWall1 = yc + 0.515 * stepSize;
           const z0 = (z - 0.5) * stepSize;
           const z1 = (z + 0.5) * stepSize;
 
           let b = null;
-          if (!voxelGrid.has(`${x + 1},${s},${z}`)) {
+          if (!hasXP) {
             b = b || getBucket(s, mat);
-            pushQuad(b, x1, y0, z1, x1, y0, z0, x1, y1, z0, x1, y1, z1, 1, 0, 0);
+            pushQuad(b, x1, yWall0, z1, x1, yWall0, z0, x1, yWall1, z0, x1, yWall1, z1, 1, 0, 0);
           }
-          if (!voxelGrid.has(`${x - 1},${s},${z}`)) {
+          if (!hasXM) {
             b = b || getBucket(s, mat);
-            pushQuad(b, x0, y0, z0, x0, y0, z1, x0, y1, z1, x0, y1, z0, -1, 0, 0);
+            pushQuad(b, x0, yWall0, z0, x0, yWall0, z1, x0, yWall1, z1, x0, yWall1, z0, -1, 0, 0);
           }
-          if (!voxelGrid.has(`${x},${s + 1},${z}`)) {
+          if (!hasYP) {
             b = b || getBucket(s, mat);
-            pushQuad(b, x0, y1, z1, x1, y1, z1, x1, y1, z0, x0, y1, z0, 0, 1, 0);
+            const yTop = yc + 0.5 * stepSize;
+            pushQuad(b, x0, yTop, z1, x1, yTop, z1, x1, yTop, z0, x0, yTop, z0, 0, 1, 0);
+          } else if (keepSliceGroups) {
+            // Inset slab cap prevents Z-fighting when closed & prevents hollow slices when exploded
+            b = b || getBucket(s, mat);
+            const yInsetTop = yc + 0.48 * stepSize;
+            pushQuad(b, x0, yInsetTop, z1, x1, yInsetTop, z1, x1, yInsetTop, z0, x0, yInsetTop, z0, 0, 1, 0);
           }
-          if (!voxelGrid.has(`${x},${s - 1},${z}`)) {
+          if (!hasYM) {
             b = b || getBucket(s, mat);
-            pushQuad(b, x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1, 0, -1, 0);
+            const yBot = yc - 0.5 * stepSize;
+            pushQuad(b, x0, yBot, z0, x1, yBot, z0, x1, yBot, z1, x0, yBot, z1, 0, -1, 0);
+          } else if (keepSliceGroups) {
+            b = b || getBucket(s, mat);
+            const yInsetBot = yc - 0.48 * stepSize;
+            pushQuad(b, x0, yInsetBot, z0, x1, yInsetBot, z0, x1, yInsetBot, z1, x0, yInsetBot, z1, 0, -1, 0);
           }
-          if (!voxelGrid.has(`${x},${s},${z + 1}`)) {
+          if (!hasZP) {
             b = b || getBucket(s, mat);
-            pushQuad(b, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1, 0, 0, 1);
+            pushQuad(b, x0, yWall0, z1, x1, yWall0, z1, x1, yWall1, z1, x0, yWall1, z1, 0, 0, 1);
           }
-          if (!voxelGrid.has(`${x},${s},${z - 1}`)) {
+          if (!hasZM) {
             b = b || getBucket(s, mat);
-            pushQuad(b, x1, y0, z0, x0, y0, z0, x0, y1, z0, x1, y1, z0, 0, 0, -1);
+            pushQuad(b, x1, yWall0, z0, x0, yWall0, z0, x0, yWall1, z0, x1, yWall1, z0, 0, 0, -1);
           }
         }
 
@@ -2725,13 +2749,13 @@
           color: params.colorBody,
           metalness: 0.42,
           roughness: 0.32,
-          flatShading: true
+          flatShading: false
         });
         const matRed = new THREE.MeshStandardMaterial({
           color: params.colorAccent,
           metalness: 0.18,
           roughness: 0.35,
-          flatShading: true
+          flatShading: false
         });
         const matEye = new THREE.MeshBasicMaterial({ color: 0xfffbeb });
         const matEyeRim = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
@@ -2740,7 +2764,7 @@
           color: 0x94a3b8,
           metalness: 0.75,
           roughness: 0.20,
-          flatShading: true
+          flatShading: false
         });
 
         const voxelGrid = new Map();
@@ -2890,9 +2914,9 @@
         ];
         const pal = palettes[variant % palettes.length];
 
-        const matShell = new THREE.MeshStandardMaterial({ color: pal.shell, metalness: pal.metal, roughness: pal.rough, flatShading: true });
-        const matBelly = new THREE.MeshStandardMaterial({ color: pal.belly, metalness: pal.metal * 0.7, roughness: pal.rough, flatShading: true });
-        const matHorn  = new THREE.MeshStandardMaterial({ color: pal.horn, metalness: 0.20, roughness: 0.40, flatShading: true });
+        const matShell = new THREE.MeshStandardMaterial({ color: pal.shell, metalness: pal.metal, roughness: pal.rough, flatShading: false });
+        const matBelly = new THREE.MeshStandardMaterial({ color: pal.belly, metalness: pal.metal * 0.7, roughness: pal.rough, flatShading: false });
+        const matHorn  = new THREE.MeshStandardMaterial({ color: pal.horn, metalness: 0.20, roughness: 0.40, flatShading: false });
         const matGlow  = new THREE.MeshBasicMaterial({ color: pal.glow });
 
         const voxelGrid = new Map();
@@ -2947,9 +2971,9 @@
         const BOSS_STEP = 0.70;
         const SCALE_INV = 1.0 / 1.5;
 
-        const matArmor = new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.70, roughness: 0.25, flatShading: true });
-        const matPlate = new THREE.MeshStandardMaterial({ color: 0x27272a, metalness: 0.50, roughness: 0.35, flatShading: true });
-        const matHorn  = new THREE.MeshStandardMaterial({ color: 0x991b1b, metalness: 0.20, roughness: 0.40, flatShading: true });
+        const matArmor = new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.70, roughness: 0.25, flatShading: false });
+        const matPlate = new THREE.MeshStandardMaterial({ color: 0x27272a, metalness: 0.50, roughness: 0.35, flatShading: false });
+        const matHorn  = new THREE.MeshStandardMaterial({ color: 0x991b1b, metalness: 0.20, roughness: 0.40, flatShading: false });
         const matGlow  = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
         const matCore  = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
 
@@ -3226,8 +3250,8 @@
           heroMesh.position.set(0, Math.sin(now * 1.5) * 1.8, 0);
           heroMesh.quaternion.setFromEuler(new THREE.Euler(0, 0, Math.sin(now * 1.2) * 0.1, 'YXZ'));
 
-          // Gentle voxel slice breathing
-          const breatheSpacing = 1.0 + Math.sin(now * 2.2) * 0.22;
+          // Solid cohesive voxel body on showcase (separates only when Explode slices is active)
+          const breatheSpacing = params.explodeSlices ? 2.8 : params.sliceSpacing;
           heroMesh.userData.slices.forEach((sl) => {
             sl.position.y = sl.userData.baseY * breatheSpacing;
           });
@@ -4899,9 +4923,13 @@
         }
         if (rtScene.width !== rtW || rtScene.height !== rtH) {
           rtScene.setSize(rtW, rtH);
-          rtScene.texture.magFilter = (params.pixelSize > 1) ? THREE.NearestFilter : THREE.LinearFilter;
           rtBloomA.setSize(Math.max(120, Math.floor(rtW / 2)), Math.max(70, Math.floor(rtH / 2)));
           rtBloomB.setSize(Math.max(120, Math.floor(rtW / 2)), Math.max(70, Math.floor(rtH / 2)));
+        }
+        const wantMag = (params.pixelSize > 1 && !params.subpixelSmooth) ? THREE.NearestFilter : THREE.LinearFilter;
+        if (rtScene.texture.magFilter !== wantMag) {
+          rtScene.texture.magFilter = wantMag;
+          rtScene.texture.needsUpdate = true;
         }
 
         // Pass 1: Render 3D Scene to RenderTarget
