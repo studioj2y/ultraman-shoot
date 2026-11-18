@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Forge | ultraman — Three.js 体素切片宇宙飞行与怪兽空战</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -210,26 +210,137 @@
       transform: translate(3px, 3px);
       box-shadow: 1px 1px 0px #0369a1, 2px 2px 0px #020617;
     }
+
+    /* Mobile-first, safe area, and touch layout optimizations */
+    html, body {
+      overscroll-behavior: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+    }
+
+    @supports (padding: env(safe-area-inset-bottom)) {
+      body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+    }
+
+    /* Controls Drawer on Mobile (<1024px) */
+    @media (max-width: 1023px) {
+      #controlsPanel {
+        position: fixed !important;
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 320px !important;
+        max-width: 85vw !important;
+        height: 100% !important;
+        z-index: 50 !important;
+        box-shadow: -8px 0 30px rgba(0, 0, 0, 0.85);
+        transform: translateX(100%) !important;
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+        display: flex !important;
+      }
+      #controlsPanel.drawer-open {
+        transform: translateX(0) !important;
+        pointer-events: auto !important;
+        visibility: visible !important;
+      }
+      #topBarCameraDeck,
+      #btnStackIntroHeader {
+        display: none !important;
+      }
+    }
+    @media (min-width: 1024px) {
+      #controlsPanel.hidden {
+        display: none !important;
+      }
+    }
+
+    /* Touch vs Desktop Controls */
+    .touch-controls {
+      display: flex !important;
+    }
+    .desktop-controls {
+      display: none !important;
+    }
+    @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+      .touch-controls {
+        display: none !important;
+      }
+      .desktop-controls {
+        display: flex !important;
+      }
+    }
+
+    /* Default / Desktop HUD Positioning */
+    #hudEnergyPanel {
+      bottom: 0.75rem;
+      left: 0.75rem;
+    }
+
+    /* Portrait Mobile & Touch HUD Positioning (Always place Energy HUD above joystick) */
+    .touch-device #hudEnergyPanel {
+      bottom: 9.5rem !important; /* ~152px, clears the 112px joystick */
+      left: 0.75rem !important;
+    }
+    @media (max-width: 1023px) {
+      #hudEnergyPanel {
+        bottom: 9.5rem !important; /* ~152px, clears the 112px joystick */
+        left: 0.75rem !important;
+      }
+      #virtualJoystickZone {
+        bottom: 1rem !important;
+        left: 0.75rem !important;
+        width: 7rem !important;
+        height: 7rem !important;
+      }
+    }
+
+    /* Landscape Mode Mobile HUD Positioning */
+    @media (max-height: 520px) and (orientation: landscape) {
+      #hudEnergyPanel {
+        bottom: 0.6rem !important;
+        left: 7.8rem !important;
+      }
+      #virtualJoystickZone {
+        bottom: 0.6rem !important;
+        left: 0.75rem !important;
+        width: 5.75rem !important;
+        height: 5.75rem !important;
+      }
+      #mobileActionDeck {
+        bottom: 0.6rem !important;
+        right: 0.75rem !important;
+      }
+      #bossHudPanel {
+        top: 2.8rem !important;
+      }
+    }
   </style>
 </head>
 <body class="h-screen w-screen flex flex-col bg-[#05070d] text-slate-200 overflow-hidden">
 
   <!-- Top Header Workbench Bar -->
-  <header class="h-11 shrink-0 bg-[#0c1018] border-b border-slate-800/80 px-3 flex items-center justify-between z-30">
-    <div class="flex items-center gap-2.5">
-      <div class="flex items-center gap-1.5">
-        <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]"></span>
-        <span class="font-semibold text-sm tracking-tight text-white">Forge</span>
-        <span class="text-slate-600">|</span>
-        <span class="font-mono-tech text-xs font-medium text-slate-300">ultraman-cosmos</span>
+  <header class="h-10 sm:h-11 shrink-0 bg-[#0c1018] border-b border-slate-800/80 px-2 sm:px-3 flex items-center justify-between z-30 select-none">
+    <div class="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+      <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        <span class="inline-block w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]"></span>
+        <span class="font-semibold text-xs sm:text-sm tracking-tight text-white">Forge</span>
+        <span class="text-slate-600 text-xs">|</span>
+        <span class="font-mono-tech text-[11px] sm:text-xs font-medium text-slate-300 truncate max-w-[110px] sm:max-w-none">ultraman-classic</span>
       </div>
-      <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-tech bg-slate-800/90 text-cyan-300 border border-slate-700/70">
-        Three.js WebGL · 3D Voxel Stack + Selective Bloom
+      <span class="hidden lg:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-tech bg-slate-800/90 text-cyan-300 border border-slate-700/70">
+        Three.js WebGL · 3D Voxel Stack · 2D Anime Cel Shading
       </span>
     </div>
 
-    <!-- Center Quick Camera Mode Pills -->
-    <div class="flex items-center gap-1 bg-[#131824] p-0.5 rounded-md border border-slate-800">
+    <!-- Center Quick Camera Mode Pills (hidden on mobile, can use view button or HUD) -->
+    <div id="topBarCameraDeck" class="hidden lg:flex items-center gap-1 bg-[#131824] p-0.5 rounded-md border border-slate-800 shrink-0">
       <button id="topBarViewChase" type="button" class="px-2.5 py-1 rounded text-xs font-mono-tech transition-colors bg-[#e11d48] text-white font-medium">
         CHASE
       </button>
@@ -242,23 +353,25 @@
     </div>
 
     <!-- Right Workbench Buttons -->
-    <div class="flex items-center gap-1.5">
-      <button id="btnTitleModeHeader" type="button" title="进入电影级标题巡航与演示模式" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-amber-500/40 transition flex items-center gap-1">
+    <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+      <button id="btnTitleModeHeader" type="button" title="进入电影级标题巡航与演示模式" class="px-2 sm:px-2.5 py-1 rounded text-[11px] sm:text-xs font-mono-tech bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-amber-500/40 transition flex items-center gap-1">
         <span>🎬</span>
-        <span>标题演示</span>
+        <span class="hidden sm:inline">标题演示</span>
       </button>
-      <button id="btnStackIntroHeader" type="button" title="播放 3D 体素切片堆叠组装动画" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-cyan-300 border border-slate-700/70 transition">
+      <button id="btnStackIntroHeader" type="button" title="播放 3D 体素切片堆叠组装动画" class="hidden md:inline-flex px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-cyan-300 border border-slate-700/70 transition">
         切片组装
       </button>
-      <button id="btnBgmToggle" type="button" title="切换宇宙 BGM 音乐播放/静音" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1">
+      <button id="btnBgmToggle" type="button" title="切换宇宙 BGM 音乐播放/静音" class="px-2 sm:px-2.5 py-1 rounded text-[11px] sm:text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1">
         <span>🎵</span>
-        <span id="txtBgmStatus">BGM: ON</span>
+        <span id="txtBgmStatus" class="hidden sm:inline">BGM: ON</span>
       </button>
-      <button id="btnAudioToggle" type="button" class="px-2.5 py-1 rounded text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/70 transition">
-        SFX: ON
+      <button id="btnAudioToggle" type="button" class="px-2 sm:px-2.5 py-1 rounded text-[11px] sm:text-xs font-mono-tech bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/70 transition">
+        <span class="sm:hidden">SFX</span>
+        <span class="hidden sm:inline">SFX: ON</span>
       </button>
-      <button id="btnToggleControls" type="button" class="px-2.5 py-1 rounded text-xs font-medium bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition flex items-center gap-1">
-        <span>Controls</span>
+      <button id="btnToggleControls" type="button" class="px-2 sm:px-2.5 py-1 rounded text-[11px] sm:text-xs font-medium bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition flex items-center gap-1">
+        <span>⚙️</span>
+        <span class="hidden sm:inline">Controls</span>
         <span class="font-mono-tech text-[10px] text-rose-400">▾</span>
       </button>
     </div>
@@ -273,95 +386,95 @@
       <canvas id="hudCanvas"></canvas>
 
       <!-- Title Screen Overlay (Attract Mode & Cinematic Showcase) -->
-      <div id="titleOverlay" class="absolute inset-0 z-40 flex flex-col justify-between items-center p-3 sm:p-6 pointer-events-auto select-none bg-gradient-to-b from-[#03050a]/85 via-[#03050a]/30 to-[#03050a]/90 backdrop-blur-[1.5px] transition-all duration-700">
+      <div id="titleOverlay" class="absolute inset-0 z-40 flex flex-col justify-between items-center p-2.5 sm:p-6 pointer-events-auto select-none bg-gradient-to-b from-[#03050a]/90 via-[#03050a]/40 to-[#03050a]/95 backdrop-blur-[1.5px] transition-all duration-700 overflow-y-auto overflow-x-hidden overscroll-contain">
         
         <!-- Top Title Bar Tag (Pixel Badge) -->
-        <div class="flex items-center gap-2 px-3 py-1 bg-slate-950/90 border-2 border-cyan-400 shadow-[3px_3px_0px_#0284c7] backdrop-blur-md">
+        <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-slate-950/90 border-2 border-cyan-400 shadow-[3px_3px_0px_#0284c7] backdrop-blur-md">
           <span class="w-2 h-2 bg-cyan-400 animate-ping"></span>
-          <span class="font-pixel text-[8px] sm:text-[9px] tracking-wider text-cyan-300 font-bold uppercase whitespace-nowrap">
+          <span class="font-pixel text-[7px] sm:text-[9px] tracking-wider text-cyan-300 font-bold uppercase whitespace-nowrap">
             M78 NEBULA DEFENSE · 3D VOXEL RECONSTRUCTION
           </span>
         </div>
 
         <!-- Center Big Hero Logo & Launch Button -->
-        <div class="flex flex-col items-center text-center my-auto max-w-3xl w-full px-2">
+        <div class="flex flex-col items-center text-center my-auto max-w-3xl w-full px-2 py-2 sm:py-0">
           <!-- Pixel Logo Block -->
-          <div class="logo-container flex flex-col items-center mb-5 transform transition-transform hover:scale-105 duration-300 cursor-pointer w-full overflow-visible" id="logoHeroClick">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="h-0.5 w-6 sm:w-12 bg-cyan-400"></span>
-              <span class="font-silkscreen text-[9px] sm:text-[11px] font-bold tracking-[0.2em] text-cyan-300 uppercase whitespace-nowrap">
+          <div class="logo-container flex flex-col items-center mb-3 sm:mb-5 transform transition-transform hover:scale-105 duration-300 cursor-pointer w-full overflow-visible" id="logoHeroClick">
+            <div class="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+              <span class="h-0.5 w-4 sm:w-12 bg-cyan-400"></span>
+              <span class="font-silkscreen text-[8px] sm:text-[11px] font-bold tracking-[0.15em] sm:tracking-[0.2em] text-cyan-300 uppercase whitespace-nowrap">
                 TSUBURAYA TRIBUTE · KAIJU BATTLE
               </span>
-              <span class="h-0.5 w-6 sm:w-12 bg-cyan-400"></span>
+              <span class="h-0.5 w-4 sm:w-12 bg-cyan-400"></span>
             </div>
 
             <!-- Pixel Main Title with Dual-tone Stepped Block Shadows -->
-            <div class="relative flex flex-wrap sm:flex-nowrap items-center justify-center gap-1.5 sm:gap-3 px-2 overflow-visible">
-              <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-pixel overflow-visible m-0 leading-none">
+            <div class="relative flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-3 px-1 sm:px-2 overflow-visible">
+              <h1 class="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-pixel overflow-visible m-0 leading-none">
                 <span class="pixel-title-ultra">ULTRAMAN</span>
               </h1>
               <!-- Glowing Voxel Diamond Color Timer Emblem -->
               <div class="mx-1 sm:mx-2.5 relative flex items-center justify-center shrink-0">
-                <div class="relative w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 flex items-center justify-center animate-pulse">
+                <div class="relative w-6 h-6 sm:w-9 sm:h-9 md:w-11 md:h-11 flex items-center justify-center animate-pulse">
                   <div class="w-full h-full rotate-45 bg-cyan-400 border-2 sm:border-3 border-white shadow-[0_0_16px_#22d3ee,3px_3px_0px_#0284c7]"></div>
-                  <div class="absolute w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rotate-45 bg-white shadow-[0_0_8px_#ffffff]"></div>
+                  <div class="absolute w-2 h-2 sm:w-3.5 sm:h-3.5 rotate-45 bg-white shadow-[0_0_8px_#ffffff]"></div>
                 </div>
               </div>
-              <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-pixel overflow-visible m-0 leading-none">
-                <span class="pixel-title-cosmos">COSMOS</span>
+              <h1 class="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-pixel overflow-visible m-0 leading-none">
+                <span class="pixel-title-cosmos">CLASSIC</span>
               </h1>
             </div>
 
             <!-- Chinese Subtitle in Pixel Retro Style -->
-            <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2.5 sm:gap-3.5 flex-wrap px-2">
-              <span class="font-silkscreen text-base sm:text-xl md:text-2xl font-bold tracking-[0.3em] text-slate-100 text-shadow-pixel whitespace-nowrap pl-1">
-                高 斯 奥 特 曼
+            <div class="mt-2.5 sm:mt-4 flex items-center justify-center gap-2 sm:gap-3.5 flex-wrap px-1">
+              <span class="font-silkscreen text-sm sm:text-xl md:text-2xl font-bold tracking-[0.25em] sm:tracking-[0.3em] text-slate-100 text-shadow-pixel whitespace-nowrap pl-1">
+                初 代 奥 特 曼
               </span>
-              <span class="px-2 py-0.5 text-[9px] sm:text-[10px] font-pixel bg-slate-900 border-2 border-rose-500 text-rose-300 shadow-[2px_2px_0px_#be123c] whitespace-nowrap">
-                3D VOXEL DOGFIGHT
+              <span class="px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[10px] font-pixel bg-slate-900 border border-rose-500 sm:border-2 text-rose-300 shadow-[2px_2px_0px_#be123c] whitespace-nowrap">
+                3D VOXEL DOGFIGHT · 2D ANIME
               </span>
             </div>
 
-            <div class="mt-2 text-[9px] sm:text-[10px] font-silkscreen text-cyan-400/80 tracking-widest uppercase">
-              14-LAYER 3D SPRITE STACKING · SUBPIXEL SMOOTH AA · BAYER DITHERING
+            <div class="mt-1.5 sm:mt-2 text-[8px] sm:text-[10px] font-silkscreen text-cyan-400/80 tracking-widest uppercase">
+              16-LAYER 3D VOXEL STACK · 2D ANIME CEL SHADING & INK OUTLINE
             </div>
           </div>
 
           <!-- Launch Button Block in Retro Arcade Style -->
-          <div class="flex flex-col items-center gap-2.5 w-full max-w-sm">
-            <button id="btnLaunchGame" type="button" class="btn-pixel-arcade group relative w-full py-3.5 px-4 bg-gradient-to-r from-cyan-600 via-sky-600 to-rose-600 hover:from-cyan-400 hover:to-rose-500 text-white text-xs sm:text-sm tracking-widest uppercase transition-all duration-100 active:scale-95 border-2 border-cyan-300 flex items-center justify-center gap-2 cursor-pointer">
+          <div class="flex flex-col items-center gap-2 sm:gap-2.5 w-full max-w-sm">
+            <button id="btnLaunchGame" type="button" class="btn-pixel-arcade group relative w-full py-3 sm:py-3.5 px-4 bg-gradient-to-r from-cyan-600 via-sky-600 to-rose-600 hover:from-cyan-400 hover:to-rose-500 text-white text-xs sm:text-sm tracking-widest uppercase transition-all duration-100 active:scale-95 border-2 border-cyan-300 flex items-center justify-center gap-2 cursor-pointer shadow-xl">
               <span class="text-amber-300 animate-pulse text-sm">▶</span>
               <span class="whitespace-nowrap font-bold">START FLIGHT · 启航出击</span>
               <span class="text-amber-300 animate-pulse text-sm">◀</span>
             </button>
 
             <!-- Retro Coin & Control Hints -->
-            <div class="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-silkscreen text-cyan-300/90 animate-pulse whitespace-nowrap">
-              <span>[ 1P COIN: 01 · PRESS ANY KEY OR CLICK SCREEN ]</span>
+            <div class="flex items-center gap-1.5 text-[8px] sm:text-[10px] font-silkscreen text-cyan-300/90 animate-pulse whitespace-nowrap">
+              <span>[ 1P COIN: 01 · TAP SCREEN OR BUTTON TO START ]</span>
             </div>
           </div>
         </div>
 
         <!-- Bottom Demo Showcase Indicator & Feature Highlights (Pixel Deck) -->
-        <div class="w-full max-w-2xl flex flex-col items-center gap-2 sm:gap-2.5 px-2">
+        <div class="w-full max-w-2xl flex flex-col items-center gap-1.5 sm:gap-2.5 px-1 sm:px-2 mt-auto">
           <!-- Demo Mode Pill Deck -->
-          <div class="flex items-center justify-between w-full bg-slate-950/90 px-3.5 py-2 border-2 border-slate-700 shadow-[3px_3px_0px_#020617] text-xs font-silkscreen gap-2">
-            <div class="flex items-center gap-2 text-cyan-400 shrink-0">
+          <div class="flex items-center justify-between w-full bg-slate-950/90 px-2.5 sm:px-3.5 py-1.5 sm:py-2 border-2 border-slate-700 shadow-[3px_3px_0px_#020617] text-xs font-silkscreen gap-1.5 sm:gap-2">
+            <div class="flex items-center gap-1.5 sm:gap-2 text-cyan-400 shrink-0">
               <span class="inline-block w-2 h-2 bg-cyan-400 animate-ping"></span>
-              <span class="font-pixel text-[9px] sm:text-[10px] font-bold tracking-wider uppercase">DEMO</span>
+              <span class="font-pixel text-[8px] sm:text-[10px] font-bold tracking-wider uppercase">DEMO</span>
               <span class="text-slate-600">|</span>
             </div>
             
             <div class="flex-1 min-w-0 text-left">
-              <div id="titleDemoPhaseText" class="text-slate-200 font-medium text-[10px] sm:text-[11px] truncate" title="幕 1/3: 高斯奥特曼 16 层微体素全向特写与精细结构剖析">
-                幕 1/3: 高斯奥特曼 16 层微体素全向特写与精细结构剖析
+              <div id="titleDemoPhaseText" class="text-slate-200 font-medium text-[9px] sm:text-[11px] truncate" title="幕 1/3: 经典标准初代奥特曼 16 层微体素全向特写与 2D 动漫渲染剖析">
+                幕 1/3: 经典标准初代奥特曼 16 层微体素全向特写与 2D 动漫渲染剖析
               </div>
             </div>
 
             <!-- Quick Demo Phase Switchers -->
-            <div class="flex items-center gap-1.5 shrink-0">
+            <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button id="btnDemoPrev" type="button" title="上一演示" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-pixel text-[9px] cursor-pointer active:translate-y-0.5">◀</button>
-              <div class="flex items-center gap-1 px-1">
+              <div class="flex items-center gap-1 px-0.5 sm:px-1">
                 <span id="dotDemo0" class="w-2 h-2 bg-cyan-400 transition-all"></span>
                 <span id="dotDemo1" class="w-2 h-2 bg-slate-700 transition-all"></span>
                 <span id="dotDemo2" class="w-2 h-2 bg-slate-700 transition-all"></span>
@@ -370,8 +483,8 @@
             </div>
           </div>
 
-          <!-- Feature Pills in Pixel Arcade Style -->
-          <div class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[9px] font-silkscreen text-slate-400">
+          <!-- Feature Pills in Pixel Arcade Style (hidden on small mobile screens to keep view tidy) -->
+          <div class="hidden sm:flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[9px] font-silkscreen text-slate-400">
             <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">14-Layer Sprite Stacking</span>
             <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">Subpixel Anti-Aliased Upscale</span>
             <span class="px-2 py-0.5 bg-slate-900 border border-slate-700 shadow-[2px_2px_0px_#000]">Bayer Ordered Dithering</span>
@@ -384,18 +497,18 @@
       </div>
 
       <!-- Top-Left HUD: Kills, Color Timer (Energy), Telemetry -->
-      <div class="pointer-events-none absolute top-3 left-3 flex flex-col gap-1.5 z-10 font-mono-tech">
-        <div class="flex items-center gap-3.5 bg-slate-950/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800/80 shadow-lg">
+      <div class="pointer-events-none absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1 sm:gap-1.5 z-10 font-mono-tech select-none">
+        <div class="flex items-center gap-2 sm:gap-3.5 bg-slate-950/75 backdrop-blur-md px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-slate-800/80 shadow-lg">
           <div>
-            <div class="text-[10px] text-slate-400 uppercase tracking-wider">KAIJU DEFEATED</div>
-            <div id="hudKills" class="text-lg font-bold text-white leading-tight">00</div>
+            <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-wider"><span class="hidden sm:inline">KAIJU </span>DEFEATED</div>
+            <div id="hudKills" class="text-base sm:text-lg font-bold text-white leading-tight">00</div>
           </div>
-          <div class="h-7 w-px bg-slate-800"></div>
-          <div class="flex items-center gap-2.5">
+          <div class="h-6 sm:h-7 w-px bg-slate-800"></div>
+          <div class="flex items-center gap-1.5 sm:gap-2.5">
             <!-- Color Timer Indicator -->
-            <div id="colorTimerOrb" class="w-5 h-5 rounded-full bg-cyan-400 border-2 border-slate-200 shadow-[0_0_12px_#22d3ee] transition-colors"></div>
+            <div id="colorTimerOrb" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-cyan-400 border-2 border-slate-200 shadow-[0_0_12px_#22d3ee] transition-colors"></div>
             <div>
-              <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">COLOR TIMER</div>
+              <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">COLOR TIMER</div>
               <div id="hudHullBars" class="flex items-center gap-1">
                 <span class="w-3.5 h-2 rounded-xs bg-cyan-400"></span>
                 <span class="w-3.5 h-2 rounded-xs bg-cyan-400"></span>
@@ -408,68 +521,72 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2.5 bg-slate-950/60 px-2.5 py-1 rounded text-[11px] text-slate-300 border border-slate-800/60">
-          <span>VEL <strong id="hudSpeed" class="text-cyan-300">95</strong> km/s</span>
-          <span>SEC <strong id="hudSector" class="text-amber-300">M78-A</strong></span>
+        <div class="flex items-center gap-1.5 sm:gap-2.5 bg-slate-950/65 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10px] sm:text-[11px] text-slate-300 border border-slate-800/60">
+          <span>VEL <strong id="hudSpeed" class="text-cyan-300">95</strong></span>
+          <span class="hidden sm:inline">SEC <strong id="hudSector" class="text-amber-300">M78-A</strong></span>
           <span>WAVE <strong id="hudWave" class="text-rose-400 font-bold">01</strong></span>
-          <span>VIEW <strong id="hudView" class="text-rose-400">CHASE</strong></span>
+          <span id="hudViewTap" class="pointer-events-auto cursor-pointer select-none" title="点击切换视角">VIEW <strong id="hudView" class="text-rose-400 underline decoration-dotted">CHASE</strong> <span class="text-[9px] text-rose-300/80">🔄</span></span>
           <span id="hudGamepadTag" class="hidden text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">🎮 PAD</span>
         </div>
       </div>
 
       <!-- Boss Health Bar Panel (Top Center) -->
-      <div id="bossHudPanel" class="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 w-80 sm:w-96 bg-slate-950/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-rose-500/60 shadow-[0_0_28px_rgba(244,63,94,0.4)] z-20 font-mono-tech hidden transition-all duration-300">
-        <div class="flex items-center justify-between text-[11px] mb-1">
-          <div class="flex items-center gap-1.5">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_#f43f5e]"></span>
-            <span id="bossName" class="font-bold text-rose-300 tracking-wider">CHAOS ZETTON · 混沌杰顿</span>
+      <div id="bossHudPanel" class="pointer-events-none absolute top-14 sm:top-3 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-xs sm:max-w-sm sm:w-96 bg-slate-950/90 backdrop-blur-md px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl border border-rose-500/60 shadow-[0_0_28px_rgba(244,63,94,0.4)] z-20 font-mono-tech hidden transition-all duration-300">
+        <div class="flex items-center justify-between text-[10px] sm:text-[11px] mb-1">
+          <div class="flex items-center gap-1.5 truncate">
+            <span class="inline-block w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_#f43f5e] shrink-0"></span>
+            <span id="bossName" class="font-bold text-rose-300 tracking-wider truncate">CHAOS ZETTON · 混沌杰顿</span>
           </div>
-          <span id="bossHpPercent" class="text-xs font-bold text-white">100%</span>
+          <span id="bossHpPercent" class="text-xs font-bold text-white shrink-0 ml-1">100%</span>
         </div>
-        <div class="h-2.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-700/80 p-0.5">
+        <div class="h-2 sm:h-2.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-700/80 p-0.5">
           <div id="bossHpBar" class="h-full bg-gradient-to-r from-rose-600 via-amber-500 to-rose-400 rounded-full transition-all duration-150 shadow-[0_0_12px_#f43f5e]" style="width: 100%"></div>
         </div>
-        <div class="flex justify-between items-center text-[9px] text-slate-400 mt-1">
+        <div class="flex justify-between items-center text-[8px] sm:text-[9px] text-slate-400 mt-1">
           <span id="bossPhaseTag" class="text-amber-400 font-medium">PHASE 1: CHAOS ORBS</span>
           <span id="bossThreatTag" class="text-rose-400 font-bold uppercase">THREAT: OVERLORD</span>
         </div>
       </div>
 
       <!-- Top-Right Canvas Overlay Buttons -->
-      <div class="absolute top-3 right-3 flex items-center gap-1.5 z-20 font-mono-tech">
-        <button id="btnIntel" type="button" class="px-2.5 py-1 rounded text-xs font-semibold bg-slate-900/85 hover:bg-slate-800 text-amber-400 border border-amber-500/40 shadow backdrop-blur-sm transition">
-          INTEL (暂停/说明)
+      <div class="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 sm:gap-1.5 z-20 font-mono-tech select-none">
+        <button id="btnIntel" type="button" class="px-2 py-1 sm:px-2.5 sm:py-1 rounded text-[11px] sm:text-xs font-semibold bg-slate-900/85 hover:bg-slate-800 text-amber-400 border border-amber-500/40 shadow backdrop-blur-sm transition flex items-center gap-1 cursor-pointer">
+          <span>⏸️</span>
+          <span class="hidden sm:inline">INTEL (暂停/说明)</span>
+          <span class="sm:hidden">暂停</span>
         </button>
-        <button id="btnTutorial" type="button" class="px-2.5 py-1 rounded text-xs font-semibold bg-slate-900/85 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 shadow backdrop-blur-sm transition">
-          TUTORIAL
+        <button id="btnTutorial" type="button" class="px-2 py-1 sm:px-2.5 sm:py-1 rounded text-[11px] sm:text-xs font-semibold bg-slate-900/85 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 shadow backdrop-blur-sm transition flex items-center gap-1 cursor-pointer">
+          <span>❓</span>
+          <span class="hidden sm:inline">TUTORIAL</span>
+          <span class="sm:hidden">教程</span>
         </button>
       </div>
 
       <!-- Center Alert Banner -->
-      <div id="centerBanner" class="pointer-events-none absolute top-16 left-1/2 -translate-x-1/2 z-20 hidden">
-        <div id="centerBannerText" class="px-4 py-1.5 rounded-full font-mono-tech text-xs font-bold uppercase tracking-widest bg-cyan-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.8)]">
+      <div id="centerBanner" class="pointer-events-none absolute top-20 sm:top-16 left-1/2 -translate-x-1/2 z-20 hidden max-w-[90vw]">
+        <div id="centerBannerText" class="px-4 py-1.5 rounded-full font-mono-tech text-xs font-bold uppercase tracking-widest bg-cyan-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.8)] truncate">
           PERFECT DODGE!
         </div>
       </div>
 
-      <!-- Tutorial Floating Checklist -->
-      <div id="tutorialCard" class="absolute top-14 right-3 w-64 bg-slate-950/85 backdrop-blur-md border border-slate-800 rounded-lg p-3 z-20 font-mono-tech text-xs shadow-xl">
+      <!-- Tutorial Floating Checklist (hidden by default on mobile to prevent obstruction) -->
+      <div id="tutorialCard" class="hidden absolute top-12 sm:top-14 right-2 sm:right-3 w-64 max-w-[85vw] bg-slate-950/90 backdrop-blur-md border border-slate-800 rounded-lg p-2.5 sm:p-3 z-20 font-mono-tech text-[10px] sm:text-xs shadow-xl">
         <div class="flex items-center justify-between mb-2 pb-1 border-b border-slate-800">
           <span class="font-bold text-cyan-300 tracking-wide">M78 FLIGHT TRAINING</span>
-          <button id="btnCloseTutorial" type="button" class="text-slate-400 hover:text-white text-[11px]">✕</button>
+          <button id="btnCloseTutorial" type="button" class="text-slate-400 hover:text-white text-[11px] cursor-pointer">✕</button>
         </div>
-        <ul class="space-y-1.5 text-[11px]">
+        <ul class="space-y-1.5 text-[10px] sm:text-[11px]">
           <li id="tutSteer" class="flex items-center gap-2 text-slate-300">
             <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
-            <span>鼠标指针或 WASD 控制宇宙航向</span>
+            <span>鼠标指针 / 左摇杆 / WASD 航向</span>
           </li>
           <li id="tutBoost" class="flex items-center gap-2 text-slate-300">
             <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
-            <span>按住 Shift / 左键开启超光速推进</span>
+            <span>按住加速键 / Shift / RT 超光速推进</span>
           </li>
           <li id="tutRoll" class="flex items-center gap-2 text-slate-300">
             <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
-            <span>单击左键或按 R 螺旋翻滚闪避</span>
+            <span>翻滚键 / 左键单击 / R 螺旋翻滚</span>
           </li>
           <li id="tutLoop" class="flex items-center gap-2 text-slate-300">
             <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
@@ -477,28 +594,31 @@
           </li>
           <li id="tutView" class="flex items-center gap-2 text-slate-300">
             <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
-            <span>按 Space 切换追尾/俯视/第一视角</span>
+            <span>视角键 / Space 切换追尾/俯视/第一人称</span>
           </li>
           <li id="tutCombat" class="flex items-center gap-2 text-slate-300">
             <span class="tut-box w-3.5 h-3.5 rounded border border-slate-600 inline-flex items-center justify-center text-[9px]"></span>
-            <span>右键八分光轮 · 中键/M 斯派修姆贯穿光线</span>
+            <span>光轮攻击 · 光线键/中键 斯派修姆高能齐射</span>
+          </li>
+          <li class="pt-1 border-t border-slate-800 text-[9px] sm:text-[10px] text-cyan-300 font-sans">
+            📱 手机触屏：左侧摇杆转向，右侧光轮/加速/翻滚/光线，视角按钮切换视角
           </li>
         </ul>
       </div>
 
-      <!-- Bottom-Left HUD: Energy & Spacium Charges -->
-      <div class="pointer-events-none absolute bottom-14 sm:bottom-3 left-3 flex items-center gap-3 z-10 font-mono-tech">
-        <div class="bg-slate-950/75 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800/80 flex items-center gap-4">
+      <!-- Bottom-Left HUD: Energy & Spacium Charges (positioned to avoid joystick collision) -->
+      <div id="hudEnergyPanel" class="pointer-events-none absolute left-3 flex items-center gap-3 z-10 font-mono-tech select-none">
+        <div class="bg-slate-950/75 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-slate-800/80 flex items-center gap-3 sm:gap-4 shadow-lg">
           <div>
-            <div class="text-[10px] text-slate-400 uppercase">SLASH ENERGY</div>
+            <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-wider">SLASH ENERGY</div>
             <div class="flex items-baseline gap-1.5">
-              <span id="hudAmmo" class="text-base font-bold text-cyan-300">300</span>
-              <span id="hudReloadTag" class="text-[10px] text-amber-400 hidden">CHARGING</span>
+              <span id="hudAmmo" class="text-sm sm:text-base font-bold text-cyan-300">300</span>
+              <span id="hudReloadTag" class="text-[9px] sm:text-[10px] text-amber-400 hidden">CHARGING</span>
             </div>
           </div>
-          <div class="h-6 w-px bg-slate-800"></div>
+          <div class="h-5 sm:h-6 w-px bg-slate-800"></div>
           <div>
-            <div class="text-[10px] text-slate-400 uppercase mb-1">SPACIUM BEAM (M/MID)</div>
+            <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-wider mb-1">SPACIUM BEAM</div>
             <div id="hudMissileBars" class="flex items-center gap-1">
               <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
               <span class="w-2 h-3.5 rounded-xs bg-cyan-400"></span>
@@ -511,8 +631,8 @@
         </div>
       </div>
 
-      <!-- Bottom Quick Action Deck (Desktop / Landscape) -->
-      <div class="hidden sm:flex absolute bottom-2.5 right-3 flex-wrap items-center justify-end gap-1.5 z-20 font-mono-tech">
+      <!-- Bottom Quick Action Deck (Desktop / Keyboard Only) -->
+      <div class="desktop-controls absolute bottom-2.5 right-3 flex-wrap items-center justify-end gap-1.5 z-20 font-mono-tech select-none">
         <button id="actBoost" type="button" class="px-2.5 py-1.5 rounded text-xs font-semibold bg-cyan-500/20 hover:bg-cyan-500/35 text-cyan-300 border border-cyan-500/40 backdrop-blur-sm active:scale-95 transition">
           ⚡ 加速 (Shift/RT)
         </button>
@@ -534,80 +654,85 @@
       </div>
 
       <!-- Mobile Touch Virtual Joystick (Left) -->
-      <div id="virtualJoystickZone" class="sm:hidden absolute bottom-5 left-4 w-32 h-32 rounded-full border-2 border-cyan-400/30 bg-cyan-950/25 backdrop-blur-sm flex items-center justify-center pointer-events-auto touch-none z-20 shadow-[0_0_20px_rgba(34,211,238,0.15)]">
-        <div id="virtualJoystickKnob" class="w-12 h-12 rounded-full bg-cyan-400/70 border-2 border-cyan-200 shadow-[0_0_14px_#22d3ee] pointer-events-none transition-transform duration-75"></div>
+      <div id="virtualJoystickZone" class="touch-controls absolute bottom-4 left-3 w-28 h-28 rounded-full border-2 border-cyan-400/35 bg-cyan-950/20 backdrop-blur-xs flex items-center justify-center pointer-events-auto touch-none z-20 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+        <div id="virtualJoystickKnob" class="w-10 h-10 rounded-full bg-cyan-400/75 border-2 border-cyan-200 shadow-[0_0_12px_#22d3ee] pointer-events-none transition-transform duration-75"></div>
       </div>
 
       <!-- Mobile Touch Action Buttons (Right) -->
-      <div id="mobileActionDeck" class="sm:hidden absolute bottom-5 right-4 flex flex-col items-end gap-2 pointer-events-auto touch-none z-20 font-mono-tech select-none">
-        <div class="flex gap-2">
-          <button id="touchRollBtn" type="button" class="w-12 h-12 rounded-full bg-slate-900/85 border border-cyan-400/60 text-cyan-300 text-[11px] font-bold flex items-center justify-center active:scale-90 active:bg-cyan-500/40 shadow-lg">
+      <div id="mobileActionDeck" class="touch-controls absolute bottom-4 right-3 flex flex-col items-end gap-1.5 pointer-events-auto touch-none z-20 font-mono-tech select-none">
+        <!-- Top Row: View + Roll + Missile -->
+        <div class="flex items-center gap-1.5">
+          <button id="touchViewBtn" type="button" title="切换相机视角" class="w-10 h-10 rounded-full bg-slate-900/90 border border-slate-600 text-slate-300 text-[10px] font-bold flex items-center justify-center active:scale-90 active:bg-slate-700 shadow-md">
+            视角
+          </button>
+          <button id="touchRollBtn" type="button" title="螺旋翻滚闪避" class="w-11 h-11 rounded-full bg-slate-900/90 border border-cyan-400/60 text-cyan-300 text-[10px] font-bold flex items-center justify-center active:scale-90 active:bg-cyan-500/40 shadow-lg">
             翻滚
           </button>
-          <button id="touchMissileBtn" type="button" class="w-12 h-12 rounded-full bg-rose-950/85 border border-rose-400/70 text-rose-300 text-[11px] font-bold flex items-center justify-center active:scale-90 active:bg-rose-500/40 shadow-lg">
+          <button id="touchMissileBtn" type="button" title="斯派修姆高能齐射" class="w-11 h-11 rounded-full bg-rose-950/90 border border-rose-400/70 text-rose-300 text-[10px] font-bold flex items-center justify-center active:scale-90 active:bg-rose-500/40 shadow-lg">
             光线
           </button>
         </div>
-        <div class="flex gap-2">
-          <button id="touchBoostBtn" type="button" class="w-14 h-14 rounded-full bg-cyan-950/85 border-2 border-cyan-400 text-cyan-300 text-xs font-bold flex items-center justify-center active:scale-90 active:bg-cyan-400 active:text-slate-950 shadow-[0_0_15px_rgba(34,211,238,0.35)]">
+        <!-- Bottom Row: Boost + Primary Ultra Slash -->
+        <div class="flex items-center gap-2">
+          <button id="touchBoostBtn" type="button" title="按住超光速推进" class="w-13 h-13 rounded-full bg-cyan-950/90 border-2 border-cyan-400 text-cyan-300 text-xs font-bold flex items-center justify-center active:scale-90 active:bg-cyan-400 active:text-slate-950 shadow-[0_0_15px_rgba(34,211,238,0.35)]">
             加速
           </button>
-          <button id="touchSlashBtn" type="button" class="w-15 h-15 rounded-full bg-sky-600/90 border-2 border-sky-300 text-white text-sm font-bold flex items-center justify-center active:scale-90 active:bg-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.5)]">
+          <button id="touchSlashBtn" type="button" title="连续发射八分光轮" class="w-15 h-15 rounded-full bg-gradient-to-tr from-sky-600 to-cyan-500 border-2 border-white text-white text-sm font-bold flex items-center justify-center active:scale-90 active:bg-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.6)]">
             光轮
           </button>
         </div>
       </div>
 
       <!-- INTEL Modal -->
-      <div id="intelModal" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-md z-30 flex items-center justify-center p-4">
-        <div class="max-w-xl w-full bg-[#0e131e] border border-slate-700/80 rounded-xl shadow-2xl p-5 font-mono-tech">
-          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+      <div id="intelModal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+        <div class="max-w-xl w-full max-h-[92vh] overflow-y-auto bg-[#0e131e] border border-slate-700/80 rounded-xl shadow-2xl p-4 sm:p-5 font-mono-tech">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
             <div>
               <span class="text-xs px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 mr-2">PAUSED</span>
-              <span class="text-base font-bold text-white">ULTRAMAN COSMOS — WEBGL RENDER PIPELINE</span>
+              <span class="text-sm sm:text-base font-bold text-white">ULTRAMAN · 初代经典 (CLASSIC)</span>
             </div>
-            <button id="btnCloseIntel" type="button" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs">
+            <button id="btnCloseIntel" type="button" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs cursor-pointer">
               继续飞行 (ESC)
             </button>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 text-xs mb-4">
             <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
               <div class="text-cyan-300 font-bold mb-1.5 flex items-center gap-1">
                 <span>🎮 FLIGHT CONTROLS</span>
               </div>
-              <ul class="space-y-1 text-slate-300 text-[11px]">
-                <li>• 鼠标/左摇杆/WASD：空间转向俯仰</li>
-                <li>• 单击左键/B键/R：螺旋翻滚闪避</li>
-                <li>• 按住Shift/RT/左键：超光速推进</li>
-                <li>• 右键/RB/C：八分光轮 (高速旋转锯齿能量环)</li>
-                <li>• 中键/M键/Y键：斯派修姆贯穿光线 (十字姿态·超聚能电浆)</li>
-                <li>• Space/View键：三视角循环切换</li>
-                <li>• 移动端：左侧摇杆 + 右侧大圆触键</li>
+              <ul class="space-y-1 text-slate-300 text-[10px] sm:text-[11px]">
+                <li>• 鼠标/左摇杆/WASD：空间航向俯仰</li>
+                <li>• 单击左键/翻滚键/R：螺旋翻滚闪避</li>
+                <li>• 按住加速/Shift/RT：超光速推进</li>
+                <li>• 光轮键/右键/RB/C：八分光轮连续发射</li>
+                <li>• 光线键/中键/M：斯派修姆高能齐射</li>
+                <li>• 视角键/Space：三视角循环切换</li>
+                <li>• 移动端：左侧摇杆 + 右侧大圆触控键</li>
               </ul>
             </div>
             <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
               <div class="text-amber-400 font-bold mb-1.5">⚡ DODGE & COUNTER</div>
-              <p class="text-slate-300 text-[11px] leading-relaxed">
-                怪兽发射追踪火球或 Boss 蓄力锁定时，出现<strong>双色收缩圆环</strong>。在两环重合瞬间横滚（单击或 R/B键），触发 <strong>1.3秒子弹时间</strong>并自动爆发 <strong>斯派修姆贯穿光线齐射</strong>与手柄触觉震动反击！
+              <p class="text-slate-300 text-[10px] sm:text-[11px] leading-relaxed">
+                怪兽发射追踪火球或 Boss 蓄力锁定时出现<strong>双色收缩圆环</strong>。在两环重合瞬间横滚，触发 <strong>1.3秒子弹时间</strong>并自动爆发 <strong>斯派修姆贯穿光线齐射</strong>反击！
               </p>
             </div>
             <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
               <div class="text-rose-400 font-bold mb-1.5">👾 BOSS & WAVE</div>
-              <p class="text-slate-300 text-[11px] leading-relaxed">
-                击败当前波次怪兽后触发 <strong>CHAOS OVERLORD (混沌霸主)</strong> 降临！Boss 拥有多段血条、发光自卫弹幕与半血二阶段<strong>极速狂暴冲撞</strong>，击破后进入下一宇宙扇区。
+              <p class="text-slate-300 text-[10px] sm:text-[11px] leading-relaxed">
+                击败当前波次怪兽后触发 <strong>CHAOS OVERLORD (混沌霸主)</strong> 降临！Boss 拥有多段血条、发光自卫弹幕与半血二阶段<strong>极速狂暴冲撞</strong>。
               </p>
             </div>
             <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
               <div class="text-purple-400 font-bold mb-1.5">✨ 3D VOXEL PIPELINE</div>
-              <p class="text-slate-300 text-[11px] leading-relaxed">
-                14~20层真 3D 体素切片堆叠构建，击中剥离体素碎块！配合 <strong>Selective Bloom</strong> 局部辉光提取、GLSL 程序化星球（气态巨星光环/熔岩/冰晶）与暗角颗粒。
+              <p class="text-slate-300 text-[10px] sm:text-[11px] leading-relaxed">
+                14~20层真 3D 体素切片堆叠构建，击中剥离体素碎块！配合 <strong>Selective Bloom</strong> 局部辉光提取、GLSL 程序化星球与暗角颗粒。
               </p>
             </div>
           </div>
 
           <div class="flex justify-end">
-            <button id="btnResumeFlight" type="button" class="px-4 py-2 rounded-lg bg-[#e11d48] hover:bg-[#f43f5e] text-white font-semibold text-xs transition shadow-lg">
+            <button id="btnResumeFlight" type="button" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-[#e11d48] hover:bg-[#f43f5e] text-white font-semibold text-xs transition shadow-lg cursor-pointer">
               返回宇宙航线 (Resume)
             </button>
           </div>
@@ -615,14 +740,19 @@
       </div>
     </main>
 
-    <!-- Right Parameter Workbench Panel -->
-    <aside id="controlsPanel" class="w-80 sm:w-84 shrink-0 bg-[#0c1018] border-l border-slate-800/90 flex flex-col h-full z-20 transition-all duration-200">
+    <!-- Right Parameter Workbench Panel (Drawer on Mobile, Sidebar on Desktop) -->
+    <aside id="controlsPanel" class="w-80 sm:w-84 shrink-0 bg-[#0c1018] border-l border-slate-800/90 flex flex-col h-full transition-all duration-200">
       <div class="p-3 border-b border-slate-800/80 space-y-2">
         <div class="flex items-center justify-between">
           <span class="text-xs font-mono-tech font-semibold text-slate-200 tracking-wide">Controls <span class="text-rose-400">ultraman</span></span>
-          <button id="btnResetParams" type="button" class="text-[11px] font-mono-tech text-slate-400 hover:text-cyan-300 transition">
-            Reset Defaults
-          </button>
+          <div class="flex items-center gap-2">
+            <button id="btnResetParams" type="button" class="text-[11px] font-mono-tech text-slate-400 hover:text-cyan-300 transition cursor-pointer">
+              Reset Defaults
+            </button>
+            <button id="btnCloseControls" type="button" title="关闭调参面板" class="lg:hidden px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-rose-400 border border-slate-700 text-xs font-mono-tech transition cursor-pointer">
+              ✕ 关闭
+            </button>
+          </div>
         </div>
         <div class="relative">
           <input id="paramSearch" type="text" placeholder="Filter parameters (slice, planet, bloom...)" class="w-full bg-[#141925] border border-slate-700/80 focus:border-cyan-400 rounded-md px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none font-mono-tech" />
@@ -849,6 +979,14 @@
 
           <div class="space-y-1 pt-1">
             <div class="flex justify-between text-[11px]">
+              <label for="ctrlAnimeOutline" class="text-slate-300" title="2D 动漫赛璐珞黑线描边与轮廓墨线强度">2D Anime Inking (动漫赛璐珞描边)</label>
+              <span id="valAnimeOutline" class="text-slate-400">0.90</span>
+            </div>
+            <input id="ctrlAnimeOutline" type="range" min="0.0" max="1.5" step="0.05" value="0.90" class="w-full" />
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
               <label for="ctrlGlow" class="text-slate-300" title="软拐点与 Karis 抗闪烁阈值辉光 (当前降至轻量30%强度)">Selective Bloom (防闪烁阈值辉光)</label>
               <span id="valGlow" class="text-slate-400">0.30</span>
             </div>
@@ -890,29 +1028,29 @@
 
         <!-- 7. ULTRAMAN COLOURS -->
         <section class="param-group space-y-2.5 bg-[#111622] p-2.5 rounded-lg border border-slate-800/80" data-keywords="ultraman colors body silver red timer paint">
-          <div class="text-[11px] font-bold text-rose-300 uppercase tracking-wider">Hero Colours (奥特曼涂装)</div>
+          <div class="text-[11px] font-bold text-rose-300 uppercase tracking-wider">Hero Colours (初代奥特曼经典涂装)</div>
 
           <div class="flex items-center justify-between">
-            <label for="ctrlColorBody" class="text-[11px] text-slate-300">Silver skin (银色身躯)</label>
+            <label for="ctrlColorBody" class="text-[11px] text-slate-300">Silver skin (经典银白)</label>
             <div class="flex items-center gap-2">
-              <span id="valColorBody" class="text-[10px] text-slate-400">#D8DEE9</span>
-              <input id="ctrlColorBody" type="color" value="#d8dee9" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
+              <span id="valColorBody" class="text-[10px] text-slate-400">#F1F5F9</span>
+              <input id="ctrlColorBody" type="color" value="#f1f5f9" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
             </div>
           </div>
 
           <div class="flex items-center justify-between">
-            <label for="ctrlColorAccent" class="text-[11px] text-slate-300">Red markings (经典红纹)</label>
+            <label for="ctrlColorAccent" class="text-[11px] text-slate-300">Red markings (英雄赤红)</label>
             <div class="flex items-center gap-2">
-              <span id="valColorAccent" class="text-[10px] text-slate-400">#E11D48</span>
-              <input id="ctrlColorAccent" type="color" value="#e11d48" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
+              <span id="valColorAccent" class="text-[10px] text-slate-400">#EF4444</span>
+              <input id="ctrlColorAccent" type="color" value="#ef4444" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
             </div>
           </div>
 
           <div class="flex items-center justify-between">
-            <label for="ctrlColorTimer" class="text-[11px] text-slate-300">Color Timer (计时器光核)</label>
+            <label for="ctrlColorTimer" class="text-[11px] text-slate-300">Color Timer (计时器亮蓝)</label>
             <div class="flex items-center gap-2">
-              <span id="valColorTimer" class="text-[10px] text-slate-400">#22D3EE</span>
-              <input id="ctrlColorTimer" type="color" value="#22d3ee" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
+              <span id="valColorTimer" class="text-[10px] text-slate-400">#06B6D4</span>
+              <input id="ctrlColorTimer" type="color" value="#06b6d4" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
             </div>
           </div>
         </section>
@@ -949,7 +1087,7 @@
             <div class="text-[11px] text-slate-300 font-mono-tech">BGM 乐段切换</div>
             <div class="grid grid-cols-2 gap-1.5 text-[10px] font-mono-tech">
               <button id="btnTrackAuto" type="button" class="py-1 px-1.5 rounded bg-emerald-600/30 text-emerald-300 border border-emerald-500/60 font-medium cursor-pointer">✨ 自动情境跟随</button>
-              <button id="btnTrackTitle" type="button" class="py-1 px-1.5 rounded bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer">🌌 慈爱勇者(序曲)</button>
+              <button id="btnTrackTitle" type="button" class="py-1 px-1.5 rounded bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer">🌌 宇宙英雄(序曲)</button>
               <button id="btnTrackBattle" type="button" class="py-1 px-1.5 rounded bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer">⚡ 空战交锋(战斗)</button>
               <button id="btnTrackBoss" type="button" class="py-1 px-1.5 rounded bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer">🔥 混沌决战(Boss)</button>
             </div>
@@ -960,6 +1098,9 @@
     </aside>
 
   </div>
+
+  <!-- Mobile Controls Drawer Backdrop -->
+  <div id="controlsBackdrop" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 hidden lg:hidden"></div>
 
   <script>
     (function () {
@@ -998,9 +1139,10 @@
         subpixelSmooth: true,
         vignette: 0.35,
         filmGrain: 0.04,
-        colorBody: '#d8dee9',
-        colorAccent: '#e11d48',
-        colorTimer: '#22d3ee'
+        animeOutline: 0.90,
+        colorBody: '#f1f5f9',
+        colorAccent: '#ef4444',
+        colorTimer: '#06b6d4'
       };
       const params = Object.assign({}, DEFAULT_PARAMS);
 
@@ -1680,23 +1822,23 @@
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(60, 1, 0.5, 4200);
 
-      // Lighting Rig for High-Fidelity 3D Micro-Voxel Normals & Brushed Metal Glints
-      const ambientLight = new THREE.AmbientLight(0x1e293b, 1.25);
+      // Lighting Rig tuned for 2D Anime Cel Shading (Crisp Key Light + Stylized Rim)
+      const ambientLight = new THREE.AmbientLight(0x475569, 1.4);
       scene.add(ambientLight);
-      // Key Sun Light: Crisp warm stellar illumination
-      const sunLight = new THREE.DirectionalLight(0xfff7ed, 2.2);
-      sunLight.position.set(220, 280, -200);
+      // Key Sun Light: Crisp daylight stellar illumination
+      const sunLight = new THREE.DirectionalLight(0xffffff, 2.3);
+      sunLight.position.set(160, 260, -220);
       scene.add(sunLight);
       // Fill Light: Soft Cosmic Indigo bounce from deep space
-      const fillLight = new THREE.DirectionalLight(0x312e81, 0.95);
+      const fillLight = new THREE.DirectionalLight(0x334155, 0.75);
       fillLight.position.set(-140, -90, -160);
       scene.add(fillLight);
-      // Upper Rim Light: Electric Cyan razor glints on metallic voxel bevels & shoulders
-      const rimLightUpper = new THREE.DirectionalLight(0x38bdf8, 2.1);
-      rimLightUpper.position.set(-180, 160, 220);
+      // Upper Rim Light: Anime Backlight edge on head crest & shoulders
+      const rimLightUpper = new THREE.DirectionalLight(0x93c5fd, 1.5);
+      rimLightUpper.position.set(-160, 180, 240);
       scene.add(rimLightUpper);
-      // Lower Rim Light: Warm Rose/Gold contour separation from cosmic void
-      const rimLightLower = new THREE.DirectionalLight(0xf43f5e, 0.9);
+      // Lower Rim Light: Warm contour separation from cosmic void
+      const rimLightLower = new THREE.DirectionalLight(0xf43f5e, 0.6);
       rimLightLower.position.set(140, -160, 180);
       scene.add(rimLightLower);
 
@@ -1760,7 +1902,7 @@
       });
 
       // Pass 2: Final Composite
-      // Features: Subpixel AA Smooth Upscale + Contrast Adaptive Sharpening (CAS) + Optical Diffraction + Dithering
+      // Features: Subpixel AA Smooth Upscale + Contrast Adaptive Sharpening (CAS) + 2D Anime Cel Inking + Optical Diffraction + Dithering
       const compositeMat = new THREE.ShaderMaterial({
         uniforms: {
           tScene: { value: null },
@@ -1772,6 +1914,7 @@
           uSubpixelSmooth: { value: 1.0 },
           uVignette: { value: params.vignette },
           uGrain: { value: params.filmGrain },
+          uAnimeOutline: { value: params.animeOutline },
           uResolution: { value: new THREE.Vector2(800, 600) },
           uRtResolution: { value: new THREE.Vector2(400, 300) },
           uTime: { value: 0.0 }
@@ -1790,6 +1933,7 @@
           uniform float uSubpixelSmooth;
           uniform float uVignette;
           uniform float uGrain;
+          uniform float uAnimeOutline;
           uniform vec2 uResolution;
           uniform vec2 uRtResolution;
           uniform float uTime;
@@ -1879,6 +2023,32 @@
             return clamp(sharp, 0.0, 1.0);
           }
 
+          // 5. 2D Anime Cel Outline & Ink Line Filter (Sobel Edge Detector)
+          float getAnimeOutline(sampler2D tex, vec2 uv, vec2 res) {
+            vec2 d = 1.0 / res;
+            vec3 cC = texture2D(tex, uv).rgb;
+            vec3 cN = texture2D(tex, uv + vec2(0.0, d.y)).rgb;
+            vec3 cS = texture2D(tex, uv - vec2(0.0, d.y)).rgb;
+            vec3 cE = texture2D(tex, uv + vec2(d.x, 0.0)).rgb;
+            vec3 cW = texture2D(tex, uv - vec2(d.x, 0.0)).rgb;
+            vec3 cNE = texture2D(tex, uv + vec2(d.x, d.y)).rgb;
+            vec3 cNW = texture2D(tex, uv + vec2(-d.x, d.y)).rgb;
+            vec3 cSE = texture2D(tex, uv + vec2(d.x, -d.y)).rgb;
+            vec3 cSW = texture2D(tex, uv + vec2(-d.x, -d.y)).rgb;
+
+            vec3 gx = (-cNW - 2.0 * cW - cSW + cNE + 2.0 * cE + cSE);
+            vec3 gy = (-cNW - 2.0 * cN - cNE + cSW + 2.0 * cS + cSE);
+            float edge = sqrt(dot(gx, gx) + dot(gy, gy));
+
+            // Suppress outlines on faint background celestial space
+            float maxL = max(dot(cC, vec3(0.299, 0.587, 0.114)),
+                         max(dot(cN, vec3(0.299, 0.587, 0.114)),
+                             dot(cS, vec3(0.299, 0.587, 0.114))));
+            if (maxL < 0.04) return 0.0;
+
+            return smoothstep(0.18, 0.42, edge);
+          }
+
           float rand(vec2 co) {
             return fract(sin(dot(co, vec2(12.9898, 78.233)) + uTime * 7.1) * 43758.5453);
           }
@@ -1888,6 +2058,13 @@
               ? vUv
               : smoothPixelUV(vUv, uResolution, uRtResolution, uSubpixelSmooth);
             vec3 base = sampleSharpened(tScene, uvScene, uRtResolution, uSharpness);
+
+            // 2D Anime Cel Outline & Inking Pass
+            if (uAnimeOutline > 0.01) {
+              float edge = getAnimeOutline(tScene, uvScene, uRtResolution);
+              vec3 inkCol = vec3(0.03, 0.04, 0.08); // Classic anime comic dark ink
+              base = mix(base, inkCol, edge * clamp(uAnimeOutline, 0.0, 1.0));
+            }
 
             // Sample optical diffraction bloom
             vec3 bloom = sampleDiffraction(tBloom, vUv, uResolution, uDiffraction);
@@ -2332,6 +2509,25 @@
         return ringMesh;
       }
 
+      // 2D Anime Cel-Shading Ramp Map (Discrete 4-band tone quantization)
+      function createToonRampTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 4;
+        canvas.height = 1;
+        const ctx = canvas.getContext('2d');
+        const tones = ['#64748b', '#94a3b8', '#e2e8f0', '#ffffff'];
+        tones.forEach((col, i) => {
+          ctx.fillStyle = col;
+          ctx.fillRect(i, 0, 1, 1);
+        });
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.minFilter = THREE.NearestFilter;
+        tex.magFilter = THREE.NearestFilter;
+        tex.generateMipmaps = false;
+        return tex;
+      }
+      const toonGradientMap = createToonRampTexture();
+
       const cosmosGroup = new THREE.Group();
       scene.add(cosmosGroup);
       const planets = [];
@@ -2412,15 +2608,13 @@
           });
         }
 
-        // 4. Build Faceted Asteroid Belt with Mineral Specular Glints
+        // 4. Build Faceted Asteroid Belt with 2D Anime Cel Shading
         const astCount = Math.round(params.asteroidsDensity * 280);
         if (astCount > 0) {
           const astGeo = new THREE.DodecahedronGeometry(1, 0);
-          const astMat = new THREE.MeshStandardMaterial({
+          const astMat = new THREE.MeshToonMaterial({
             color: 0x64748b,
-            roughness: 0.75,
-            metalness: 0.35,
-            flatShading: true
+            gradientMap: toonGradientMap
           });
           const astInst = new THREE.InstancedMesh(astGeo, astMat, astCount);
           const dummy = new THREE.Object3D();
@@ -2447,10 +2641,10 @@
       }
 
       // ==========================================
-      // 5. 3D VOXEL STACK BUILDERS (ULTRAMAN & KAIJU)
+      // 5. 3D VOXEL STACK BUILDERS (CLASSIC ULTRAMAN & KAIJU)
       // ==========================================
       // Builds a layered 3D Voxel Stack Group (16 horizontal slices along local Y)
-      // High-Fidelity Micro-Voxel Sculpting for Ultraman Cosmos & Kaiju
+      // 2D Anime Cel-Shading & Micro-Voxel Sculpting for Classic Standard Ultraman (初代奥特曼)
       const VOXEL_SIZE = 1.05;
       const voxelBoxGeo = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
 
@@ -2459,45 +2653,30 @@
         const slices = [];
         const NUM_SLICES = 16;
 
-        // PBR High-Fidelity Materials:
-        // 1. Quicksilver / Titanium (Brushed metal specular sheen)
-        const matSilver = new THREE.MeshStandardMaterial({
+        // 2D Anime Cel Shading Materials:
+        // 1. Quicksilver White (Classic 2D Anime Hero Silver)
+        const matSilver = new THREE.MeshToonMaterial({
           color: params.colorBody,
-          metalness: 0.68,
-          roughness: 0.22
+          gradientMap: toonGradientMap
         });
-        // 2. High-Gloss Heroic Crimson (High saturation ceramic finish)
-        const matRed = new THREE.MeshStandardMaterial({
+        // 2. Radiant Heroic Crimson (Classic 2D Anime Ultraman Red)
+        const matRed = new THREE.MeshToonMaterial({
           color: params.colorAccent,
-          metalness: 0.18,
-          roughness: 0.26
+          gradientMap: toonGradientMap
         });
-        // 3. Cosmos Luna Azure Blue (Iconic Ultraman Cosmos royal blue)
-        const matBlue = new THREE.MeshStandardMaterial({
-          color: 0x0284c7,
-          metalness: 0.32,
-          roughness: 0.24
-        });
-        // 4. Solar Corona Gold inlays
-        const matGold = new THREE.MeshStandardMaterial({
-          color: 0xf59e0b,
-          metalness: 0.78,
-          roughness: 0.20
-        });
-        // 5. Almond Light Eyes (Luminous core)
-        const matEye = new THREE.MeshBasicMaterial({ color: 0xfffef0 });
-        // 6. Warm Amber Outer Eye Trim
-        const matEyeRim = new THREE.MeshBasicMaterial({ color: 0xfde047 });
-        // 7. Faceted Color Timer Crystal (Brilliant Cyan Gem Core)
+        // 3. Classic Egg Eyes (Bright luminous warm yellow core)
+        const matEye = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+        // 4. Warm Golden Amber Outer Eye Rim
+        const matEyeRim = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+        // 5. Classic Color Timer Crystal (Emissive Sky Cyan Gem Core)
         const matTimer = new THREE.MeshBasicMaterial({ color: params.colorTimer });
-        // 8. Color Timer Raised Metallic Bezel Frame
-        const matTimerBezel = new THREE.MeshStandardMaterial({
-          color: 0xf1f5f9,
-          metalness: 0.85,
-          roughness: 0.15
+        // 6. Color Timer Raised Metallic Bezel Frame
+        const matTimerBezel = new THREE.MeshToonMaterial({
+          color: 0x94a3b8,
+          gradientMap: toonGradientMap
         });
 
-        // Ultraman Cosmos flying pose along -Z (head at z = -14, boots at z = +17)
+        // Classic Standard Ultraman (初代奥特曼) flying pose along -Z (head at z = -14, boots at z = +17)
         // Grid: x in [-9..9], z in [-17..17], y (slice) in [0..15]
         for (let s = 0; s < NUM_SLICES; s++) {
           const sliceGroup = new THREE.Group();
@@ -2509,75 +2688,81 @@
               const ax = Math.abs(x);
               let mat = null;
 
-              // 1. Aerodynamic Head Crest & Curved Mask (z: -14..-8, s: 5..15)
+              // 1. Aerodynamic Head Crest & Classic Sculpted Mask (z: -14..-8, s: 5..15)
               if (z >= -14 && z <= -8 && s >= 5 && s <= 15) {
-                // Central Aerodynamic Silver Crest Fin (Signature Cosmos Fin)
+                // Central Aerodynamic Silver Head Fin (经典初代中央银色头鳍/冰斧)
                 if (ax === 0 && s >= 11 && s <= 15 && z >= -14 && z <= -8) {
                   mat = matSilver;
+                } else if (ax === 0 && s === 14 && z >= -13 && z <= -9) {
+                  mat = matSilver;
                 } else if (ax <= 2 && s >= 7 && s <= 13) {
-                  const headR = 2.4 - Math.abs(z + 11.0) * 0.42 - Math.abs(s - 9.5) * 0.32;
+                  const headR = 2.4 - Math.abs(z + 11.0) * 0.38 - Math.abs(s - 9.5) * 0.30;
                   if (ax <= headR) {
                     mat = matSilver;
-                    // Sculpted Almond Glowing Eyes with warm gradient trim
+                    // Classic Warm Golden Egg Eyes (经典咸蛋发光双眼)
                     if (z >= -13 && z <= -11 && s >= 8 && s <= 10) {
-                      if (ax === 1) mat = matEye; // Luminous core
-                      else if (ax === 2) mat = matEyeRim; // Warm amber rim
+                      if (ax === 1) mat = matEye; // Luminous golden core
+                      else if (ax === 2) mat = matEyeRim; // Warm amber contour rim
                     }
                   }
-                } else if (ax <= 1 && s >= 5 && s <= 7 && z >= -11 && z <= -8) {
+                } else if (ax === 3 && (s === 8 || s === 9) && (z >= -10 && z <= -9)) {
+                  // Capsule Ears (头部两侧经典胶囊状银色耳部)
+                  mat = matSilver;
+                } else if (ax <= 1 && s >= 5 && s <= 7 && z >= -12 && z <= -8) {
                   // Tapered Jawline & Silver Chin
                   mat = matSilver;
                 }
               }
 
-              // 2. Cosmos Chest Armor & Dynamic Chevron Energy Markings (z: -7..4, s: 3..12)
+              // 2. Classic Ultraman Chest & Torso Red-Silver Markings (z: -7..4, s: 3..12)
               if (!mat && z >= -7 && z <= 4 && s >= 3 && s <= 12) {
-                const torsoW = z < -1 ? 3.8 : 2.8;
+                const torsoW = (z < -1) ? 4.0 : 3.0;
                 const torsoH = Math.abs(s - 7.0);
-                if (ax <= torsoW && torsoH <= 3.8) {
-                  // Color Timer: Faceted Diamond Cyan Crystal + Raised Metallic Bezel Frame
+                if (ax <= torsoW && torsoH <= 4.2) {
+                  // Color Timer: Cyan Gem Core + Raised Metallic Bezel Ring
                   if (s >= 4 && s <= 5 && z >= -5 && z <= -4 && ax === 0) {
-                    mat = matTimer; // Brilliant crystal core
+                    mat = matTimer;
                   } else if (s >= 3 && s <= 6 && z >= -6 && z <= -3 && ax <= 1) {
-                    mat = matTimerBezel; // Metallic raised bezel ring
+                    mat = matTimerBezel;
                   } else {
-                    // Cosmos Signature Luna Azure Blue & Radiant Crimson Flow Curves
-                    const isCosmosBlue = (z >= -6 && z <= -1 && (ax === 2 || ax === 3)) || (s >= 10 && ax === 2);
-                    const isRedBand = (z >= -4 && z <= 2 && ax <= 2 && !isCosmosBlue) || (z >= 0 && z <= 3 && ax >= 2);
-                    const isGoldInlay = (z === -3 && ax === 1 && s >= 7 && s <= 9);
+                    // Classic Red & Silver Markings (初代经典红银花纹)
+                    const isShoulderRed = (z >= -7 && z <= -3 && ax >= 3);
+                    const isChestRedV = (z >= -6 && z <= -2 && ax === 2) || (z >= -3 && z <= 0 && ax === 1 && s <= 6);
+                    const isFlankRed = (z >= 0 && z <= 4 && ax >= 2);
+                    const isSpineRed = (s >= 10 && ax === 1 && z >= -4 && z <= 2);
 
-                    if (isGoldInlay) mat = matGold;
-                    else if (isCosmosBlue) mat = matBlue;
-                    else if (isRedBand) mat = matRed;
-                    else mat = matSilver;
+                    if (isShoulderRed || isChestRedV || isFlankRed || isSpineRed) {
+                      mat = matRed;
+                    } else {
+                      mat = matSilver;
+                    }
                   }
                 }
               }
 
-              // 3. Outstretched Fists, Forearm Gauntlets & Red Cuffs (z: -17..-5, s: 6..10)
+              // 3. Flying Fists, Forearm Gauntlets & Red Wrist Cuffs (z: -17..-5, s: 6..10)
               if (!mat && z >= -17 && z <= -5 && s >= 6 && s <= 10) {
-                // Flying fists stretched straight forward!
-                if ((x >= 3 && x <= 4) || (x <= -3 && x >= -4)) {
+                if (ax >= 3 && ax <= 4) {
                   if (z <= -14) {
-                    mat = matSilver; // Clenched silver knuckles at front tip
+                    mat = matSilver; // Clenched silver flight fists leading the charge!
                   } else if (z <= -11) {
-                    mat = matRed; // Red wrist cuffs
-                  } else if (z <= -7) {
-                    mat = (s >= 8) ? matBlue : matSilver; // Vambraces with blue accent
+                    mat = matRed; // Classic red wrist/forearm band
+                  } else if (z <= -8) {
+                    mat = (ax === 3) ? matSilver : matRed; // Silver forearm with red side band
+                  } else if (z <= -5) {
+                    mat = matRed; // Shoulder connection
                   }
                 }
               }
 
-              // 4. Streamlined Flight Legs & Red Aerodynamic Boots (z: 5..17, s: 4..10)
+              // 4. Pelvis Red Trunks & Aerodynamic Silver Boots (z: 5..17, s: 4..10)
               if (!mat && z >= 5 && z <= 17 && s >= 4 && s <= 10) {
-                if (ax >= 1 && ax <= 2 && s >= 5 && s <= 8) {
-                  if (z >= 14) {
-                    mat = matRed; // Aerodynamic red flight boots
-                  } else if (z >= 11) {
-                    mat = (s >= 7) ? matBlue : matSilver; // Calves with blue stripes
-                  } else {
-                    mat = (ax === 2) ? matRed : matSilver; // Thighs with red racing stripes
-                  }
+                if (z >= 5 && z <= 7 && ax <= 2 && s >= 5 && s <= 8) {
+                  mat = matRed; // Classic red trunks
+                } else if (z >= 8 && z <= 13 && ax >= 1 && ax <= 2 && s >= 5 && s <= 8) {
+                  mat = (ax === 2) ? matRed : matSilver; // Thigh with red racing stripes
+                } else if (z >= 14 && z <= 17 && ax >= 1 && ax <= 2 && s >= 5 && s <= 8) {
+                  mat = (z === 17) ? matRed : matSilver; // Sleek silver flight boots with red trim
                 }
               }
 
@@ -2595,8 +2780,6 @@
         root.userData.slices = slices;
         root.userData.matSilver = matSilver;
         root.userData.matRed = matRed;
-        root.userData.matBlue = matBlue;
-        root.userData.matGold = matGold;
         root.userData.matTimer = matTimer;
         return root;
       }
@@ -2617,9 +2800,9 @@
         ];
         const pal = palettes[variant % palettes.length];
 
-        const matShell = new THREE.MeshStandardMaterial({ color: pal.shell, roughness: pal.rough, metalness: pal.metal });
-        const matBelly = new THREE.MeshStandardMaterial({ color: pal.belly, roughness: pal.rough * 0.9, metalness: pal.metal * 0.5 });
-        const matHorn  = new THREE.MeshStandardMaterial({ color: pal.horn, roughness: 0.25, metalness: 0.55 });
+        const matShell = new THREE.MeshToonMaterial({ color: pal.shell, gradientMap: toonGradientMap });
+        const matBelly = new THREE.MeshToonMaterial({ color: pal.belly, gradientMap: toonGradientMap });
+        const matHorn  = new THREE.MeshToonMaterial({ color: pal.horn, gradientMap: toonGradientMap });
         const matGlow  = new THREE.MeshBasicMaterial({ color: pal.glow });
 
         for (let s = 0; s < NUM_SLICES; s++) {
@@ -2684,9 +2867,9 @@
         const slices = [];
         const NUM_SLICES = 18;
 
-        const matArmor = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.32, metalness: 0.75 });
-        const matPlate = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.28, metalness: 0.55 });
-        const matHorn  = new THREE.MeshStandardMaterial({ color: 0x881337, roughness: 0.25, metalness: 0.45 });
+        const matArmor = new THREE.MeshToonMaterial({ color: 0x18181b, gradientMap: toonGradientMap });
+        const matPlate = new THREE.MeshToonMaterial({ color: 0x27272a, gradientMap: toonGradientMap });
+        const matHorn  = new THREE.MeshToonMaterial({ color: 0x991b1b, gradientMap: toonGradientMap });
         const matGlow  = new THREE.MeshBasicMaterial({ color: 0xf43f5e }); // Bright emissive crimson
         const matCore  = new THREE.MeshBasicMaterial({ color: 0xfbbf24 }); // Gold-orange chaos reactor
 
@@ -2838,7 +3021,7 @@
         const d2 = document.getElementById('dotDemo2');
 
         const descriptions = [
-          '幕 1/3: 高斯奥特曼 16 层微体素全向特写与精细结构剖析',
+          '幕 1/3: 经典标准初代奥特曼 16 层微体素全向特写与 2D 动漫渲染剖析',
           '幕 2/3: 空间空战巡航、八分光轮与斯派修姆贯穿光线演示',
           '幕 3/3: 混沌灭世魔兽 (Chaos Overlord) 巨翼与暗核危机'
         ];
@@ -2885,7 +3068,7 @@
         player.speed = params.speed;
         player.stackIntroProgress = 0.0; // Play assembly upon launch
         
-        showBanner('✨ 任务启动！高斯奥特曼全系统出击！', 'bg-cyan-400 text-slate-950 shadow-[0_0_25px_#22d3ee]');
+        showBanner('✨ 任务启动！初代奥特曼全系统出击！', 'bg-cyan-400 text-slate-950 shadow-[0_0_25px_#22d3ee]');
         syncEnemies();
       }
 
@@ -3331,7 +3514,7 @@
             if (t.identifier === virtualStick.touchId) {
               const dx = t.clientX - virtualStick.startX;
               const dy = t.clientY - virtualStick.startY;
-              const maxDist = 48;
+              const maxDist = Math.max(26, (joyZone.clientWidth * 0.5) - (joyKnob.clientWidth * 0.5) || 38);
               const dist = Math.hypot(dx, dy);
               const clamped = Math.min(dist, maxDist);
               const ang = Math.atan2(dy, dx);
@@ -3369,20 +3552,32 @@
       const touchBoostBtn = document.getElementById('touchBoostBtn');
       const touchRollBtn = document.getElementById('touchRollBtn');
       const touchMissileBtn = document.getElementById('touchMissileBtn');
+      const touchViewBtn = document.getElementById('touchViewBtn');
 
       if (touchSlashBtn) {
         touchSlashBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); holdTouchSlash = true; }, { passive: false });
         touchSlashBtn.addEventListener('touchend', () => { holdTouchSlash = false; });
+        touchSlashBtn.addEventListener('touchcancel', () => { holdTouchSlash = false; });
       }
       if (touchBoostBtn) {
         touchBoostBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); holdTouchBoost = true; }, { passive: false });
         touchBoostBtn.addEventListener('touchend', () => { holdTouchBoost = false; });
+        touchBoostBtn.addEventListener('touchcancel', () => { holdTouchBoost = false; });
       }
       if (touchRollBtn) {
         touchRollBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); triggerBarrelRoll(1); }, { passive: false });
       }
       if (touchMissileBtn) {
         touchMissileBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); fireSpaciumSalvo(1); }, { passive: false });
+      }
+      if (touchViewBtn) {
+        touchViewBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); cycleCameraView(); }, { passive: false });
+        touchViewBtn.addEventListener('click', (e) => { e.preventDefault(); soundEngine.init(); cycleCameraView(); });
+      }
+
+      const hudViewTap = document.getElementById('hudViewTap');
+      if (hudViewTap) {
+        hudViewTap.addEventListener('click', (e) => { e.stopPropagation(); soundEngine.init(); cycleCameraView(); });
       }
 
       const tutorialDone = { steer: false, boost: false, roll: false, loop: false, view: false, combat: false };
@@ -4499,6 +4694,7 @@
         compositeMat.uniforms.uRtResolution.value.set(rtW, rtH);
         compositeMat.uniforms.uVignette.value = params.vignette;
         compositeMat.uniforms.uGrain.value = params.filmGrain;
+        compositeMat.uniforms.uAnimeOutline.value = params.animeOutline;
         compositeMat.uniforms.uTime.value = performance.now() * 0.001;
         renderer.setRenderTarget(null);
         renderer.render(postScene, postCam);
@@ -4742,6 +4938,7 @@
       bindRange('ctrlDither', 'valDither', 'ditherStrength', (v) => v.toFixed(2));
       bindRange('ctrlVignette', 'valVignette', 'vignette', (v) => v.toFixed(2));
       bindRange('ctrlFilmGrain', 'valFilmGrain', 'filmGrain', (v) => v.toFixed(2));
+      bindRange('ctrlAnimeOutline', 'valAnimeOutline', 'animeOutline', (v) => v.toFixed(2));
 
       const ctrlSubpixelEl = document.getElementById('ctrlSubpixel');
       if (ctrlSubpixelEl) {
@@ -4890,7 +5087,49 @@
       document.getElementById('btnResumeFlight').addEventListener('click', () => toggleIntelModal(false));
       document.getElementById('btnTutorial').addEventListener('click', () => document.getElementById('tutorialCard').classList.toggle('hidden'));
       document.getElementById('btnCloseTutorial').addEventListener('click', () => document.getElementById('tutorialCard').classList.add('hidden'));
-      document.getElementById('btnToggleControls').addEventListener('click', () => document.getElementById('controlsPanel').classList.toggle('hidden'));
+
+      // Responsive Controls Drawer logic
+      function toggleControlsDrawer(forceOpen) {
+        const panel = document.getElementById('controlsPanel');
+        const backdrop = document.getElementById('controlsBackdrop');
+        if (!panel) return;
+
+        const isMobile = window.innerWidth < 1024;
+        if (isMobile) {
+          const isOpen = panel.classList.contains('drawer-open');
+          const shouldOpen = forceOpen !== undefined ? forceOpen : !isOpen;
+          if (shouldOpen) {
+            panel.classList.add('drawer-open');
+            if (backdrop) backdrop.classList.remove('hidden');
+          } else {
+            panel.classList.remove('drawer-open');
+            if (backdrop) backdrop.classList.add('hidden');
+          }
+        } else {
+          const isHidden = panel.classList.contains('hidden');
+          const shouldHide = forceOpen !== undefined ? !forceOpen : !isHidden;
+          if (shouldHide) {
+            panel.classList.add('hidden');
+          } else {
+            panel.classList.remove('hidden');
+          }
+        }
+      }
+      const btnControls = document.getElementById('btnToggleControls');
+      if (btnControls) btnControls.addEventListener('click', () => toggleControlsDrawer());
+      const btnCloseC = document.getElementById('btnCloseControls');
+      if (btnCloseC) btnCloseC.addEventListener('click', () => toggleControlsDrawer(false));
+      const cBackdrop = document.getElementById('controlsBackdrop');
+      if (cBackdrop) cBackdrop.addEventListener('click', () => toggleControlsDrawer(false));
+
+      // Touch capability detection to guarantee touch controls display on mobile in any orientation
+      const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+      if (isTouch || window.innerWidth < 1024) {
+        document.documentElement.classList.add('touch-device');
+      }
+      window.addEventListener('touchstart', () => {
+        document.documentElement.classList.add('touch-device');
+      }, { once: true });
 
       document.getElementById('paramSearch').addEventListener('input', (e) => {
         const q = e.target.value.trim().toLowerCase();
@@ -4937,8 +5176,19 @@
           document.getElementById('ctrlFilmGrain').value = params.filmGrain;
           document.getElementById('valFilmGrain').textContent = params.filmGrain.toFixed(2);
         }
+        if (document.getElementById('ctrlAnimeOutline')) {
+          document.getElementById('ctrlAnimeOutline').value = params.animeOutline;
+          document.getElementById('valAnimeOutline').textContent = params.animeOutline.toFixed(2);
+        }
+        document.getElementById('ctrlColorBody').value = params.colorBody;
+        document.getElementById('valColorBody').textContent = params.colorBody.toUpperCase();
+        document.getElementById('ctrlColorAccent').value = params.colorAccent;
+        document.getElementById('valColorAccent').textContent = params.colorAccent.toUpperCase();
+        document.getElementById('ctrlColorTimer').value = params.colorTimer;
+        document.getElementById('valColorTimer').textContent = params.colorTimer.toUpperCase();
         heroMesh.userData.matSilver.color.set(params.colorBody);
         heroMesh.userData.matRed.color.set(params.colorAccent);
+        heroMesh.userData.matTimer.color.set(params.colorTimer);
         if (document.getElementById('ctrlBgmVolume')) {
           document.getElementById('ctrlBgmVolume').value = 65;
           document.getElementById('valBgmVolume').textContent = '65%';
