@@ -659,26 +659,37 @@
       </div>
 
       <!-- Mobile Touch Action Buttons (Right) -->
-      <div id="mobileActionDeck" class="touch-controls absolute bottom-4 right-3 flex flex-col items-end gap-1.5 pointer-events-auto touch-none z-20 font-mono-tech select-none">
-        <!-- Top Row: View + Roll + Missile -->
-        <div class="flex items-center gap-1.5">
-          <button id="touchViewBtn" type="button" title="切换相机视角" class="w-10 h-10 rounded-full bg-slate-900/90 border border-slate-600 text-slate-300 text-[10px] font-bold flex items-center justify-center active:scale-90 active:bg-slate-700 shadow-md">
+      <div id="mobileActionDeck" class="touch-controls absolute bottom-4 right-3 flex flex-col items-end gap-2 pointer-events-auto touch-none z-20 font-mono-tech select-none">
+        <!-- Top Utility Row: 视角 + 翻滚 -->
+        <div class="flex items-center gap-2 pr-1">
+          <button id="touchViewBtn" type="button" title="切换相机视角 (TOP/CHASE/FREE)" class="w-10 h-10 rounded-full bg-slate-900/90 border border-slate-600 text-slate-300 text-[10px] font-bold flex items-center justify-center active:scale-90 active:bg-slate-700 shadow-md">
             视角
           </button>
           <button id="touchRollBtn" type="button" title="螺旋翻滚闪避" class="w-11 h-11 rounded-full bg-slate-900/90 border border-cyan-400/60 text-cyan-300 text-[10px] font-bold flex items-center justify-center active:scale-90 active:bg-cyan-500/40 shadow-lg">
             翻滚
           </button>
-          <button id="touchMissileBtn" type="button" title="斯派修姆高能齐射" class="w-11 h-11 rounded-full bg-rose-950/90 border border-rose-400/70 text-rose-300 text-[10px] font-bold flex items-center justify-center active:scale-90 active:bg-rose-500/40 shadow-lg">
-            光线
-          </button>
         </div>
-        <!-- Bottom Row: Boost + Primary Ultra Slash -->
-        <div class="flex items-center gap-2">
-          <button id="touchBoostBtn" type="button" title="按住超光速推进" class="w-13 h-13 rounded-full bg-cyan-950/90 border-2 border-cyan-400 text-cyan-300 text-xs font-bold flex items-center justify-center active:scale-90 active:bg-cyan-400 active:text-slate-950 shadow-[0_0_15px_rgba(34,211,238,0.35)]">
-            加速
-          </button>
-          <button id="touchSlashBtn" type="button" title="连续发射八分光轮" class="w-15 h-15 rounded-full bg-gradient-to-tr from-sky-600 to-cyan-500 border-2 border-white text-white text-sm font-bold flex items-center justify-center active:scale-90 active:bg-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.6)]">
-            光轮
+        <!-- Skills & Main Attack Cluster (Ergonomic Right-Thumb Diamond Arc) -->
+        <div class="flex items-end gap-2.5">
+          <!-- Secondary Actions: 光线 (必杀) + 推进 (加速) -->
+          <div class="flex flex-col items-center gap-2">
+            <button id="touchMissileBtn" type="button" title="斯派修姆高能齐射 (必杀技)" class="w-[52px] h-[52px] rounded-full bg-gradient-to-tr from-rose-950/95 to-rose-900/90 border-2 border-rose-400/80 text-rose-200 flex flex-col items-center justify-center active:scale-90 active:bg-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.4)]">
+              <span class="text-[12px] font-black leading-none">光线</span>
+              <span class="text-[8px] font-bold text-rose-400/90 leading-none mt-0.5">必杀</span>
+            </button>
+            <button id="touchBoostBtn" type="button" title="按住超光速推进" class="w-[52px] h-[52px] rounded-full bg-slate-900/95 border-2 border-cyan-400 text-cyan-300 flex flex-col items-center justify-center active:scale-90 active:bg-cyan-400 active:text-slate-950 shadow-[0_0_15px_rgba(34,211,238,0.35)]">
+              <span class="text-[12px] font-black leading-none">推进</span>
+              <span class="text-[8px] font-bold text-cyan-400/90 leading-none mt-0.5">加速</span>
+            </button>
+          </div>
+          <!-- Primary Attack: 八分光轮 (普攻/连发大型醒目核心按键) -->
+          <button id="touchSlashBtn" type="button" title="连续发射八分光轮 (普通攻击/按住连发)" class="w-[78px] h-[78px] rounded-full bg-gradient-to-tr from-sky-600 via-cyan-500 to-teal-300 border-2 border-white text-white flex flex-col items-center justify-center active:scale-95 active:brightness-125 shadow-[0_0_24px_rgba(56,189,248,0.7)] group">
+            <svg class="w-6 h-6 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.9)] transition-transform duration-700 group-active:rotate-90" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="4.2" fill="#ffffff" />
+              <path d="M12 2l2.2 4.5L19 4.2l-1.3 4.9 4.8 1.5-3.3 3.8 3.3 3.8-4.8 1.5 1.3 4.9-4.8-2.3L12 22l-2.2-4.5L5 19.8l1.3-4.9-4.8-1.5 3.3-3.8-3.3-3.8 4.8-1.5L5 4.2l4.8 2.3z" opacity="0.9" />
+            </svg>
+            <span class="text-[11px] font-black tracking-wider leading-none mt-1 text-white drop-shadow">八分光轮</span>
+            <span class="text-[8px] font-bold text-cyan-950 bg-cyan-200/90 px-1 py-0.2 rounded-full leading-none mt-0.5 scale-90">普攻·连发</span>
           </button>
         </div>
       </div>
@@ -702,13 +713,12 @@
                 <span>🎮 FLIGHT CONTROLS</span>
               </div>
               <ul class="space-y-1 text-slate-300 text-[10px] sm:text-[11px]">
-                <li>• 鼠标/左摇杆/WASD：空间航向俯仰</li>
-                <li>• 单击左键/翻滚键/R：螺旋翻滚闪避</li>
-                <li>• 按住加速/Shift/RT：超光速推进</li>
-                <li>• 光轮键/右键/RB/C：八分光轮连续发射</li>
-                <li>• 光线键/中键/M：斯派修姆高能齐射</li>
-                <li>• 视角键/Space：三视角循环切换</li>
-                <li>• 移动端：左侧摇杆 + 右侧大圆触控键</li>
+                <li>• <strong>移动端普攻</strong>：右下角大按钮【八分光轮】(点击单发/按住连射)</li>
+                <li>• <strong>移动端技能</strong>：左侧虚拟摇杆航向，右侧推进/光线/翻滚/视角</li>
+                <li>• <strong>PC端普通攻击</strong>：鼠标右键 / 键盘 C 键 / 手柄 RB (按住连射)</li>
+                <li>• <strong>PC端航行操作</strong>：鼠标移动导向，左键/R键翻滚，Shift/RT加速推进</li>
+                <li>• <strong>斯派修姆光线</strong>：鼠标中键 / 键盘 M 键 / 手柄 Y 键 / 触屏光线键</li>
+                <li>• <strong>视角切换</strong>：Space 空格键 / 触屏视角键 (TOP/CHASE/FREE)</li>
               </ul>
             </div>
             <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
@@ -3581,21 +3591,56 @@
       const touchViewBtn = document.getElementById('touchViewBtn');
 
       if (touchSlashBtn) {
-        touchSlashBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); holdTouchSlash = true; }, { passive: false });
-        touchSlashBtn.addEventListener('touchend', () => { holdTouchSlash = false; });
-        touchSlashBtn.addEventListener('touchcancel', () => { holdTouchSlash = false; });
+        const startSlash = (e) => {
+          if (e && e.cancelable) e.preventDefault();
+          soundEngine.init();
+          holdTouchSlash = true;
+          if (navigator.vibrate) { try { navigator.vibrate(20); } catch (err) {} }
+          if (player.fireCooldown <= 0) {
+            fireUltraSlash();
+            player.fireCooldown = 0.095;
+          }
+        };
+        const endSlash = (e) => {
+          if (e && e.cancelable) e.preventDefault();
+          holdTouchSlash = false;
+        };
+
+        touchSlashBtn.addEventListener('touchstart', startSlash, { passive: false });
+        touchSlashBtn.addEventListener('touchend', endSlash, { passive: false });
+        touchSlashBtn.addEventListener('touchcancel', endSlash, { passive: false });
+        touchSlashBtn.addEventListener('mousedown', startSlash);
+        window.addEventListener('mouseup', endSlash);
       }
+
       if (touchBoostBtn) {
-        touchBoostBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); holdTouchBoost = true; }, { passive: false });
-        touchBoostBtn.addEventListener('touchend', () => { holdTouchBoost = false; });
-        touchBoostBtn.addEventListener('touchcancel', () => { holdTouchBoost = false; });
+        const startBoost = (e) => {
+          if (e && e.cancelable) e.preventDefault();
+          soundEngine.init();
+          holdTouchBoost = true;
+        };
+        const endBoost = (e) => {
+          if (e && e.cancelable) e.preventDefault();
+          holdTouchBoost = false;
+        };
+
+        touchBoostBtn.addEventListener('touchstart', startBoost, { passive: false });
+        touchBoostBtn.addEventListener('touchend', endBoost, { passive: false });
+        touchBoostBtn.addEventListener('touchcancel', endBoost, { passive: false });
+        touchBoostBtn.addEventListener('mousedown', startBoost);
+        window.addEventListener('mouseup', endBoost);
       }
+
       if (touchRollBtn) {
         touchRollBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); triggerBarrelRoll(1); }, { passive: false });
+        touchRollBtn.addEventListener('click', (e) => { e.preventDefault(); soundEngine.init(); triggerBarrelRoll(1); });
       }
+
       if (touchMissileBtn) {
         touchMissileBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); fireSpaciumSalvo(1); }, { passive: false });
+        touchMissileBtn.addEventListener('click', (e) => { e.preventDefault(); soundEngine.init(); fireSpaciumSalvo(1); });
       }
+
       if (touchViewBtn) {
         touchViewBtn.addEventListener('touchstart', (e) => { e.preventDefault(); soundEngine.init(); cycleCameraView(); }, { passive: false });
         touchViewBtn.addEventListener('click', (e) => { e.preventDefault(); soundEngine.init(); cycleCameraView(); });
