@@ -4,14 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Forge | ultraman — Three.js 体素切片宇宙飞行与怪兽空战</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script>
-    // CDN fallback in case cdnjs is blocked or slow
-    if (typeof THREE === 'undefined') {
-      document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"><\/script>');
-    }
-  </script>
+  <script src="./vendor/tailwindcss.js"></script>
+  <script src="./vendor/three.min.js"></script>
   <script>
     // Fail-safe global diagnostic to prevent silent black screen
     window.addEventListener('error', function (e) {
@@ -25,12 +19,10 @@
       }
       box.innerHTML = '<div class="font-bold text-rose-300 text-sm mb-1">⚠️ 宇宙飞行引擎启动异常</div>' +
         '<div class="text-[11px] text-slate-300 mb-2">' + (e.message || '未知脚本错误') + ' (' + (e.filename ? e.filename.split('/').pop() : 'index.html') + ':' + e.lineno + ')</div>' +
-        '<div class="text-[10px] text-slate-400">若提示 THREE 未定义，请检查网络是否能访问 CDN，或尝试在静态服务器环境中刷新。</div>';
+        '<div class="text-[10px] text-slate-400">若提示文件或 WebGL 异常，请确认 vendor 目录存在且浏览器已开启硬件加速 / WebGL。</div>';
     });
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <style>
     :root {
       color-scheme: dark;

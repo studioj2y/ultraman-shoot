@@ -1151,7 +1151,8 @@
     // =========================================================================
     let gameState = 'TITLE'; // 'TITLE' | 'PLAY' | 'PAUSED' | 'GAMEOVER'
     let score = 0, wave = 1, kills = 0;
-    let bestScore = parseInt(localStorage.getItem('ultraman_sprite_best') || '0', 10) || 0;
+    let bestScore = 0;
+    try { bestScore = parseInt(localStorage.getItem('ultraman_sprite_best') || '0', 10) || 0; } catch (_) {}
     let slowMoTimer = 0, bannerTimer = 0, warnBeepTimer = 0, dmgFlashTimer = 0;
 
     const player = {
@@ -1472,7 +1473,7 @@
       gameState = 'GAMEOVER';
       if (score > bestScore) {
         bestScore = score;
-        localStorage.setItem('ultraman_sprite_best', String(bestScore));
+        try { localStorage.setItem('ultraman_sprite_best', String(bestScore)); } catch (_) {}
       }
       document.getElementById('goScore').textContent = score;
       document.getElementById('goBest').textContent = bestScore;
