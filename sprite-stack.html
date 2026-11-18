@@ -264,7 +264,7 @@
     <div class="brand">
       <span class="dot"></span>
       <span class="brand-title">Forge | ultraman-sprite</span>
-      <span class="badge">Pure CPU Sprite-Stacking · Dogfight AI + Homing Missiles + Warp Boss</span>
+      <span class="badge">Forward Formation · 4 Sectors · 2 Bosses · Lv.3 Homing Slash</span>
     </div>
     <div class="hdr-actions">
       <a href="index.html" class="hdr-btn switch-3d" title="切换回 Three.js WebGL 3D 微体素版进行对比">
@@ -292,6 +292,7 @@
             <div><span class="stat-lbl">SCORE </span><span class="stat-val stat-cyan" id="hudScore">0</span></div>
             <div><span class="stat-lbl">BEST </span><span class="stat-val stat-emerald" id="hudBest">0</span></div>
             <div><span class="stat-lbl">WAVE </span><span class="stat-val stat-amber" id="hudWave">1</span></div>
+            <div><span class="stat-lbl">SECTOR </span><span class="stat-val stat-cyan" id="hudSector">M78 翡翠星云</span></div>
           </div>
         </div>
         <div class="hud-card">
@@ -318,6 +319,7 @@
       <div class="hud-card" id="energyHud">
         <div class="hud-row">
           <div><span class="stat-lbl">光轮 </span><span class="stat-val stat-cyan" id="hudAmmo">300</span></div>
+          <div id="hudSlashLv" class="sphere-pill" style="background:rgba(14,165,233,0.2);border-color:rgba(56,189,248,0.65);color:#bae6fd;">💠 LV.1</div>
           <div><span class="stat-lbl">光线</span><span class="beam-dots" id="hudBeams"></span></div>
           <div id="hudSpherePill" class="sphere-pill" title="按 E 键或点击红球释放红色能量光球并回满体力">🔴 红球×1</div>
         </div>
@@ -327,16 +329,16 @@
       <div id="titleOverlay" class="overlay-mask">
         <div></div>
         <div class="modal-box">
-          <div class="pixel-tag">PURE CPU SPRITE-STACKING · FULL DOGFIGHT EDITION</div>
+          <div class="pixel-tag">PURE CPU SPRITE-STACKING · FORWARD FORMATION EDITION</div>
           <h1 class="main-h1">ULTRAMAN PIXEL STACK</h1>
           <p class="sub-desc">
-            纯 CPU <code>Uint32Array</code> 复古像素切片空战完整版：<br/>
-            3D 实体旋转八分光轮 · 可见追踪火球弹幕拦截 · 三态缠斗怪兽 AI · Boss 半血狂暴时空冲撞 · 红色光球变身与叮咚红灯警报
+            纯 CPU <code>Uint32Array</code> 正面迎击流像素空战完全体：<br/>
+            4800m 无界流式星海 · 4大动态星域 · 前向伴飞编队与防绕圈跃迁 · Lv.3 曲射追踪光轮 · 爆裂熔岩陨石 &amp; 加速星环 · 双重星域 Boss
           </p>
           <button id="btnStartGame" type="button" class="start-btn">▶ 立即出击 (SHUWATCH)</button>
           <div style="margin-top:12px;font-size:11px;color:#94a3b8;line-height:1.6;">
-            PC: 鼠标转向 · 右键/C 八分光轮 · 左键/R 翻滚闪避 · Q/F 筋斗 · Shift 推进 · M 斯派修姆光线 · E 红色光球 · Space 切视角<br/>
-            手机: 左摇杆航向 · 右下 78px 大键【八分光轮】点按/长按连射 ·【红球】救急复活
+            PC: 鼠标瞄准 · 右键/C 三段追踪光轮 · 左键/R 翻滚弹反 · X/Ctrl 减速悬停迎战 · Shift 冲刺 · M 斯派修姆光线 · E 红球<br/>
+            手机: 左摇杆航向 · 右侧【减速】控制接敌节奏 ·【八分光轮】78px 主键连射 ·【红球】救急突围
           </div>
         </div>
         <div style="font-size:11px;color:#64748b;">点击顶部「🌐 Three.js版」可随时一键切换对比两大引擎</div>
@@ -348,10 +350,10 @@
           <div class="pixel-tag">PAUSED · FLIGHT BRIEFING</div>
           <h2 style="font-size:20px;font-weight:900;color:#fff;margin-bottom:8px;">M78 宇宙空战暂停中</h2>
           <div style="font-size:11px;color:#cbd5e1;text-align:left;line-height:1.75;background:#111827;padding:12px;border-radius:8px;border:1px solid #1e293b;">
-            • <strong>可见追踪弹幕与拦截</strong>：怪兽发射青色月牙弹、熔岩追踪火球与三向等离子扇，可用【八分光轮】凌空击碎（+30 分）！<br/>
-            • <strong>真正耦合的完美闪避</strong>：火球逼近至 95m 绿环内（或 Boss 狂暴冲撞锁定瞬间）按 <strong>翻滚 (左键/R)</strong>，震断导弹追踪并触发 <strong>1.3秒子弹时间 + 免费斯派修姆贯穿反击</strong>！<br/>
-            • <strong>Boss 二阶段半血狂暴</strong>：Boss 血量低于 50% 后觉醒，瞄准蓄力并发射红色虚线预警，随后展开 <strong>310 极速时空冲撞</strong>与 8 向螺旋混沌弹幕！<br/>
-            • <strong>濒死红灯与红球变身</strong>：体力 ≤ 2 格时计时器红灯闪耀并鸣响叮咚警报，按 <strong>E 键 / 触屏红球</strong> 化身无敌光球满血重生并撞碎面前敌机！
+            • <strong>前向编队正面交锋</strong>：怪兽与 Boss 会保持在正前方 300m–600m 编队伴飞对抗，越过身后时自动折跃回前场；按 <strong>X / Ctrl（或触屏减速）</strong> 可降速拉稳准星正面点射！<br/>
+            • <strong>四大星域与特殊天体</strong>：每波次自动跃迁新星域；击碎 <strong>🔥 熔岩陨石</strong> 引发 145m 范围引爆清弹；击碎 <strong>💎 光晶矿石</strong> 掉落核心升级 <strong>Lv.1→3 多重追踪八分光轮</strong>；穿过 <strong>✨ 星环</strong> 加速充能！<br/>
+            • <strong>四大怪兽与双星域 Boss</strong>：巴尔坦幻影分身、杰顿护盾兽（光线秒破盾）、金古桥狙击炮、贝蒙斯坦分裂星雷，以及交替登场的 <strong>超级杰顿 / 三首黄金帝王龙</strong>！<br/>
+            • <strong>完美闪避与翻滚弹反</strong>：敌弹进入 105m 绿环（或近距缠斗 95m 内）按 <strong>翻滚 (左键/R)</strong> 触发子弹时间 + 免费斯派修姆反击；濒死按 <strong>E / 红球</strong> 满血突围！
           </div>
           <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
             <button id="btnResumeGame" type="button" class="start-btn" style="margin-top:0;">▶ 继续战斗 (ESC)</button>
@@ -383,6 +385,7 @@
       <!-- Mobile Right Action Deck -->
       <div id="mobileDeck" class="touch-ui">
         <div class="deck-top">
+          <button id="tBtnBrake" type="button" class="tbtn tbtn-view" title="长按减速悬停迎击">减速</button>
           <button id="tBtnView" type="button" class="tbtn tbtn-view">视角</button>
           <button id="tBtnSphere" type="button" class="tbtn tbtn-sphere" title="化身红色光球满血复活与冲撞">红球</button>
           <button id="tBtnRoll" type="button" class="tbtn tbtn-roll">翻滚</button>
@@ -444,23 +447,27 @@
       </div>
 
       <div class="ctrl-sec">
-        <div class="ctrl-sec-title">2. 视角与飞行物理</div>
+        <div class="ctrl-sec-title">2. 视角与交战距离</div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl-row"><span>交战距离倍率 (Range)</span><span id="vEngageRange">1.00×</span></div>
+          <input id="cEngageRange" type="range" min="0.7" max="1.6" step="0.05" value="1.00" />
+        </div>
         <div class="ctrl-item">
           <div class="ctrl-lbl-row"><span>相机拉远距离 (Dist)</span><span id="vCamDist">94</span></div>
           <input id="cCamDist" type="range" min="65" max="180" step="1" value="94" />
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-lbl-row"><span>巡航速度 (Speed)</span><span id="vSpeed">95</span></div>
-          <input id="cSpeed" type="range" min="55" max="165" step="5" value="95" />
+          <div class="ctrl-lbl-row"><span>巡航速度 (Speed)</span><span id="vSpeed">105</span></div>
+          <input id="cSpeed" type="range" min="55" max="165" step="5" value="105" />
         </div>
       </div>
 
       <div class="ctrl-sec" style="font-size:11px;color:#94a3b8;line-height:1.55;">
-        <div class="ctrl-sec-title" style="color:#fda4af;">实装完整空战要素</div>
-        • 3D 实体旋转锯齿八分光轮 & 软锁定辅助。<br/>
-        • 怪兽三态缠斗 AI + 可被击碎的追踪火球弹幕。<br/>
-        • Boss 半血二阶段狂暴：红色虚线冲撞预警 + 310 极速残影俯冲。<br/>
-        • 叮咚红灯警报 + E 键红色光球满血突围。
+        <div class="ctrl-sec-title" style="color:#fda4af;">正面空战与星域内容</div>
+        • 前向编队 AI + 1380m 曲射追踪八分光轮 (Lv.1~3)。<br/>
+        • X/Ctrl 减速悬停 · 4大动态星域与 4800m 无界星海。<br/>
+        • 爆裂熔岩陨石、光晶矿石、加速星环、4种差异化怪兽。<br/>
+        • 超级杰顿 / 三首黄金帝王龙双 Boss 交替镇守波次！
       </div>
     </aside>
   </div>
@@ -499,10 +506,13 @@
       12:[packHex(0x1e293b), packHex(0x334155), packHex(0x475569), packHex(0x64748b), packHex(0x94a3b8)],
       13:[packHex(0x991b1b), packHex(0xdc2626), packHex(0xef4444), packHex(0xf87171), packHex(0xfee2e2)],
       14:[packHex(0x450a0a), packHex(0x7f1d1d), packHex(0x991b1b), packHex(0xb91c1c), packHex(0xdc2626)],
-      15:[packHex(0x67e8f9), packHex(0xa5f3fc), packHex(0xe0f2fe), packHex(0xffffff), packHex(0xffffff)]
+      15:[packHex(0x67e8f9), packHex(0xa5f3fc), packHex(0xe0f2fe), packHex(0xffffff), packHex(0xffffff)],
+      16:[packHex(0x064e3b), packHex(0x0f766e), packHex(0x14b8a6), packHex(0x2dd4bf), packHex(0x99f6e4)],
+      17:[packHex(0x78350f), packHex(0xb45309), packHex(0xd97706), packHex(0xfbbf24), packHex(0xfef08a)],
+      18:[packHex(0x059669), packHex(0x10b981), packHex(0x34d399), packHex(0xa7f3d0), packHex(0xffffff)]
     };
-    const EMISSIVE_MAT = new Uint8Array(18);
-    EMISSIVE_MAT[3] = 1; EMISSIVE_MAT[5] = 2; EMISSIVE_MAT[10] = 2; EMISSIVE_MAT[11] = 3; EMISSIVE_MAT[13] = 3; EMISSIVE_MAT[15] = 2;
+    const EMISSIVE_MAT = new Uint8Array(24);
+    EMISSIVE_MAT[3] = 1; EMISSIVE_MAT[5] = 2; EMISSIVE_MAT[10] = 2; EMISSIVE_MAT[11] = 3; EMISSIVE_MAT[13] = 3; EMISSIVE_MAT[15] = 2; EMISSIVE_MAT[18] = 4;
 
     const COL_OUTLINE_HERO = packHex(0x0f172a);
     const COL_OUTLINE_FOE  = packHex(0x1e1b4b);
@@ -548,6 +558,9 @@
       roar()      { this.tone(160, 42, 0.42, 'sawtooth', 0.12); },
       warnBeep()  { this.tone(880, 880, 0.09, 'sine', 0.06, 0); this.tone(660, 660, 0.11, 'sine', 0.055, 0.12); },
       transform() { this.tone(330, 1320, 0.38, 'triangle', 0.10, 0); this.tone(523, 1567, 0.32, 'sine', 0.08, 0.08); },
+      powerup()   { this.tone(523, 1046, 0.14, 'triangle', 0.09, 0); this.tone(784, 1568, 0.18, 'sine', 0.08, 0.09); },
+      ring()      { this.tone(660, 1320, 0.16, 'sine', 0.08, 0); },
+      shieldHit() { this.tone(320, 180, 0.07, 'triangle', 0.07, 0); },
       stepBgm(rawDt, isPlaying, bossPhase2) {
         if (!this.bgmOn || this.muted || !this.ctx || !isPlaying) return;
         const interval = bossPhase2 ? 0.145 : 0.195;
@@ -692,29 +705,62 @@
     });
 
     function buildKaijuStack(variant) {
-      const shellMat = variant % 2 === 0 ? 7 : 8;
-      const glowMat = variant % 2 === 0 ? 10 : 11;
-      return compileSpriteStack(14, -13, 13, -11, 11, 6.5, (x, s, z) => {
+      return compileSpriteStack(14, -14, 13, -12, 12, 6.5, (x, s, z) => {
         const ax = Math.abs(x);
-        if (z >= -8 && z <= 8 && s >= 2 && s <= 11) {
-          const rad = 5.2 - Math.abs(z) * 0.42 - Math.abs(s - 6.5) * 0.55;
-          if (ax <= rad) {
-            if (z <= -4 && s >= 4 && s <= 7 && ax <= 1) return glowMat;
-            return s <= 4 ? 8 : shellMat;
+        if (variant === 0) {
+          // 0: Baltan Phantom Interceptor (twin pincer claws + indigo-cyan shell)
+          if (z >= -7 && z <= 7 && s >= 3 && s <= 11 && ax <= 4.4 - Math.abs(z) * 0.35 - Math.abs(s - 7) * 0.45) {
+            return (z <= -5 && ax <= 1) ? 10 : 7;
           }
+          if (z >= -11 && z <= -7 && s >= 6 && s <= 11 && ax <= 4 && Math.abs(s - 8.5) <= 2.3) {
+            if (ax >= 2 && z <= -9 && s >= 7 && s <= 10) return 3;
+            return 7;
+          }
+          if (z >= -14 && z <= -5 && s >= 5 && s <= 9 && ax >= 4 && ax <= 8) {
+            if (ax === 6 && z <= -10) return 0; // pincer gap
+            return z <= -12 ? 10 : 9;
+          }
+          if (z >= 7 && z <= 12 && s >= 4 && s <= 7 && ax <= Math.max(0, 2.5 - (z - 7) * 0.45)) return 7;
+          return 0;
         }
-        if (z >= -4 && z <= 10 && s >= 10 && s <= 13 && ax <= 1 && z % 3 === 0) return glowMat;
-        if (variant === 0 && z >= -13 && z <= -6 && s >= 5 && s <= 8 && ax >= 4 && ax <= 7) return 9;
-        if (variant === 1 && z >= -2 && z <= 6 && s >= 6 && s <= 9 && ax >= 5 && ax <= 10) return 9;
-        if (variant === 2 && z >= -12 && z <= -8 && s >= 9 && s <= 13 && ax >= 2 && ax <= 4) return 9;
-        if (z >= -9 && z <= -7 && s >= 7 && s <= 9 && ax === 2) return glowMat;
-        if (z >= 8 && z <= 13 && s >= 3 && s <= 6 && ax <= Math.max(0, 3 - (z - 8) * 0.5)) return shellMat;
+        if (variant === 1) {
+          // 1: Zetton Shielded Juggernaut (obsidian + silver breast + V-horns)
+          if (z >= -8 && z <= 8 && s >= 2 && s <= 11 && ax <= 5.2 - Math.abs(z) * 0.38 - Math.abs(s - 6.5) * 0.5) {
+            if (z <= -4 && s >= 4 && s <= 8 && ax <= 1) return 3;
+            if (ax === 2 && z >= -5 && z <= 3) return 15;
+            return s <= 4 ? 1 : 8;
+          }
+          if (z >= -13 && z <= -8 && s >= 9 && s <= 13 && Math.abs(ax - (2.2 + (-8 - z) * 0.45)) <= 1.1) return 9;
+          if (z >= -4 && z <= 4 && s >= 5 && s <= 9 && ax >= 5 && ax <= 8) return s >= 8 ? 9 : 8;
+          return 0;
+        }
+        if (variant === 2) {
+          // 2: King Joe Golden Artillery (gold mecha + twin cannons + triple crown)
+          if (z >= -7 && z <= 6 && s >= 2 && s <= 10 && ax <= 4.2 && (ax + Math.abs(z) * 0.32 <= 5.2)) {
+            if (z <= -5 && s >= 5 && s <= 7 && ax <= 2) return 15;
+            return s <= 3 ? 4 : 17;
+          }
+          if (z >= -9 && z <= -6 && s >= 8 && s <= 11 && ax <= 2.5) return z <= -8 ? 11 : 17;
+          if (z >= -8 && z <= -6 && s >= 11 && s <= 13 && (ax === 0 || ax === 2)) return 4;
+          if (z >= -9 && z <= 2 && s >= 7 && s <= 10 && ax >= 5 && ax <= 8) return z <= -7 ? 11 : 4;
+          return 0;
+        }
+        // 3: Bemstar Star-Bomber (emerald-indigo winged pentagon + horn + maw)
+        if (z >= -8 && z <= 8 && s >= 3 && s <= 11 && ax <= 5.5 - Math.abs(z) * 0.4 - Math.abs(s - 7) * 0.48) {
+          if (z <= -5 && s >= 4 && s <= 6 && ax <= 1.5) return 10;
+          return 16;
+        }
+        if (z >= -4 && z <= 6 && s >= 6 && s <= 8 && ax >= 5 && ax <= 11 && (ax - 5 <= (z + 5) * 0.8)) {
+          return ax >= 10 ? 18 : 7;
+        }
+        if (z >= -13 && z <= -7 && s >= 9 && s <= 13 && ax <= 1) return 9;
+        if (z >= -10 && z <= -7 && s >= 7 && s <= 9 && ax === 2) return 3;
         return 0;
       });
     }
-    const KAIJU_STACKS = [buildKaijuStack(0), buildKaijuStack(1), buildKaijuStack(2)];
+    const KAIJU_STACKS = [buildKaijuStack(0), buildKaijuStack(1), buildKaijuStack(2), buildKaijuStack(3)];
 
-    const BOSS_STACK = compileSpriteStack(18, -17, 17, -15, 15, 8.5, (x, s, z) => {
+    const BOSS_ZETTON_STACK = compileSpriteStack(18, -17, 17, -15, 15, 8.5, (x, s, z) => {
       const ax = Math.abs(x);
       if (z >= -10 && z <= 10 && s >= 3 && s <= 15) {
         const rad = 7.2 - Math.abs(z) * 0.34 - Math.abs(s - 9.0) * 0.44;
@@ -731,6 +777,32 @@
       return 0;
     });
 
+    // 3-Headed Golden Winged Emperor Dragon (King Ghidorah) Boss Model
+    const BOSS_DRAGON_STACK = compileSpriteStack(18, -17, 17, -15, 15, 8.5, (x, s, z) => {
+      const ax = Math.abs(x);
+      if (z >= -7 && z <= 9 && s >= 3 && s <= 12) {
+        const rad = 5.8 - Math.abs(z) * 0.25 - Math.abs(s - 7.5) * 0.48;
+        if (ax <= rad) return (z <= -4 && ax <= 1 && s >= 6 && s <= 9) ? 11 : 17;
+      }
+      if (z >= -5 && z <= 12 && s >= 6 && s <= 15 && ax >= 6 && ax <= 15) {
+        const wingReach = 6 + ((s - 5) / 10) * 9;
+        if (ax <= wingReach && z >= -4 + (ax - 6) * 0.5) return (ax >= 13 || s >= 14) ? 4 : 17;
+      }
+      if (z >= -17 && z <= -6 && s >= 10 && s <= 15 && ax <= 1.5) {
+        if (z <= -14 && s >= 12 && ax === 1) return 11;
+        return s >= 14 && z >= -15 ? 4 : 17;
+      }
+      if (z >= -16 && z <= -6 && s >= 8 && s <= 13 && ax >= 4.2 && ax <= 7.2) {
+        if (z <= -13 && s >= 10 && ax >= 5) return 11;
+        return s >= 12 ? 4 : 17;
+      }
+      if (z >= 9 && z <= 17 && s >= 4 && s <= 9 && Math.abs(ax - (1.8 + (z - 9) * 0.35)) <= 1.1) {
+        return z >= 15 ? 4 : 17;
+      }
+      return 0;
+    });
+    const BOSS_STACKS = [BOSS_ZETTON_STACK, BOSS_DRAGON_STACK];
+
     const AST_SMALL = compileSpriteStack(7, -3, 3, -3, 3, 3.0, (x, s, z) => {
       const d = (x / 3.1) ** 2 + ((s - 3) / 2.8) ** 2 + (z / 3.0) ** 2;
       return d <= 0.92 + Math.sin(x * 2.1 + z * 1.7) * 0.18 ? 12 : 0;
@@ -738,6 +810,21 @@
     const AST_LARGE = compileSpriteStack(11, -5, 5, -5, 5, 5.0, (x, s, z) => {
       const d = (x / 5.0) ** 2 + ((s - 5) / 4.5) ** 2 + (z / 4.8) ** 2;
       return d <= 0.92 + Math.cos(x * 1.3 - s * 1.5) * 0.16 ? 12 : 0;
+    });
+    const AST_MAGMA = compileSpriteStack(9, -4, 4, -4, 4, 4.0, (x, s, z) => {
+      const d = (x / 4.1) ** 2 + ((s - 4) / 3.7) ** 2 + (z / 4.0) ** 2;
+      if (d > 0.95 + Math.sin(x * 1.8 + z * 1.5) * 0.14) return 0;
+      return Math.abs(Math.sin(x * 1.4 + s * 1.1 - z * 1.2)) > 0.72 ? 11 : 8;
+    });
+    const AST_CRYSTAL = compileSpriteStack(9, -4, 4, -4, 4, 4.0, (x, s, z) => {
+      const ax = Math.abs(x), az = Math.abs(z);
+      if (s >= 5 && ax + az <= 2) return 5;
+      if (s === 4 && ax + az <= 3 && (ax === 2 || az === 2)) return 18;
+      const d = (x / 3.6) ** 2 + ((s - 3.5) / 3.2) ** 2 + (z / 3.6) ** 2;
+      return d <= 0.95 ? 12 : 0;
+    });
+    const PICKUP_STACK = compileSpriteStack(7, -3, 3, -3, 3, 3.0, (x, s, z) => {
+      return Math.abs(x) + Math.abs(s - 3) + Math.abs(z) <= 2.6 ? 5 : 0;
     });
 
     // =========================================================================
@@ -757,7 +844,8 @@
       glow: true,
       view: 'chase',
       camDist: 94,
-      speed: 95
+      speed: 105,
+      engageRange: 1.0
     };
 
     let W = 640, H = 360;
@@ -847,11 +935,11 @@
     function drawSpriteStack(stack, wx, wy, wz, yaw, pitch, roll, scale, spreadMul, maskId, flashWhite, timerOverrideMat) {
       worldToCam(wx, wy, wz, _tmpC);
       const cz = _tmpC.z;
-      if (cz < 6 || cz > 2200) return;
+      if (cz < 6 || cz > 4800) return;
 
       const cxScreen = W * 0.5, cyScreen = H * 0.5;
       const m0 = (focal / cz) * scale;
-      if (m0 < 0.04) return;
+      if (m0 < 0.024) return;
 
       const cy = Math.cos(yaw), sy = Math.sin(yaw);
       const cp = Math.cos(pitch), sp = Math.sin(pitch);
@@ -992,17 +1080,66 @@
       });
     }
 
-    const PLANETS = [
-      { x: -520, y: 140, z: -920, r: 95, ring: true, pal: [0x1e1b4b, 0x312e81, 0x4f46e5, 0x818cf8, 0xc7d2fe] },
-      { x:  560, y: -90, z: -780, r: 58, ring: false, pal: [0x064e3b, 0x0f766e, 0x14b8a6, 0x2dd4bf, 0x99f6e4] },
-      { x: -180, y: -150, z: 680, r: 66, ring: false, pal: [0x4c0519, 0x881337, 0xe11d48, 0xfb7185, 0xfda4af] },
-      { x:  640, y: 180, z: 540,  r: 82, ring: true, pal: [0x451a03, 0x78350f, 0xb45309, 0xf59e0b, 0xfde68a] }
-    ].map(p => ({ ...p, cols: p.pal.map(packHex) }));
+    const SECTORS = [
+      {
+        name: 'M78 翡翠星云',
+        skyTop: [5, 8, 22], skyBot: [18, 28, 58],
+        magmaRate: 0.16,
+        pals: [
+          [0x1e1b4b, 0x312e81, 0x4f46e5, 0x818cf8, 0xc7d2fe],
+          [0x064e3b, 0x0f766e, 0x14b8a6, 0x2dd4bf, 0x99f6e4],
+          [0x172554, 0x1e40af, 0x3b82f6, 0x60a5fa, 0xbfdbfe]
+        ]
+      },
+      {
+        name: '超新星熔岩炉',
+        skyTop: [18, 5, 10], skyBot: [54, 16, 22],
+        magmaRate: 0.34,
+        pals: [
+          [0x450a0a, 0x7f1d1d, 0xb91c1c, 0xef4444, 0xfca5a5],
+          [0x451a03, 0x78350f, 0xb45309, 0xf59e0b, 0xfde68a],
+          [0x2e1065, 0x581c87, 0x9333ea, 0xc084fc, 0xe9d5ff]
+        ]
+      },
+      {
+        name: '极光冰彗星带',
+        skyTop: [4, 14, 26], skyBot: [14, 48, 64],
+        magmaRate: 0.14,
+        pals: [
+          [0x083344, 0x0e7490, 0x06b6d4, 0x22d3ee, 0xa5f3fc],
+          [0x064e3b, 0x047857, 0x10b981, 0x34d399, 0xa7f3d0],
+          [0x1e293b, 0x334155, 0x64748b, 0x94a3b8, 0xe2e8f0]
+        ]
+      },
+      {
+        name: '暗黑次元裂隙',
+        skyTop: [10, 4, 22], skyBot: [42, 12, 56],
+        magmaRate: 0.25,
+        pals: [
+          [0x4c0519, 0x881337, 0xe11d48, 0xfb7185, 0xfda4af],
+          [0x18181b, 0x27272a, 0x52525b, 0xa1a1aa, 0xf4f4f5],
+          [0x3b0764, 0x6b21a8, 0xa855f7, 0xc084fc, 0xf3e8ff]
+        ]
+      }
+    ];
+    const planets = [];
+    const curSkyTop = [5, 8, 22], curSkyBot = [18, 28, 58];
+
+    function getCurrentSector() {
+      return SECTORS[(wave - 1) % SECTORS.length];
+    }
 
     function clearAndDrawCosmos(timeSec) {
       zbuf.fill(1e9);
       mask.fill(0);
       glowBuf.fill(0);
+
+      const secCfg = getCurrentSector();
+      for (let c = 0; c < 3; c++) {
+        curSkyTop[c] += (secCfg.skyTop[c] - curSkyTop[c]) * 0.04;
+        curSkyBot[c] += (secCfg.skyBot[c] - curSkyBot[c]) * 0.04;
+      }
+      const dr = curSkyBot[0] - curSkyTop[0], dg = curSkyBot[1] - curSkyTop[1], db = curSkyBot[2] - curSkyTop[2];
 
       for (let y = 0; y < H; y++) {
         const t = y / H;
@@ -1011,9 +1148,9 @@
         for (let x = 0; x < W; x++) {
           const dither = (BAYER4[bRow | (x & 3)] / 16 - 0.5) * 0.08;
           const v = Math.max(0, Math.min(1, t + dither));
-          const r = (5 + v * 14) | 0;
-          const g = (7 + v * 16) | 0;
-          const b = (16 + v * 30) | 0;
+          const r = (curSkyTop[0] + v * dr) | 0;
+          const g = (curSkyTop[1] + v * dg) | 0;
+          const b = (curSkyTop[2] + v * db) | 0;
           fb32[rowOff + x] = (255 << 24) | (b << 16) | (g << 8) | r;
         }
       }
@@ -1036,10 +1173,10 @@
         }
       }
 
-      for (let i = 0; i < PLANETS.length; i++) {
-        const p = PLANETS[i];
+      for (let i = 0; i < planets.length; i++) {
+        const p = planets[i];
         worldToCam(p.x, p.y, p.z, _tmpC);
-        if (_tmpC.z < p.r + 12) continue;
+        if (_tmpC.z < p.r + 12 || _tmpC.z > 4500) continue;
         const invZ = focal / _tmpC.z;
         const sx = cx + _tmpC.x * invZ;
         const sy = cy - _tmpC.y * invZ;
@@ -1098,6 +1235,19 @@
       }
     }
 
+    function drawCosmicRing3D(ring, timeSec) {
+      const colMain = packHex(0x67e8f9), colGold = packHex(0xfef08a);
+      const R = ring.radius;
+      for (let k = 0; k < 20; k++) {
+        const ang = (k / 20) * Math.PI * 2 + timeSec * 1.4;
+        const ca = Math.cos(ang) * R, sa = Math.sin(ang) * R;
+        const wx = ring.x + ring.ux * ca + ring.vx * sa;
+        const wy = ring.y + ring.uy * ca + ring.vy * sa;
+        const wz = ring.z + ring.uz * ca + ring.vz * sa;
+        drawPixelBillboard(wx, wy, wz, k % 2 === 0 ? 2.5 : 1.5, k % 2 === 0 ? colMain : colGold, k % 2 === 0 ? 2 : 1);
+      }
+    }
+
     function drawPixelBillboard(wx, wy, wz, radiusWorld, col, glowType) {
       worldToCam(wx, wy, wz, _tmpC);
       if (_tmpC.z < 5) return;
@@ -1145,9 +1295,9 @@
           for (let x = 2; x < W - 2; x++) {
             const g = glowBuf[row + x];
             if (!g) continue;
-            const addR = g === 1 ? 55 : (g === 2 ? 12 : 70);
-            const addG = g === 1 ? 48 : (g === 2 ? 58 : 16);
-            const addB = g === 1 ? 10 : (g === 2 ? 72 : 32);
+            const addR = g === 1 ? 55 : (g === 2 ? 12 : (g === 4 ? 12 : 70));
+            const addG = g === 1 ? 48 : (g === 2 ? 58 : (g === 4 ? 66 : 16));
+            const addB = g === 1 ? 10 : (g === 2 ? 72 : (g === 4 ? 42 : 32));
             const offs = [-1, 1, -W, W, -2, 2, -W * 2, W * 2];
             for (let k = 0; k < 8; k++) {
               const idx = row + x + offs[k];
@@ -1165,32 +1315,41 @@
     }
 
     // =========================================================================
-    // 7. GAMEPLAY STATE, 4-STATE DOGFIGHT AI, HOMING MISSILES & WARP BOSS
+    // 7. GAMEPLAY STATE, FORWARD-ARC FORMATION AI, STREAMING COSMOS & WEAPONS
     // =========================================================================
     let gameState = 'TITLE'; // 'TITLE' | 'PLAY' | 'PAUSED' | 'GAMEOVER'
     let score = 0, wave = 1, kills = 0;
     let bestScore = 0;
     try { bestScore = parseInt(localStorage.getItem('ultraman_sprite_best') || '0', 10) || 0; } catch (_) {}
-    let slowMoTimer = 0, bannerTimer = 0, warnBeepTimer = 0, dmgFlashTimer = 0;
+    let slowMoTimer = 0, bannerTimer = 0, warnBeepTimer = 0, dmgFlashTimer = 0, hitStopTimer = 0;
+    let waveStage = 'VANGUARD'; // 'VANGUARD' | 'MAIN' | 'BOSS'
+    let nextEnemyUid = 1;
+    let lastLockedUid = 0;
 
     const player = {
       x: 0, y: 0, z: 0,
       yaw: 0, pitch: 0, roll: 0,
-      speed: 95,
+      speed: 105,
       hull: 6,
       ammo: 300,
       beams: 6,
       spheres: 1,
+      slashLv: 1,
+      lockProgress: 0,
       reloadTimer: 0,
       fireCd: 0,
       rollAnim: 0, rollDir: 1,
       loopAnim: 0, loopDir: 1,
       invulnTimer: 0,
       lightSphereTimer: 0,
+      ringBoostTimer: 0,
+      ringsCleared: 0,
       shake: 0
     };
 
     const asteroids = [];
+    const starRings = [];
+    const pickups = [];
     const enemies = [];
     const projectiles = [];
     const enemyProjectiles = [];
@@ -1199,86 +1358,259 @@
     const ribbonsR = [];
     const ghosts = [];
 
-    function initAsteroids() {
+    function heroForward() {
+      const cp = Math.cos(player.pitch), sp = Math.sin(player.pitch);
+      const sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
+      return { x: -sy * cp, y: sp, z: -cy * cp };
+    }
+
+    function basisFromFwd(f) {
+      let ux = 0, uy = 1, uz = 0;
+      if (Math.abs(f.y) > 0.92) { ux = 0; uy = 0; uz = -1; }
+      let rx = f.y * uz - f.z * uy, ry = f.z * ux - f.x * uz, rz = f.x * uy - f.y * ux;
+      const rl = Math.hypot(rx, ry, rz) || 1;
+      rx /= rl; ry /= rl; rz /= rl;
+      ux = ry * f.z - rz * f.y; uy = rz * f.x - rx * f.z; uz = rx * f.y - ry * f.x;
+      return { r: { x: rx, y: ry, z: rz }, u: { x: ux, y: uy, z: uz } };
+    }
+
+    function assignAsteroidKind(a, magmaRate) {
+      const rnd = Math.random();
+      if (rnd < 0.10) {
+        a.kind = 'crystal'; a.isLarge = false; a.radius = 6.2; a.scale = 1.45; a.hp = 8;
+      } else if (rnd < 0.10 + magmaRate) {
+        a.kind = 'magma'; a.isLarge = false; a.radius = 6.4; a.scale = 1.5; a.hp = 9;
+      } else {
+        a.kind = 'rock';
+        a.isLarge = Math.random() < 0.24;
+        a.radius = a.isLarge ? 11.5 : 5.2;
+        a.scale = a.isLarge ? 1.85 : 1.15;
+        a.hp = a.isLarge ? 26 : 8;
+      }
+      a.dead = false;
+      a.vx = 0; a.vy = 0; a.vz = 0;
+    }
+
+    function initStreamingCosmos() {
+      const secCfg = getCurrentSector();
+      planets.length = 0;
+      for (let i = 0; i < 6; i++) {
+        const ang = (i / 6) * Math.PI * 2 + 0.35;
+        const dist = 1250 + i * 360;
+        const pal = secCfg.pals[i % secCfg.pals.length];
+        planets.push({
+          x: player.x + Math.cos(ang) * dist,
+          y: player.y + (i % 2 === 0 ? 1 : -1) * (220 + (i * 90) % 420),
+          z: player.z + Math.sin(ang) * dist - 600,
+          r: 120 + (i * 29) % 110,
+          ring: i % 2 === 0,
+          cols: pal.map(packHex)
+        });
+      }
+
       asteroids.length = 0;
-      for (let i = 0; i < 85; i++) {
-        const ang = (i / 85) * Math.PI * 2 + Math.sin(i * 7.3) * 0.4;
-        const dist = 120 + ((i * 53) % 780);
-        const isLarge = i % 4 === 0;
-        asteroids.push({
-          x: Math.cos(ang) * dist,
-          y: Math.sin(i * 3.7) * 120,
-          z: Math.sin(ang) * dist,
+      for (let i = 0; i < 105; i++) {
+        const ang = (i / 105) * Math.PI * 2 + Math.sin(i * 7.3) * 0.4;
+        const dist = 160 + ((i * 83) % 1650);
+        const a = {
+          x: player.x + Math.cos(ang) * dist,
+          y: player.y + Math.sin(i * 3.7) * 210,
+          z: player.z + Math.sin(ang) * dist - 420,
           vx: 0, vy: 0, vz: 0,
           yaw: i * 1.1, pitch: i * 0.7,
-          rotSpd: (i % 2 === 0 ? 1 : -1) * 0.45,
-          isLarge,
-          radius: isLarge ? 11.5 : 5.2,
-          scale: isLarge ? 1.85 : 1.15,
-          hp: isLarge ? 30 : 8,
-          dead: false
+          rotSpd: (i % 2 === 0 ? 1 : -1) * 0.48,
+          kind: 'rock', isLarge: false, radius: 5.2, scale: 1.15, hp: 8, dead: false
+        };
+        assignAsteroidKind(a, secCfg.magmaRate);
+        asteroids.push(a);
+      }
+
+      starRings.length = 0;
+      const fwd = heroForward();
+      const basis = basisFromFwd(fwd);
+      for (let i = 0; i < 3; i++) {
+        const d = 560 + i * 480;
+        const offR = (Math.random() - 0.5) * 200;
+        const offU = (Math.random() - 0.5) * 90;
+        starRings.push({
+          x: player.x + fwd.x * d + basis.r.x * offR + basis.u.x * offU,
+          y: player.y + fwd.y * d + basis.r.y * offR + basis.u.y * offU,
+          z: player.z + fwd.z * d + basis.r.z * offR + basis.u.z * offU,
+          ux: basis.r.x, uy: basis.r.y, uz: basis.r.z,
+          vx: basis.u.x, vy: basis.u.y, vz: basis.u.z,
+          radius: 36, used: false
         });
+      }
+      pickups.length = 0;
+    }
+
+    function updateStreamingCosmos(fwd, basis) {
+      const secCfg = getCurrentSector();
+      for (let i = 0; i < planets.length; i++) {
+        const p = planets[i];
+        const dx = p.x - player.x, dy = p.y - player.y, dz = p.z - player.z;
+        const dotFwd = dx * fwd.x + dy * fwd.y + dz * fwd.z;
+        const dist = Math.hypot(dx, dy, dz);
+        if (dotFwd < -1000 || dist > 4100) {
+          const nd = 2500 + Math.random() * 1100;
+          const offR = (Math.random() < 0.5 ? -1 : 1) * (520 + Math.random() * 980);
+          const offU = (Math.random() - 0.5) * 900;
+          p.x = player.x + fwd.x * nd + basis.r.x * offR + basis.u.x * offU;
+          p.y = player.y + fwd.y * nd + basis.r.y * offR + basis.u.y * offU;
+          p.z = player.z + fwd.z * nd + basis.r.z * offR + basis.u.z * offU;
+          p.r = 125 + Math.random() * 115;
+          p.ring = Math.random() < 0.55;
+          p.cols = secCfg.pals[(i + wave) % secCfg.pals.length].map(packHex);
+        }
+      }
+
+      for (let i = 0; i < asteroids.length; i++) {
+        const a = asteroids[i];
+        const dx = a.x - player.x, dy = a.y - player.y, dz = a.z - player.z;
+        const dotFwd = dx * fwd.x + dy * fwd.y + dz * fwd.z;
+        const dist = Math.hypot(dx, dy, dz);
+        if (a.dead || dotFwd < -420 || dist > 2200) {
+          const nd = 1150 + Math.random() * 820;
+          const offR = (Math.random() - 0.5) * 1360;
+          const offU = (Math.random() - 0.5) * 440;
+          a.x = player.x + fwd.x * nd + basis.r.x * offR + basis.u.x * offU;
+          a.y = player.y + fwd.y * nd + basis.r.y * offR + basis.u.y * offU;
+          a.z = player.z + fwd.z * nd + basis.r.z * offR + basis.u.z * offU;
+          assignAsteroidKind(a, secCfg.magmaRate);
+        }
+      }
+
+      for (let i = 0; i < starRings.length; i++) {
+        const sr = starRings[i];
+        const dx = sr.x - player.x, dy = sr.y - player.y, dz = sr.z - player.z;
+        const dotFwd = dx * fwd.x + dy * fwd.y + dz * fwd.z;
+        const dist = Math.hypot(dx, dy, dz);
+        if (sr.used || dotFwd < -180 || dist > 2250) {
+          const nd = 720 + Math.random() * 980;
+          const offR = (Math.random() - 0.5) * 260;
+          const offU = (Math.random() - 0.5) * 110;
+          sr.x = player.x + fwd.x * nd + basis.r.x * offR + basis.u.x * offU;
+          sr.y = player.y + fwd.y * nd + basis.r.y * offR + basis.u.y * offU;
+          sr.z = player.z + fwd.z * nd + basis.r.z * offR + basis.u.z * offU;
+          sr.ux = basis.r.x; sr.uy = basis.r.y; sr.uz = basis.r.z;
+          sr.vx = basis.u.x; sr.vy = basis.u.y; sr.vz = basis.u.z;
+          sr.used = false;
+        }
       }
     }
 
-    function spawnWave(w) {
+    function updateSectorHUD() {
+      const el = document.getElementById('hudSector');
+      if (el) el.textContent = getCurrentSector().name;
+    }
+
+    function updateSlashUI() {
+      const el = document.getElementById('hudSlashLv');
+      if (!el) return;
+      const labels = ['💠 LV.1', '💠 双联 LV.2', '🔥 三向 LV.3'];
+      el.textContent = labels[Math.max(0, Math.min(2, player.slashLv - 1))];
+      el.style.borderColor = player.slashLv === 3 ? 'rgba(251, 191, 36, 0.85)' : 'rgba(56, 189, 248, 0.65)';
+      el.style.color = player.slashLv === 3 ? '#fef08a' : '#bae6fd';
+    }
+
+    function spawnPickup(x, y, z, forcedType) {
+      if (pickups.length >= 10) pickups.shift();
+      let type = forcedType;
+      if (type === undefined) {
+        if (player.slashLv < 3 && Math.random() < 0.45) type = 0;
+        else if (player.hull <= 4 && Math.random() < 0.55) type = 2;
+        else type = Math.random() < 0.5 ? 0 : 1;
+      }
+      pickups.push({ x, y, z, type, life: 16.0, spin: Math.random() * 6 });
+    }
+
+    function spawnSquadron(w, isMain = false) {
       enemies.length = 0;
       enemyProjectiles.length = 0;
       ghosts.length = 0;
-      player.spheres = 1;
-      updateSphereUI();
-      const count = 3 + Math.min(4, w);
+      waveStage = isMain ? 'MAIN' : 'VANGUARD';
+      updateSectorHUD();
+
+      const fwd = heroForward();
+      const basis = basisFromFwd(fwd);
+      const count = 4 + Math.min(3, w) + (isMain ? 1 : 0);
+      const slotDists = [430, 390, 640, 500];
+
       for (let i = 0; i < count; i++) {
-        const ang = (i / count) * Math.PI * 2;
-        const dist = 280 + i * 55;
+        const variant = isMain ? ((i + w) % 4) : (i % 3);
+        const side = i - (count - 1) * 0.5;
+        const spawnD = (840 + Math.abs(side) * 95 + i * 35) * cfg.engageRange;
+        const offR = side * 145;
+        const offU = ((i % 2 === 0 ? 1 : -1) * 45) + (Math.random() - 0.5) * 40;
+        const hp = (6 + w * 2) + (variant === 1 ? 3 : 0);
         enemies.push({
+          uid: nextEnemyUid++,
           isBoss: false,
-          variant: i % 3,
-          x: player.x + Math.cos(ang) * dist,
-          y: player.y + (Math.random() - 0.5) * 70,
-          z: player.z - Math.abs(Math.sin(ang)) * dist - 140,
-          yaw: 0, pitch: 0, roll: 0,
-          speed: 66 + w * 4,
-          hp: 6 + w * 2,
-          maxHp: 6 + w * 2,
+          variant,
+          x: player.x + fwd.x * spawnD + basis.r.x * offR + basis.u.x * offU,
+          y: player.y + fwd.y * spawnD + basis.r.y * offR + basis.u.y * offU,
+          z: player.z + fwd.z * spawnD + basis.r.z * offR + basis.u.z * offU,
+          yaw: Math.atan2(fwd.x, fwd.z), pitch: 0, roll: 0,
+          speed: 82 + w * 4,
+          hp, maxHp: hp,
           flash: 0,
-          state: 'APPROACH',
-          stateTimer: 2.0 + i * 0.4,
-          weavePhase: i * 1.7,
-          breakDir: i % 2 === 0 ? 1 : -1,
+          aiMode: 'FRONT_WEAVE',
+          slotDist: slotDists[variant],
+          slotSide: side === 0 ? (i % 2 === 0 ? 0.6 : -0.6) : side,
+          slotAmpX: variant === 0 ? 225 : (variant === 2 ? 150 : 175),
+          slotAmpY: 48 + (i % 3) * 18,
+          weavePhase: i * 1.45,
+          behindTimer: 0,
+          shieldTimer: 0,
+          shieldHp: 0,
+          shieldCd: 3.0 + i * 0.9,
+          phantomCd: 4.5 + i * 0.8,
           chargeTimer: 0,
-          atkCd: 2.6 + i * 0.9,
-          evadeVx: 0, evadeVy: 0, evadeVz: 0
+          atkCd: 1.8 + i * 0.65,
+          ramCd: 0
         });
       }
       document.getElementById('bossBarWrap').style.display = 'none';
-      showBanner(`🌌 WAVE ${w} · 宇宙怪兽编队来袭！`);
+      const secName = getCurrentSector().name;
+      showBanner(isMain ? `🚀 [${secName}] 敌军主力混编舰队正面突进！` : `🌌 WAVE ${w} [${secName}] · 先锋怪兽编队正前方接敌！`);
     }
 
     function spawnBoss() {
       enemyProjectiles.length = 0;
       ghosts.length = 0;
-      enemies.push({
+      waveStage = 'BOSS';
+      const fwd = heroForward();
+      const basis = basisFromFwd(fwd);
+      const bossType = (wave - 1) % 2; // 0: Hyper Zetton, 1: King Ghidorah
+      const d = 760 * cfg.engageRange;
+      const hp = 56 + wave * 14;
+      const e = {
+        uid: nextEnemyUid++,
         isBoss: true,
-        variant: 0,
-        x: player.x, y: player.y + 18, z: player.z - 420,
-        yaw: 0, pitch: 0, roll: 0,
-        speed: 74,
-        hp: 48 + wave * 12,
-        maxHp: 48 + wave * 12,
+        bossType,
+        variant: bossType,
+        x: player.x + fwd.x * d + basis.u.x * 24,
+        y: player.y + fwd.y * d + basis.u.y * 24,
+        z: player.z + fwd.z * d + basis.u.z * 24,
+        yaw: Math.atan2(fwd.x, fwd.z), pitch: 0, roll: 0,
+        speed: 90 + wave * 4,
+        hp, maxHp: hp,
         flash: 0,
         phase: 1,
         dashState: 'ORBIT', // 'ORBIT' | 'WINDUP' | 'DASH'
         dashTimer: 0,
         dashCooldown: 5.5,
-        dashVx: 0, dashVy: 0, dashVz: -1,
+        dashVx: -fwd.x, dashVy: -fwd.y, dashVz: -fwd.z,
         spiralPhase: 0,
-        atkCd: 2.4
-      });
-      document.getElementById('bossTitle').textContent = '👾 CHAOS OVERLORD (Phase 1)';
+        atkCd: 2.1,
+        behindTimer: 0
+      };
+      enemies.push(e);
+      const bossLabel = bossType === 1 ? '🐉 KING GHIDORAH · 三首黄金帝王龙' : '👾 HYPER ZETTON · 宇宙恐龙杰顿';
+      document.getElementById('bossTitle').textContent = `${bossLabel} (Phase 1)`;
       document.getElementById('bossBarWrap').style.display = 'block';
       sfx.roar();
-      showBanner('⚠️ WARNING: CHAOS OVERLORD 像素霸主降临！');
+      showBanner(`⚠️ WARNING: ${bossLabel} 于正前方空域降临！`);
     }
 
     function showBanner(txt) {
@@ -1289,7 +1621,7 @@
     }
 
     function spawnSparks(x, y, z, count, colHex, spdBase = 55) {
-      if (particles.length > 120) particles.splice(0, count);
+      if (particles.length > 130) particles.splice(0, count);
       const col = packHex(colHex);
       for (let i = 0; i < count; i++) {
         const a = Math.random() * Math.PI * 2;
@@ -1301,27 +1633,106 @@
           vy: Math.sin(b) * s,
           vz: Math.sin(a) * Math.cos(b) * s,
           life: 0.35 + Math.random() * 0.35,
-          r: 1.2 + Math.random() * 1.4,
+          r: 1.3 + Math.random() * 1.5,
           col
         });
       }
     }
 
-    function heroForward() {
-      const cp = Math.cos(player.pitch), sp = Math.sin(player.pitch);
-      const sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
-      return { x: -sy * cp, y: sp, z: -cy * cp };
+    function damageEnemy(idx, dmg, isBeam) {
+      if (idx < 0 || idx >= enemies.length) return false;
+      const e = enemies[idx];
+      if (!e.isBoss && e.shieldTimer > 0) {
+        if (isBeam) {
+          e.shieldTimer = 0; e.shieldHp = 0;
+          dmg *= 2; score += 150;
+          hitStopTimer = Math.max(hitStopTimer, 0.032);
+          spawnSparks(e.x, e.y, e.z, 18, 0xfbbf24, 110);
+          showBanner('💥 斯派修姆光线粉碎杰顿能量盾！');
+        } else {
+          e.shieldHp -= dmg;
+          sfx.shieldHit();
+          spawnSparks(e.x, e.y, e.z, 6, 0xfbbf24, 65);
+          if (e.shieldHp <= 0) {
+            e.shieldTimer = 0;
+            spawnSparks(e.x, e.y, e.z, 14, 0xfde047, 90);
+          }
+          return true;
+        }
+      }
+
+      e.hp -= dmg;
+      e.flash = 0.09;
+      sfx.hit();
+      if (isBeam) hitStopTimer = Math.max(hitStopTimer, 0.022);
+
+      if (e.hp <= 0) {
+        score += e.isBoss ? 1500 : 250;
+        kills++;
+        sfx.boom();
+        hitStopTimer = Math.max(hitStopTimer, 0.032);
+        spawnSparks(e.x, e.y, e.z, e.isBoss ? 40 : 22, e.isBoss ? 0xfbbf24 : 0xfacc15, 120);
+        const wasBoss = e.isBoss;
+        const ex = e.x, ey = e.y, ez = e.z;
+        enemies.splice(idx, 1);
+
+        if (wasBoss) {
+          spawnPickup(ex - 14, ey, ez, 0);
+          spawnPickup(ex + 14, ey, ez, 2);
+          wave++;
+          player.spheres = 1;
+          updateSphereUI();
+          spawnSquadron(wave, false);
+        } else {
+          if (Math.random() < 0.42) spawnPickup(ex, ey, ez);
+          if (enemies.length === 0) {
+            if (waveStage === 'VANGUARD') spawnSquadron(wave, true);
+            else spawnBoss();
+          }
+        }
+      }
+      return true;
+    }
+
+    function triggerMagmaBlast(mx, my, mz) {
+      sfx.boom();
+      player.shake = Math.min(18, player.shake + 7);
+      spawnSparks(mx, my, mz, 28, 0xf97316, 130);
+      let hitAny = false;
+      for (let j = enemies.length - 1; j >= 0; j--) {
+        if (j >= enemies.length) continue;
+        const e = enemies[j];
+        if (Math.hypot(e.x - mx, e.y - my, e.z - mz) <= 155) {
+          damageEnemy(j, 8, true);
+          hitAny = true;
+        }
+      }
+      for (let k = enemyProjectiles.length - 1; k >= 0; k--) {
+        const ep = enemyProjectiles[k];
+        if (Math.hypot(ep.x - mx, ep.y - my, ep.z - mz) <= 155) {
+          enemyProjectiles.splice(k, 1);
+          score += 25;
+        }
+      }
+      if (hitAny) {
+        score += 80;
+        showBanner('💥 爆裂熔岩陨石引爆 · 清扫周围弹幕并重创敌机！');
+      }
     }
 
     function getLockedEnemy(fwd) {
-      let best = null, bestDot = 0.84;
+      let best = null, bestDot = 0.74;
       for (let i = 0; i < enemies.length; i++) {
         const e = enemies[i];
         const dx = e.x - player.x, dy = e.y - player.y, dz = e.z - player.z;
         const d = Math.hypot(dx, dy, dz) || 1;
-        if (d > 640) continue;
+        if (d > 1550) continue;
         const dot = (dx * fwd.x + dy * fwd.y + dz * fwd.z) / d;
-        if (dot > bestDot) { bestDot = dot; best = e; }
+        if (dot > bestDot) {
+          if (!best || e.isBoss || (!best.isBoss && dot > bestDot)) {
+            bestDot = dot; best = e;
+          }
+        }
       }
       return best;
     }
@@ -1332,25 +1743,49 @@
       if (player.ammo <= 0 && player.beams <= 0) player.reloadTimer = 4.0;
       sfx.slash();
       const f = heroForward();
+      const basis = basisFromFwd(f);
       const target = getLockedEnemy(f);
+
       let dx = f.x, dy = f.y, dz = f.z;
       if (target) {
         const tx = target.x - player.x, ty = target.y - player.y, tz = target.z - player.z;
         const td = Math.hypot(tx, ty, tz) || 1;
-        // Soft aim magnetism (38% blend toward locked target)
-        dx = f.x * 0.62 + (tx / td) * 0.38;
-        dy = f.y * 0.62 + (ty / td) * 0.38;
-        dz = f.z * 0.62 + (tz / td) * 0.38;
+        dx = f.x * 0.45 + (tx / td) * 0.55;
+        dy = f.y * 0.45 + (ty / td) * 0.55;
+        dz = f.z * 0.45 + (tz / td) * 0.55;
         const dl = Math.hypot(dx, dy, dz) || 1;
         dx /= dl; dy /= dl; dz /= dl;
       }
-      projectiles.push({
-        x: player.x + dx * 16, y: player.y + dy * 16, z: player.z + dz * 16,
-        vx: dx * 480, vy: dy * 480, vz: dz * 480,
-        yaw: Math.atan2(-dx, -dz),
-        pitch: Math.asin(Math.max(-1, Math.min(1, dy))),
-        life: 1.85, isBeam: false, pierce: 0, spin: 0
-      });
+
+      const lv = player.slashLv;
+      const spd = 820;
+      const spawnBlade = (ox, oy, oz, fanAng, dmg) => {
+        const c = Math.cos(fanAng), s = Math.sin(fanAng);
+        let vx = dx * c + basis.r.x * s;
+        let vy = dy * c + basis.r.y * s;
+        let vz = dz * c + basis.r.z * s;
+        const l = Math.hypot(vx, vy, vz) || 1;
+        vx /= l; vy /= l; vz /= l;
+        projectiles.push({
+          x: player.x + dx * 16 + ox, y: player.y + dy * 16 + oy, z: player.z + dz * 16 + oz,
+          vx: vx * spd, vy: vy * spd, vz: vz * spd, speed: spd,
+          yaw: Math.atan2(-vx, -vz),
+          pitch: Math.asin(Math.max(-1, Math.min(1, vy))),
+          life: 2.2, isBeam: false, dmg, pierceLeft: 2, spin: 0,
+          target, hitIds: new Set()
+        });
+      };
+
+      if (lv === 1) {
+        spawnBlade(0, 0, 0, 0, 3);
+      } else if (lv === 2) {
+        spawnBlade(-basis.r.x * 6.5, -basis.r.y * 6.5, -basis.r.z * 6.5, 0, 2.5);
+        spawnBlade(basis.r.x * 6.5, basis.r.y * 6.5, basis.r.z * 6.5, 0, 2.5);
+      } else {
+        spawnBlade(0, 0, 0, 0, 2.6);
+        spawnBlade(-basis.r.x * 5, -basis.r.y * 5, -basis.r.z * 5, -0.075, 2.4);
+        spawnBlade(basis.r.x * 5, basis.r.y * 5, basis.r.z * 5, 0.075, 2.4);
+      }
     }
 
     function fireSpaciumBeam(freeCounter = false, aimTarget = null) {
@@ -1369,16 +1804,17 @@
         const td = Math.hypot(tx, ty, tz) || 1;
         dx = tx / td; dy = ty / td; dz = tz / td;
       }
-      // Cross-arm chest spark flare
       spawnSparks(player.x + dx * 12, player.y + dy * 12, player.z + dz * 12, 16, 0x67e8f9, 85);
-      for (let k = 0; k < 8; k++) {
+      const hitIds = new Set();
+      for (let k = 0; k < 9; k++) {
         projectiles.push({
-          x: player.x + dx * (16 + k * 7),
-          y: player.y + dy * (16 + k * 7),
-          z: player.z + dz * (16 + k * 7),
-          vx: dx * 680, vy: dy * 680, vz: dz * 680,
+          x: player.x + dx * (16 + k * 8),
+          y: player.y + dy * (16 + k * 8),
+          z: player.z + dz * (16 + k * 8),
+          vx: dx * 1060, vy: dy * 1060, vz: dz * 1060, speed: 1060,
           yaw: 0, pitch: 0,
-          life: 1.9, isBeam: true, pierce: 0, spin: k
+          life: 2.0, isBeam: true, dmg: 5, pierceLeft: 3, spin: k,
+          target: tgt, hitIds
         });
       }
     }
@@ -1412,14 +1848,14 @@
       }
     }
 
-    function spawnEnemyProjectile(x, y, z, vx, vy, vz, speed, homing, radius, colCore, colOuter, glowType) {
-      if (enemyProjectiles.length >= 40) enemyProjectiles.shift();
+    function spawnEnemyProjectile(x, y, z, vx, vy, vz, speed, homing, radius, colCore, colOuter, glowType, isCluster = false) {
+      if (enemyProjectiles.length >= 44) enemyProjectiles.shift();
       enemyProjectiles.push({
         x, y, z, vx, vy, vz, speed, homing, radius,
         colCore: packHex(colCore),
         colOuter: packHex(colOuter),
-        glowType, destructible: true,
-        life: 4.5, age: 0
+        glowType, isCluster, destructible: true,
+        life: 5.0, age: 0
       });
     }
 
@@ -1447,14 +1883,13 @@
       if (player.rollAnim > 0.25) return;
       player.rollAnim = Math.PI * 2;
       player.rollDir = dir;
-      player.invulnTimer = Math.max(player.invulnTimer, 0.62);
+      player.invulnTimer = Math.max(player.invulnTimer, 0.65);
       sfx.dodge();
 
       const threat = findClosestThreat();
       if (threat && threat.dist <= 105) {
-        // Perfect Dodge cancels homing on nearby missiles & triggers Bullet Time + Counter Beam!
         for (let ep of enemyProjectiles) {
-          if (Math.hypot(player.x - ep.x, player.y - ep.y, player.z - ep.z) < 160) ep.homing = 0;
+          if (Math.hypot(player.x - ep.x, player.y - ep.y, player.z - ep.z) < 165) ep.homing = 0;
         }
         slowMoTimer = 1.3;
         score += 150;
@@ -1473,6 +1908,10 @@
     function damagePlayer(amt, msg) {
       if (player.invulnTimer > 0 || player.lightSphereTimer > 0 || gameState !== 'PLAY') return;
       player.hull = Math.max(0, player.hull - amt);
+      if (player.slashLv > 1) {
+        player.slashLv = Math.max(1, player.slashLv - 1);
+        updateSlashUI();
+      }
       player.invulnTimer = 1.05;
       player.shake = Math.min(20, player.shake + 14);
       dmgFlashTimer = 0.28;
@@ -1519,7 +1958,7 @@
     const keys = {};
     const ptr = { x: 0, y: 0, active: false, downL: false, downR: false, downTime: 0 };
     const stick = { active: false, nx: 0, ny: 0, id: null };
-    let holdTouchSlash = false, holdTouchBoost = false;
+    let holdTouchSlash = false, holdTouchBoost = false, holdTouchBrake = false;
 
     window.addEventListener('keydown', e => {
       sfx.init();
@@ -1606,8 +2045,16 @@
     const tBoost = document.getElementById('tBtnBoost');
     tBoost.addEventListener('touchstart', e => { e.preventDefault(); sfx.init(); holdTouchBoost = true; }, { passive: false });
     tBoost.addEventListener('touchend', () => { holdTouchBoost = false; });
+    tBoost.addEventListener('touchcancel', () => { holdTouchBoost = false; });
     tBoost.addEventListener('mousedown', () => { sfx.init(); holdTouchBoost = true; });
     window.addEventListener('mouseup', () => { holdTouchBoost = false; });
+
+    const tBrake = document.getElementById('tBtnBrake');
+    tBrake.addEventListener('touchstart', e => { e.preventDefault(); sfx.init(); holdTouchBrake = true; }, { passive: false });
+    tBrake.addEventListener('touchend', () => { holdTouchBrake = false; });
+    tBrake.addEventListener('touchcancel', () => { holdTouchBrake = false; });
+    tBrake.addEventListener('mousedown', () => { sfx.init(); holdTouchBrake = true; });
+    window.addEventListener('mouseup', () => { holdTouchBrake = false; });
 
     document.getElementById('tBtnBeam').addEventListener('touchstart', e => { e.preventDefault(); sfx.init(); fireSpaciumBeam(false); }, { passive: false });
     document.getElementById('tBtnBeam').addEventListener('click', () => { sfx.init(); fireSpaciumBeam(false); });
@@ -1619,8 +2066,10 @@
     document.getElementById('tBtnView').addEventListener('click', () => toggleView());
 
     function toggleView() {
-      cfg.view = cfg.view === 'chase' ? 'top' : 'chase';
-      document.getElementById('btnViewToggle').textContent = `视角: ${cfg.view.toUpperCase()}`;
+      const order = ['chase', 'cockpit', 'top'];
+      cfg.view = order[(order.indexOf(cfg.view) + 1) % order.length];
+      const lbl = cfg.view === 'cockpit' ? '1ST' : cfg.view.toUpperCase();
+      document.getElementById('btnViewToggle').textContent = `视角: ${lbl}`;
     }
     document.getElementById('btnViewToggle').addEventListener('click', toggleView);
     document.getElementById('btnPauseToggle').addEventListener('click', togglePause);
@@ -1658,6 +2107,7 @@
     bindRange('cResBase', 'vResBase', 'resBase', v => `${v} px`, syncBufferSize);
     bindRange('cSpread', 'vSpread', 'spread', v => `${v.toFixed(2)}×`);
     bindRange('cScale', 'vScale', 'heroScale', v => v.toFixed(2));
+    bindRange('cEngageRange', 'vEngageRange', 'engageRange', v => `${v.toFixed(2)}×`);
     bindRange('cCamDist', 'vCamDist', 'camDist', v => `${v}`);
     bindRange('cSpeed', 'vSpeed', 'speed', v => `${v}`);
     document.getElementById('cOutline').addEventListener('change', e => { cfg.outline = e.target.checked; });
@@ -1665,12 +2115,13 @@
     document.getElementById('cGlow').addEventListener('change', e => { cfg.glow = e.target.checked; });
 
     document.getElementById('btnReset').addEventListener('click', () => {
-      Object.assign(cfg, { resBase: 640, spread: 1.0, heroScale: 0.88, outline: true, gapFill: true, glow: true, camDist: 94, speed: 95 });
+      Object.assign(cfg, { resBase: 640, spread: 1.0, heroScale: 0.88, outline: true, gapFill: true, glow: true, engageRange: 1.0, camDist: 94, speed: 105 });
       document.getElementById('cResBase').value = 640; document.getElementById('vResBase').textContent = '640 px';
       document.getElementById('cSpread').value = 1.0; document.getElementById('vSpread').textContent = '1.00×';
       document.getElementById('cScale').value = 0.88; document.getElementById('vScale').textContent = '0.88';
+      document.getElementById('cEngageRange').value = 1.0; document.getElementById('vEngageRange').textContent = '1.00×';
       document.getElementById('cCamDist').value = 94; document.getElementById('vCamDist').textContent = '94';
-      document.getElementById('cSpeed').value = 95; document.getElementById('vSpeed').textContent = '95';
+      document.getElementById('cSpeed').value = 105; document.getElementById('vSpeed').textContent = '105';
       document.getElementById('cOutline').checked = true;
       document.getElementById('cGapFill').checked = true;
       document.getElementById('cGlow').checked = true;
@@ -1685,15 +2136,19 @@
       document.getElementById('gameOverOverlay').classList.add('hidden');
       player.x = 0; player.y = 0; player.z = 0;
       player.yaw = 0; player.pitch = 0; player.roll = 0;
+      player.speed = cfg.speed;
       player.hull = 6; player.ammo = 300; player.beams = 6; player.spheres = 1;
+      player.slashLv = 1; player.lockProgress = 0; lastLockedUid = 0;
       player.reloadTimer = 0; player.invulnTimer = 0; player.lightSphereTimer = 0;
-      score = 0; wave = 1; kills = 0; slowMoTimer = 0;
+      player.ringBoostTimer = 0; player.ringsCleared = 0;
+      score = 0; wave = 1; kills = 0; slowMoTimer = 0; hitStopTimer = 0;
       projectiles.length = 0; enemyProjectiles.length = 0; particles.length = 0;
-      ribbonsL.length = 0; ribbonsR.length = 0; ghosts.length = 0;
+      ribbonsL.length = 0; ribbonsR.length = 0; ghosts.length = 0; pickups.length = 0;
       document.getElementById('hudBest').textContent = bestScore;
       updateSphereUI();
-      initAsteroids();
-      spawnWave(1);
+      updateSlashUI();
+      initStreamingCosmos();
+      spawnSquadron(1, false);
     }
     document.getElementById('btnStartGame').addEventListener('click', startGame);
 
@@ -1713,7 +2168,9 @@
       document.getElementById('hullPips').innerHTML = pipsHtml;
 
       let dotsHtml = '';
-      for (let i = 0; i < 6; i++) dotsHtml += `<span class="bdot ${i < player.beams ? '' : 'off'}"></span>`;
+      for (let i = 0; i < 8; i++) {
+        if (i < 6 || player.beams > i) dotsHtml += `<span class="bdot ${i < player.beams ? '' : 'off'}"></span>`;
+      }
       document.getElementById('hudBeams').innerHTML = dotsHtml;
     }
 
@@ -1743,12 +2200,24 @@
     // =========================================================================
     // 9. MAIN GAMEPLAY & SOFTWARE RENDER LOOP
     // =========================================================================
-    initAsteroids();
+    initStreamingCosmos();
+    updateSectorHUD();
+    updateSlashUI();
     syncBufferSize();
     document.getElementById('hudBest').textContent = bestScore;
 
     let lastT = performance.now();
     let fpsAcc = 0, fpsFrames = 0, dispFps = 60, dispMs = 0.8;
+
+    function warpAheadPos(fwd, basis, distAhead, latRange, upRange) {
+      const rx = (Math.random() - 0.5) * 2 * latRange;
+      const uy = (Math.random() - 0.5) * 2 * upRange;
+      return {
+        x: player.x + fwd.x * distAhead + basis.r.x * rx + basis.u.x * uy,
+        y: player.y + fwd.y * distAhead + basis.r.y * rx + basis.u.y * uy,
+        z: player.z + fwd.z * distAhead + basis.r.z * rx + basis.u.z * uy
+      };
+    }
 
     function frame(now) {
       requestAnimationFrame(frame);
@@ -1768,8 +2237,11 @@
         if (dmgFlashTimer <= 0) document.getElementById('dmgFlash').style.opacity = '0';
       }
 
+      const freezeSim = hitStopTimer > 0;
+      if (freezeSim) hitStopTimer = Math.max(0, hitStopTimer - rawDt);
+
       const timeScale = slowMoTimer > 0 ? 0.32 : 1.0;
-      if (slowMoTimer > 0) slowMoTimer = Math.max(0, slowMoTimer - rawDt);
+      if (slowMoTimer > 0 && !freezeSim) slowMoTimer = Math.max(0, slowMoTimer - rawDt);
       const dt = rawDt * timeScale;
       const sec = now * 0.001;
 
@@ -1798,434 +2270,601 @@
         }
       }
 
-      if (player.reloadTimer > 0) {
-        player.reloadTimer -= rawDt;
-        if (player.reloadTimer <= 0) { player.reloadTimer = 0; player.ammo = 300; player.beams = 6; }
-      }
-      if (player.invulnTimer > 0) player.invulnTimer = Math.max(0, player.invulnTimer - rawDt);
-      if (player.lightSphereTimer > 0) player.lightSphereTimer = Math.max(0, player.lightSphereTimer - rawDt);
-
-      const boosting = keys['ShiftLeft'] || keys['ShiftRight'] || holdTouchBoost || (ptr.downL && now - ptr.downTime >= 250) || player.lightSphereTimer > 0;
-      const targetSpd = cfg.speed * (player.lightSphereTimer > 0 ? 2.1 : (boosting ? 1.85 : 1.0));
-      player.speed += (targetSpd - player.speed) * Math.min(1, rawDt * 5);
-
-      let turnIn = 0, pitchIn = 0;
-      if (keys['KeyA'] || keys['ArrowLeft']) turnIn += 1;
-      if (keys['KeyD'] || keys['ArrowRight']) turnIn -= 1;
-      if (keys['KeyW'] || keys['ArrowUp']) pitchIn += 1;
-      if (keys['KeyS'] || keys['ArrowDown']) pitchIn -= 1;
-
-      if (stick.active) {
-        turnIn -= stick.nx * 1.5;
-        pitchIn -= stick.ny * 1.3;
-      } else if (ptr.active && turnIn === 0 && pitchIn === 0) {
-        if (Math.abs(ptr.x) > 0.06) turnIn = Math.max(-1, Math.min(1, -ptr.x * 1.35));
-        if (Math.abs(ptr.y) > 0.06) pitchIn = Math.max(-1, Math.min(1, -ptr.y * 1.2));
-      }
-
-      player.yaw += turnIn * 2.1 * dt;
-      player.pitch += (pitchIn * 0.58 - player.pitch) * Math.min(1, dt * 6);
-      player.roll += (turnIn * 0.85 - player.roll) * Math.min(1, dt * 7);
-      if (player.rollAnim > 0) player.rollAnim = Math.max(0, player.rollAnim - rawDt * 9.5);
-      if (player.loopAnim > 0) player.loopAnim = Math.max(0, player.loopAnim - rawDt * 5.2);
-      player.shake = Math.max(0, player.shake - rawDt * 24);
-
       const effPitch = player.pitch + (player.loopAnim > 0 ? Math.sin(player.loopAnim) * 0.9 * player.loopDir : 0);
       const fwd = heroForward();
-      player.x += fwd.x * player.speed * dt;
-      player.y += fwd.y * player.speed * dt;
-      player.z += fwd.z * player.speed * dt;
-
-      player.fireCd = Math.max(0, player.fireCd - rawDt);
-      if ((ptr.downR || keys['KeyC'] || holdTouchSlash) && player.fireCd <= 0) {
-        fireUltraSlash();
-        player.fireCd = 0.095;
-      }
-
-      // Wingtip Dual Light Ribbons
-      const rightX = Math.cos(player.yaw) * 6.5 * cfg.heroScale;
-      const rightZ = -Math.sin(player.yaw) * 6.5 * cfg.heroScale;
-      const tailX = player.x - fwd.x * 11, tailY = player.y - fwd.y * 11, tailZ = player.z - fwd.z * 11;
-      ribbonsL.push({ x: tailX - rightX, y: tailY, z: tailZ - rightZ, life: 0.34 });
-      ribbonsR.push({ x: tailX + rightX, y: tailY, z: tailZ + rightZ, life: 0.34 });
-      if (ribbonsL.length > 24) ribbonsL.shift();
-      if (ribbonsR.length > 24) ribbonsR.shift();
-
-      function reflectHeroHeading(nx, ny, nz) {
-        const fn = fwd.x * nx + fwd.y * ny + fwd.z * nz;
-        if (fn < 0) {
-          let rx = fwd.x - 1.85 * fn * nx;
-          let ry = fwd.y - 1.85 * fn * ny;
-          let rz = fwd.z - 1.85 * fn * nz;
-          const rl = Math.hypot(rx, ry, rz) || 1;
-          rx /= rl; ry /= rl; rz /= rl;
-          player.yaw = Math.atan2(-rx, -rz);
-          player.pitch = Math.max(-0.62, Math.min(0.62, Math.asin(Math.max(-1, Math.min(1, ry)))));
-          fwd.x = rx; fwd.y = ry; fwd.z = rz;
-        }
-      }
-
-      // 1. Celestial Planet Collisions (Bounce Ultraman!)
+      const basis = basisFromFwd(fwd);
+      let right = basis.r, up = basis.u;
       const heroR = 7.5 * cfg.heroScale;
-      for (let i = 0; i < PLANETS.length; i++) {
-        const p = PLANETS[i];
-        const dx = player.x - p.x, dy = player.y - p.y, dz = player.z - p.z;
-        const d = Math.hypot(dx, dy, dz) || 1;
-        const minD = p.r + heroR;
-        if (d < minD) {
-          const nx = dx / d, ny = dy / d, nz = dz / d;
-          player.x = p.x + nx * (minD + 2.5);
-          player.y = p.y + ny * (minD + 2.5);
-          player.z = p.z + nz * (minD + 2.5);
-          reflectHeroHeading(nx, ny, nz);
-          player.shake = 12; sfx.dodge();
-          spawnSparks(player.x, player.y, player.z, 10, 0x38bdf8, 70);
+
+      if (!freezeSim) {
+        if (player.reloadTimer > 0) {
+          player.reloadTimer -= rawDt;
+          if (player.reloadTimer <= 0) { player.reloadTimer = 0; player.ammo = 300; player.beams = 6; }
         }
-      }
+        if (player.invulnTimer > 0) player.invulnTimer = Math.max(0, player.invulnTimer - rawDt);
+        if (player.lightSphereTimer > 0) player.lightSphereTimer = Math.max(0, player.lightSphereTimer - rawDt);
+        if (player.ringBoostTimer > 0) player.ringBoostTimer = Math.max(0, player.ringBoostTimer - rawDt);
 
-      // 2. Size-Based Asteroid Collisions
-      for (let i = 0; i < asteroids.length; i++) {
-        const a = asteroids[i];
-        if (a.dead) continue;
-        a.x += a.vx * dt; a.y += a.vy * dt; a.z += a.vz * dt;
-        a.vx *= 0.94; a.vy *= 0.94; a.vz *= 0.94;
-        a.yaw += a.rotSpd * dt;
+        const braking = keys['KeyX'] || keys['ControlLeft'] || keys['ControlRight'] || holdTouchBrake;
+        const boosting = keys['ShiftLeft'] || keys['ShiftRight'] || holdTouchBoost || (ptr.downL && now - ptr.downTime >= 250) || player.lightSphereTimer > 0 || player.ringBoostTimer > 0;
+        const spdMulPlayer = player.lightSphereTimer > 0 ? 2.15 : (player.ringBoostTimer > 0 ? 2.1 : (boosting ? 1.9 : (braking ? 0.48 : 1.0)));
+        const targetSpd = cfg.speed * spdMulPlayer;
+        player.speed += (targetSpd - player.speed) * Math.min(1, rawDt * 5.5);
 
-        const dx = player.x - a.x, dy = player.y - a.y, dz = player.z - a.z;
-        const d = Math.hypot(dx, dy, dz) || 1;
-        if (d < heroR + a.radius) {
-          const nx = dx / d, ny = dy / d, nz = dz / d;
-          if (!a.isLarge || player.lightSphereTimer > 0) {
-            const imp = player.speed * 1.7 + 110;
-            a.vx = fwd.x * imp - nx * 30;
-            a.vy = fwd.y * imp - ny * 30;
-            a.vz = fwd.z * imp - nz * 30;
-            a.rotSpd = 8.0;
-            sfx.hit(); player.shake = 4;
-            spawnSparks(a.x, a.y, a.z, 8, 0xf59e0b, 60);
-            if (boosting) { a.dead = true; sfx.boom(); spawnSparks(a.x, a.y, a.z, 14, 0x94a3b8, 90); }
-          } else {
-            const push = (heroR + a.radius - d) + 3.0;
-            player.x += nx * push; player.y += ny * push; player.z += nz * push;
+        let turnIn = 0, pitchIn = 0;
+        if (keys['KeyA'] || keys['ArrowLeft']) turnIn += 1;
+        if (keys['KeyD'] || keys['ArrowRight']) turnIn -= 1;
+        if (keys['KeyW'] || keys['ArrowUp']) pitchIn += 1;
+        if (keys['KeyS'] || keys['ArrowDown']) pitchIn -= 1;
+
+        if (stick.active) {
+          turnIn -= stick.nx * 1.5;
+          pitchIn -= stick.ny * 1.3;
+        } else if (ptr.active && turnIn === 0 && pitchIn === 0) {
+          if (Math.abs(ptr.x) > 0.06) turnIn = Math.max(-1, Math.min(1, -ptr.x * 1.35));
+          if (Math.abs(ptr.y) > 0.06) pitchIn = Math.max(-1, Math.min(1, -ptr.y * 1.2));
+        }
+
+        player.yaw += turnIn * 2.1 * dt;
+        player.pitch += (pitchIn * 0.58 - player.pitch) * Math.min(1, dt * 6);
+        player.roll += (turnIn * 0.85 - player.roll) * Math.min(1, dt * 7);
+        if (player.rollAnim > 0) player.rollAnim = Math.max(0, player.rollAnim - rawDt * 9.5);
+        if (player.loopAnim > 0) player.loopAnim = Math.max(0, player.loopAnim - rawDt * 5.2);
+        player.shake = Math.max(0, player.shake - rawDt * 24);
+
+        const newFwd = heroForward();
+        fwd.x = newFwd.x; fwd.y = newFwd.y; fwd.z = newFwd.z;
+        const newBasis = basisFromFwd(fwd);
+        basis.r = newBasis.r; basis.u = newBasis.u;
+        right = basis.r; up = basis.u;
+        player.x += fwd.x * player.speed * dt;
+        player.y += fwd.y * player.speed * dt;
+        player.z += fwd.z * player.speed * dt;
+
+        player.fireCd = Math.max(0, player.fireCd - rawDt);
+        if ((ptr.downR || keys['KeyC'] || holdTouchSlash) && player.fireCd <= 0) {
+          fireUltraSlash();
+          player.fireCd = 0.095;
+        }
+
+        // Wingtip Dual Light Ribbons
+        const rightX = Math.cos(player.yaw) * 6.5 * cfg.heroScale;
+        const rightZ = -Math.sin(player.yaw) * 6.5 * cfg.heroScale;
+        const tailX = player.x - fwd.x * 11, tailY = player.y - fwd.y * 11, tailZ = player.z - fwd.z * 11;
+        ribbonsL.push({ x: tailX - rightX, y: tailY, z: tailZ - rightZ, life: 0.34 });
+        ribbonsR.push({ x: tailX + rightX, y: tailY, z: tailZ + rightZ, life: 0.34 });
+        if (ribbonsL.length > 24) ribbonsL.shift();
+        if (ribbonsR.length > 24) ribbonsR.shift();
+
+        function reflectHeroHeading(nx, ny, nz) {
+          const fn = fwd.x * nx + fwd.y * ny + fwd.z * nz;
+          if (fn < 0) {
+            let rx = fwd.x - 1.85 * fn * nx;
+            let ry = fwd.y - 1.85 * fn * ny;
+            let rz = fwd.z - 1.85 * fn * nz;
+            const rl = Math.hypot(rx, ry, rz) || 1;
+            rx /= rl; ry /= rl; rz /= rl;
+            player.yaw = Math.atan2(-rx, -rz);
+            player.pitch = Math.max(-0.62, Math.min(0.62, Math.asin(Math.max(-1, Math.min(1, ry)))));
+            fwd.x = rx; fwd.y = ry; fwd.z = rz;
+          }
+        }
+
+        updateStreamingCosmos(fwd, basis);
+
+        // 0. Cosmic Boost Rings & Power Core Pickups
+        for (let i = 0; i < starRings.length; i++) {
+          const sr = starRings[i];
+          if (sr.used) continue;
+          if (Math.hypot(player.x - sr.x, player.y - sr.y, player.z - sr.z) < 42) {
+            sr.used = true;
+            player.ringBoostTimer = 1.65;
+            player.ammo = Math.min(300, player.ammo + 60);
+            player.ringsCleared++;
+            score += 200;
+            sfx.ring();
+            if (player.ringsCleared % 2 === 0 && player.hull < 6) player.hull = Math.min(6, player.hull + 1);
+            spawnSparks(sr.x, sr.y, sr.z, 22, 0x67e8f9, 95);
+            showBanner('✨ 穿越光之加速星环！极速推进 + 光轮补给 (+200)');
+          }
+        }
+
+        for (let i = pickups.length - 1; i >= 0; i--) {
+          const pk = pickups[i];
+          pk.life -= dt; pk.spin += dt * 4.5;
+          const dx = player.x - pk.x, dy = player.y - pk.y, dz = player.z - pk.z;
+          const d = Math.hypot(dx, dy, dz) || 1;
+          if (d < 145) {
+            const pull = Math.min(d, (player.speed + 160) * dt);
+            pk.x += (dx / d) * pull; pk.y += (dy / d) * pull; pk.z += (dz / d) * pull;
+          }
+          if (d < 22) {
+            sfx.powerup();
+            spawnSparks(pk.x, pk.y, pk.z, 18, pk.type === 0 ? 0x38bdf8 : (pk.type === 1 ? 0xfb7185 : 0x34d399), 90);
+            if (pk.type === 0) {
+              player.slashLv = Math.min(3, player.slashLv + 1);
+              player.ammo = Math.min(300, player.ammo + 120);
+              updateSlashUI();
+              showBanner(`💠 吸收 M78 光能核心！八分光轮强化至 LV.${player.slashLv}！`);
+            } else if (pk.type === 1) {
+              player.beams = Math.min(8, player.beams + 2);
+              showBanner('💎 吸收斯派修姆水晶！必杀光线能量 +2！');
+            } else {
+              player.hull = Math.min(6, player.hull + 2);
+              updateSphereUI();
+              showBanner('💚 吸收生命粒子！计时器体力恢复 +2！');
+            }
+            score += 120;
+            pickups.splice(i, 1);
+          } else if (pk.life <= 0) {
+            pickups.splice(i, 1);
+          }
+        }
+
+        // 1. Celestial Planet Collisions (Bounce Ultraman!)
+        for (let i = 0; i < planets.length; i++) {
+          const p = planets[i];
+          const dx = player.x - p.x, dy = player.y - p.y, dz = player.z - p.z;
+          const d = Math.hypot(dx, dy, dz) || 1;
+          const minD = p.r + heroR;
+          if (d < minD) {
+            const nx = dx / d, ny = dy / d, nz = dz / d;
+            player.x = p.x + nx * (minD + 2.5);
+            player.y = p.y + ny * (minD + 2.5);
+            player.z = p.z + nz * (minD + 2.5);
             reflectHeroHeading(nx, ny, nz);
-            a.vx -= nx * 24; a.vy -= ny * 24; a.vz -= nz * 24;
-            player.shake = 10; sfx.dodge();
-            spawnSparks(player.x, player.y, player.z, 9, 0x38bdf8, 65);
+            player.shake = 12; sfx.dodge();
+            spawnSparks(player.x, player.y, player.z, 10, 0x38bdf8, 70);
           }
         }
-      }
 
-      // 3. Deep 4-State Kaiju Dogfight AI & 2-Phase Boss Warp Dash AI
-      for (let i = enemies.length - 1; i >= 0; i--) {
-        const e = enemies[i];
-        e.flash = Math.max(0, e.flash - rawDt);
+        // 2. Size-Based Asteroid Collisions (Rock / Magma / Crystal)
+        for (let i = 0; i < asteroids.length; i++) {
+          const a = asteroids[i];
+          if (a.dead) continue;
+          a.x += a.vx * dt; a.y += a.vy * dt; a.z += a.vz * dt;
+          a.vx *= 0.94; a.vy *= 0.94; a.vz *= 0.94;
+          a.yaw += a.rotSpd * dt;
 
-        const tx = player.x - e.x, ty = player.y - e.y, tz = player.z - e.z;
-        const dist = Math.hypot(tx, ty, tz) || 1;
-        const horizD = Math.hypot(tx, tz) || 1;
-
-        if (e.isBoss) {
-          // Check Phase 2 Awakening at <= 50% HP
-          if (e.phase === 1 && e.hp <= e.maxHp * 0.5) {
-            e.phase = 2;
-            document.getElementById('bossTitle').textContent = '👾 CHAOS OVERLORD (Phase 2 · 狂暴时空冲撞)';
-            sfx.roar();
-            player.shake = 16;
-            showBanner('⚠️ BOSS 半血狂暴：310 极速时空冲撞 & 8向混沌螺旋觉醒！');
+          const dx = player.x - a.x, dy = player.y - a.y, dz = player.z - a.z;
+          const d = Math.hypot(dx, dy, dz) || 1;
+          if (d < heroR + a.radius) {
+            const nx = dx / d, ny = dy / d, nz = dz / d;
+            if (!a.isLarge || player.lightSphereTimer > 0) {
+              const imp = player.speed * 1.7 + 110;
+              a.vx = fwd.x * imp - nx * 30;
+              a.vy = fwd.y * imp - ny * 30;
+              a.vz = fwd.z * imp - nz * 30;
+              a.rotSpd = 8.0;
+              sfx.hit(); player.shake = 4;
+              spawnSparks(a.x, a.y, a.z, 8, 0xf59e0b, 60);
+              if (boosting) {
+                a.dead = true;
+                if (a.kind === 'magma') triggerMagmaBlast(a.x, a.y, a.z);
+                else if (a.kind === 'crystal') spawnPickup(a.x, a.y, a.z, Math.random() < 0.7 ? 0 : 1);
+                else { sfx.boom(); spawnSparks(a.x, a.y, a.z, 14, 0x94a3b8, 90); }
+              }
+            } else {
+              const push = (heroR + a.radius - d) + 3.0;
+              player.x += nx * push; player.y += ny * push; player.z += nz * push;
+              reflectHeroHeading(nx, ny, nz);
+              a.vx -= nx * 24; a.vy -= ny * 24; a.vz -= nz * 24;
+              player.shake = 10; sfx.dodge();
+              spawnSparks(player.x, player.y, player.z, 9, 0x38bdf8, 65);
+            }
           }
+        }
 
-          if (e.phase === 2 && e.dashState === 'ORBIT') {
-            e.dashCooldown -= dt;
-            if (e.dashCooldown <= 0 && dist > 180) {
-              e.dashState = 'WINDUP';
-              e.dashTimer = 0.78;
-              e.dashCooldown = 6.2;
+        // 3. Forward-Arc Pacing Formation AI + 2-Boss System
+        for (let i = enemies.length - 1; i >= 0; i--) {
+          if (i >= enemies.length) continue;
+          const e = enemies[i];
+          e.flash = Math.max(0, e.flash - rawDt);
+          e.ramCd = Math.max(0, (e.ramCd || 0) - rawDt);
+
+          const rx = e.x - player.x, ry = e.y - player.y, rz = e.z - player.z;
+          const tx = -rx, ty = -ry, tz = -rz;
+          const dist = Math.hypot(tx, ty, tz) || 1;
+          const horizD = Math.hypot(tx, tz) || 1;
+          const forwardDist = rx * fwd.x + ry * fwd.y + rz * fwd.z;
+
+          if (e.isBoss) {
+            const bossLabel = e.bossType === 1 ? '🐉 KING GHIDORAH · 三首黄金帝王龙' : '👾 HYPER ZETTON · 宇宙恐龙杰顿';
+            if (e.phase === 1 && e.hp <= e.maxHp * 0.5) {
+              e.phase = 2;
+              document.getElementById('bossTitle').textContent = `${bossLabel} (Phase 2 · 狂暴时空冲撞)`;
+              sfx.roar();
+              player.shake = 16;
+              showBanner(`⚠️ ${bossLabel} 半血狂暴：315 极速冲撞 & 全方位弹幕觉醒！`);
+            }
+
+            if (e.phase === 2 && e.dashState === 'ORBIT') {
+              e.dashCooldown -= dt;
+              if (e.dashCooldown <= 0 && dist > 200) {
+                e.dashState = 'WINDUP';
+                e.dashTimer = 0.80;
+                e.dashCooldown = 6.2;
+                e.dashVx = tx / dist; e.dashVy = ty / dist; e.dashVz = tz / dist;
+                e.yaw = Math.atan2(-tx, -tz);
+                sfx.roar();
+                showBanner('🔥 WARNING: BOSS 蓄力锁定 · 准备狂暴时空冲撞！');
+              }
+            }
+
+            if (e.dashState === 'WINDUP') {
+              e.dashTimer -= dt;
               e.dashVx = tx / dist; e.dashVy = ty / dist; e.dashVz = tz / dist;
               e.yaw = Math.atan2(-tx, -tz);
-              sfx.roar();
-              showBanner('🔥 WARNING: BOSS 蓄力锁定 · 准备狂暴冲撞！');
-            }
-          }
+              if (Math.random() < 0.65) spawnSparks(e.x, e.y, e.z, 2, e.bossType === 1 ? 0xfbbf24 : 0xf43f5e, 45);
+              if (e.dashTimer <= 0) {
+                e.dashState = 'DASH';
+                e.dashTimer = 1.35;
+                sfx.beam();
+                player.shake = Math.min(18, player.shake + 7);
+              }
+            } else if (e.dashState === 'DASH') {
+              e.dashTimer -= dt;
+              const dashSpd = 315;
+              e.x += e.dashVx * dashSpd * dt;
+              e.y += e.dashVy * dashSpd * dt;
+              e.z += e.dashVz * dashSpd * dt;
+              if (ghosts.length < 10 && ((now * 25) | 0) % 2 === 0) {
+                ghosts.push({ x: e.x, y: e.y, z: e.z, yaw: e.yaw, stack: BOSS_STACKS[e.bossType], scale: 1.85, life: 0.25 });
+              }
+              if (Math.random() < 0.28) {
+                const sa = (e.spiralPhase += 0.9);
+                spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(sa) * 130, 0, Math.sin(sa) * 130, 130, 0, 2.3, 0xfef08a, e.bossType === 1 ? 0xfbbf24 : 0xf43f5e, e.bossType === 1 ? 1 : 3);
+              }
+              if (e.dashTimer <= 0) {
+                e.dashState = 'ORBIT';
+                if (forwardDist < 140) {
+                  spawnSparks(e.x, e.y, e.z, 18, 0x38bdf8, 85);
+                  const wp = warpAheadPos(fwd, basis, 560 * cfg.engageRange, 180, 60);
+                  e.x = wp.x; e.y = wp.y; e.z = wp.z;
+                  spawnSparks(e.x, e.y, e.z, 18, 0xfbbf24, 95);
+                }
+              }
+            } else {
+              // Forward-Arc Arena Orbit: Boss stays proudly ahead of Ultraman!
+              if (forwardDist < -160 || dist > 1850 * cfg.engageRange) {
+                spawnSparks(e.x, e.y, e.z, 16, 0x38bdf8, 80);
+                const wp = warpAheadPos(fwd, basis, 540 * cfg.engageRange, 190, 65);
+                e.x = wp.x; e.y = wp.y; e.z = wp.z;
+                spawnSparks(e.x, e.y, e.z, 16, 0xfbbf24, 90);
+              }
+              const swayX = Math.sin(sec * 0.85) * 195 * cfg.engageRange;
+              const swayY = Math.cos(sec * 1.15) * 65;
+              const goalX = player.x + fwd.x * (500 * cfg.engageRange) + right.x * swayX + up.x * swayY;
+              const goalY = player.y + fwd.y * (500 * cfg.engageRange) + right.y * swayX + up.y * swayY;
+              const goalZ = player.z + fwd.z * (500 * cfg.engageRange) + right.z * swayX + up.z * swayY;
+              const cx = goalX - e.x, cy = goalY - e.y, cz = goalZ - e.z;
+              const cLen = Math.hypot(cx, cy, cz) || 1;
+              const corrSpd = Math.min(240, cLen * 1.35);
+              e.x += (fwd.x * player.speed * 0.90 + (cx / cLen) * corrSpd) * dt;
+              e.y += (fwd.y * player.speed * 0.90 + (cy / cLen) * corrSpd) * dt;
+              e.z += (fwd.z * player.speed * 0.90 + (cz / cLen) * corrSpd) * dt;
 
-          if (e.dashState === 'WINDUP') {
-            e.dashTimer -= dt;
-            e.dashVx = tx / dist; e.dashVy = ty / dist; e.dashVz = tz / dist;
-            e.yaw = Math.atan2(-tx, -tz);
-            if (Math.random() < 0.65) spawnSparks(e.x, e.y, e.z, 2, 0xf43f5e, 40);
-            if (e.dashTimer <= 0) {
-              e.dashState = 'DASH';
-              e.dashTimer = 1.35;
-              sfx.beam();
-              player.shake = Math.min(18, player.shake + 7);
+              const desiredYaw = Math.atan2(-tx, -tz);
+              let diff = desiredYaw - e.yaw;
+              while (diff > Math.PI) diff -= Math.PI * 2;
+              while (diff < -Math.PI) diff += Math.PI * 2;
+              e.yaw += diff * Math.min(1, dt * 4.2);
+              e.roll = Math.max(-0.55, Math.min(0.55, Math.cos(sec * 0.85) * 0.35));
+
+              e.atkCd -= dt;
+              if (e.atkCd <= 0 && dist < 960 * cfg.engageRange) {
+                if (e.bossType === 1) {
+                  // King Ghidorah: Gravity Lightning + Golden Tempest
+                  if (e.phase === 2) {
+                    e.atkCd = 2.0; e.spiralPhase += 0.5;
+                    for (let k = 0; k < 8; k++) {
+                      const ang = e.spiralPhase + (k / 8) * Math.PI * 2;
+                      spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 185, (ty / dist) * 65, Math.sin(ang) * 185, 190, 0.25, 2.6, 0xffffff, 0xfde047, 1);
+                    }
+                  } else {
+                    e.atkCd = 2.4;
+                    for (let k = -1; k <= 1; k++) {
+                      const bx = tx / dist + right.x * (k * 0.16);
+                      const by = ty / dist + right.y * (k * 0.16);
+                      const bz = tz / dist + right.z * (k * 0.16);
+                      const bl = Math.hypot(bx, by, bz) || 1;
+                      spawnEnemyProjectile(e.x + right.x * k * 16, e.y, e.z + right.z * k * 16, (bx / bl) * 205, (by / bl) * 205, (bz / bl) * 205, 205, 1.15, 2.8, 0xffffff, 0xfbbf24, 1);
+                    }
+                  }
+                } else {
+                  // Hyper Zetton: Crimson Rings & Heavy Meteors
+                  if (e.phase === 2) {
+                    e.atkCd = 2.0; e.spiralPhase += 0.45;
+                    for (let k = 0; k < 8; k++) {
+                      const ang = e.spiralPhase + (k / 8) * Math.PI * 2;
+                      spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 180, (ty / dist) * 55, Math.sin(ang) * 180, 185, 0.2, 2.5, 0xffffff, 0xf43f5e, 3);
+                    }
+                  } else {
+                    e.atkCd = 2.6; e.spiralPhase++;
+                    if ((e.spiralPhase & 1) === 0) {
+                      for (let k = 0; k < 6; k++) {
+                        const ang = Math.atan2(tz, tx) + ((k - 2.5) * 0.24);
+                        spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 170, (ty / dist) * 75, Math.sin(ang) * 170, 180, 0.35, 2.4, 0xfee2e2, 0xf43f5e, 3);
+                      }
+                    } else {
+                      for (let s = -1; s <= 1; s += 2) {
+                        const bx = tx / dist + s * 0.2;
+                        const bz = tz / dist;
+                        const bl = Math.hypot(bx, bz) || 1;
+                        spawnEnemyProjectile(e.x + s * 14, e.y, e.z, (bx / bl) * 165, (ty / dist) * 110, (bz / bl) * 165, 170, 1.85, 3.0, 0xffffff, 0xfbbf24, 1);
+                      }
+                    }
+                  }
+                }
+              }
             }
-          } else if (e.dashState === 'DASH') {
-            e.dashTimer -= dt;
-            const dashSpd = 310;
-            e.x += e.dashVx * dashSpd * dt;
-            e.y += e.dashVy * dashSpd * dt;
-            e.z += e.dashVz * dashSpd * dt;
-            if (ghosts.length < 10 && ((now * 25) | 0) % 2 === 0) {
-              ghosts.push({ x: e.x, y: e.y, z: e.z, yaw: e.yaw, life: 0.25 });
-            }
-            if (Math.random() < 0.28) {
-              // Scatter side chaos orb during rush
-              const sa = (e.spiralPhase += 0.9);
-              spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(sa) * 120, 0, Math.sin(sa) * 120, 120, 0, 2.2, 0xfef08a, 0xf43f5e, 3);
-            }
-            if (e.dashTimer <= 0) e.dashState = 'ORBIT';
+
+            const pct = Math.max(0, Math.round((e.hp / e.maxHp) * 100));
+            document.getElementById('bossHpTxt').textContent = `${pct}%`;
+            document.getElementById('bossBarFill').style.width = `${pct}%`;
           } else {
-            // Sweeping Standoff Orbit
-            const desiredYaw = Math.atan2(-tx, -tz) + (dist < 220 ? 1.15 : (dist > 460 ? 0.15 : 0.72));
+            // Regular Kaiju: Forward-Arc Pacing Formation + Anti-Tail-Chase Regroup!
+            e.weavePhase += dt * 1.85;
+            if (forwardDist < 40) e.behindTimer += dt;
+            else e.behindTimer = Math.max(0, e.behindTimer - dt * 2.5);
+
+            if (forwardDist < -220 || dist > 1900 * cfg.engageRange) {
+              spawnSparks(e.x, e.y, e.z, 10, 0x38bdf8, 60);
+              const wp = warpAheadPos(fwd, basis, (620 + Math.random() * 260) * cfg.engageRange, 260, 85);
+              e.x = wp.x; e.y = wp.y; e.z = wp.z;
+              e.behindTimer = 0; e.aiMode = 'FRONT_WEAVE';
+              spawnSparks(e.x, e.y, e.z, 12, 0x22d3ee, 70);
+            } else if (e.behindTimer > 1.15) {
+              e.aiMode = 'FLANK_AHEAD';
+            } else if (forwardDist > 260) {
+              e.aiMode = 'FRONT_WEAVE';
+            }
+
+            if (e.aiMode === 'FLANK_AHEAD') {
+              const flankDist = 520 * cfg.engageRange;
+              const flankSide = (e.slotSide >= 0 ? 1 : -1) * 230 * cfg.engageRange;
+              const gx = player.x + fwd.x * flankDist + right.x * flankSide;
+              const gy = player.y + fwd.y * flankDist + right.y * flankSide;
+              const gz = player.z + fwd.z * flankDist + right.z * flankSide;
+              const dx = gx - e.x, dy = gy - e.y, dz = gz - e.z;
+              const dl = Math.hypot(dx, dy, dz) || 1;
+              const spd = player.speed + 240;
+              e.x += (dx / dl) * spd * dt; e.y += (dy / dl) * spd * dt; e.z += (dz / dl) * spd * dt;
+            } else {
+              const targetD = e.slotDist * cfg.engageRange;
+              const wx = Math.sin(e.weavePhase) * e.slotAmpX + e.slotSide * 65;
+              const wy = Math.cos(e.weavePhase * 0.73) * e.slotAmpY;
+              const gx = player.x + fwd.x * targetD + right.x * wx + up.x * wy;
+              const gy = player.y + fwd.y * targetD + right.y * wx + up.y * wy;
+              const gz = player.z + fwd.z * targetD + right.z * wx + up.z * wy;
+              const cx = gx - e.x, cy = gy - e.y, cz = gz - e.z;
+              const cLen = Math.hypot(cx, cy, cz) || 1;
+              const corrSpd = Math.min(205, cLen * 1.35);
+              e.x += (fwd.x * player.speed * 0.88 + (cx / cLen) * corrSpd) * dt;
+              e.y += (fwd.y * player.speed * 0.88 + (cy / cLen) * corrSpd) * dt;
+              e.z += (fwd.z * player.speed * 0.88 + (cz / cLen) * corrSpd) * dt;
+            }
+
+            const desiredYaw = Math.atan2(-tx, -tz);
+            const desiredPitch = Math.atan2(ty, horizD) * 0.65;
+            const targetRoll = Math.cos(e.weavePhase) * 0.42;
             let diff = desiredYaw - e.yaw;
             while (diff > Math.PI) diff -= Math.PI * 2;
             while (diff < -Math.PI) diff += Math.PI * 2;
-            e.yaw += diff * Math.min(1, dt * 2.4);
-            e.roll = diff * 0.45;
-            e.x += -Math.sin(e.yaw) * e.speed * dt;
-            e.y += ((ty / dist) * 32) * dt;
-            e.z += -Math.cos(e.yaw) * e.speed * dt;
+            e.yaw += diff * Math.min(1, dt * 4.5);
+            e.pitch += (desiredPitch - e.pitch) * Math.min(1, dt * 4.0);
+            e.roll += (targetRoll - e.roll) * Math.min(1, dt * 5.0);
 
-            e.atkCd -= dt;
-            if (e.atkCd <= 0 && dist < 680) {
-              if (e.phase === 2) {
-                e.atkCd = 2.1;
-                e.spiralPhase += 0.45;
-                // 8-Way Spiral Chaos Volley
-                for (let k = 0; k < 8; k++) {
-                  const ang = e.spiralPhase + (k / 8) * Math.PI * 2;
-                  spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 175, (ty / dist) * 55, Math.sin(ang) * 175, 180, 0.2, 2.5, 0xffffff, 0xf43f5e, 3);
+            // Archetype Combat Specials (in forward view!)
+            if (e.variant === 0) {
+              // Baltan Lateral Phantom Dash
+              e.phantomCd -= dt;
+              if (e.phantomCd <= 0 && forwardDist > 160 && dist < 850) {
+                e.phantomCd = 4.6 + Math.random() * 1.6;
+                const dir = Math.random() < 0.5 ? 1 : -1;
+                ghosts.push({ x: e.x, y: e.y, z: e.z, yaw: e.yaw, stack: KAIJU_STACKS[0], scale: 1.25, life: 0.35 });
+                e.x += right.x * dir * 82; e.y += right.y * dir * 82; e.z += right.z * dir * 82;
+                spawnSparks(e.x, e.y, e.z, 8, 0x22d3ee, 55);
+              }
+            } else if (e.variant === 1) {
+              // Zetton Amber Frontal Barrier
+              if (e.shieldTimer > 0) e.shieldTimer = Math.max(0, e.shieldTimer - dt);
+              else {
+                e.shieldCd -= dt;
+                if (e.shieldCd <= 0 && forwardDist > 140 && dist < 780) {
+                  e.shieldCd = 5.4 + Math.random() * 1.6;
+                  e.shieldTimer = 2.4;
+                  e.shieldHp = 6;
                 }
-              } else {
-                e.atkCd = 2.8;
-                e.spiralPhase++;
-                if ((e.spiralPhase & 1) === 0) {
-                  // 6-Way Radial Crimson Ring
-                  for (let k = 0; k < 6; k++) {
-                    const ang = Math.atan2(tz, tx) + ((k - 2.5) * 0.24);
-                    spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 165, (ty / dist) * 75, Math.sin(ang) * 165, 175, 0.35, 2.4, 0xfee2e2, 0xf43f5e, 3);
-                  }
-                } else {
-                  // Dual Heavy Golden Chaos Meteors
-                  for (let s = -1; s <= 1; s += 2) {
-                    const bx = tx / dist + s * 0.22;
-                    const bz = tz / dist;
-                    const bl = Math.hypot(bx, bz) || 1;
-                    spawnEnemyProjectile(e.x + s * 14, e.y, e.z, (bx / bl) * 155, (ty / dist) * 110, (bz / bl) * 155, 165, 1.85, 3.0, 0xffffff, 0xfbbf24, 1);
+              }
+            }
+
+            if (forwardDist > 110 && dist < 960 * cfg.engageRange) {
+              e.atkCd -= dt;
+              if (e.atkCd <= 0 && e.chargeTimer <= 0) {
+                e.chargeTimer = e.variant === 2 ? 0.65 : 0.35;
+                spawnSparks(e.x, e.y, e.z, 5, e.variant === 1 ? 0xf59e0b : (e.variant === 2 ? 0xfde047 : 0x22d3ee), 35);
+              }
+              if (e.chargeTimer > 0) {
+                e.chargeTimer -= dt;
+                if (e.chargeTimer <= 0) {
+                  e.atkCd = (2.8 + Math.random() * 1.4);
+                  const vx0 = tx / dist, vy0 = ty / dist, vz0 = tz / dist;
+                  if (e.variant === 0) {
+                    for (let s = -1; s <= 1; s += 2) {
+                      spawnEnemyProjectile(e.x + right.x * s * 10, e.y, e.z + right.z * s * 10, vx0 * 185 + right.x * s * 24, vy0 * 185, vz0 * 185 + right.z * s * 24, 185, 1.4, 2.3, 0xffffff, 0x22d3ee, 2);
+                    }
+                  } else if (e.variant === 1) {
+                    spawnEnemyProjectile(e.x, e.y, e.z, vx0 * 175, vy0 * 175, vz0 * 175, 175, 1.95, 3.0, 0xfef08a, 0xf97316, 1);
+                  } else if (e.variant === 2) {
+                    for (let k = -1; k <= 1; k++) {
+                      const bx = vx0 + right.x * k * 0.14, by = vy0, bz = vz0 + right.z * k * 0.14;
+                      const bl = Math.hypot(bx, by, bz) || 1;
+                      spawnEnemyProjectile(e.x, e.y, e.z, (bx / bl) * 245, (by / bl) * 245, (bz / bl) * 245, 245, 0.35, 2.3, 0xffffff, 0xfbbf24, 1);
+                    }
+                  } else {
+                    spawnEnemyProjectile(e.x, e.y, e.z, vx0 * 145, vy0 * 145, vz0 * 145, 145, 0.35, 3.6, 0xa7f3d0, 0x10b981, 4, true);
                   }
                 }
               }
             }
           }
 
-          const pct = Math.max(0, Math.round((e.hp / e.maxHp) * 100));
-          document.getElementById('bossHpTxt').textContent = `${pct}%`;
-          document.getElementById('bossBarFill').style.width = `${pct}%`;
-        } else {
-          // Regular Kaiju 3-State Dogfight Machine: APPROACH -> JOUST -> BREAKAWAY
-          e.weavePhase += dt * 2.4;
-          e.stateTimer -= dt;
-          e.evadeVx *= 0.90; e.evadeVy *= 0.90; e.evadeVz *= 0.90;
-
-          if (e.state === 'APPROACH' && dist <= 340) {
-            e.state = 'JOUST'; e.stateTimer = 4.2;
-          } else if (e.state === 'JOUST' && (dist <= 145 || e.stateTimer <= 0)) {
-            e.state = 'BREAKAWAY'; e.stateTimer = 2.0; e.breakDir = Math.random() < 0.5 ? 1 : -1;
-          } else if (e.state === 'BREAKAWAY' && e.stateTimer <= 0) {
-            e.state = 'APPROACH'; e.stateTimer = 4.5;
-          }
-
-          let desiredYaw = Math.atan2(-tx, -tz);
-          let desiredPitch = Math.atan2(ty, horizD) * 0.65;
-          let targetRoll = 0;
-          let spdMul = 1.0;
-
-          if (e.state === 'APPROACH') {
-            desiredYaw += Math.sin(e.weavePhase) * 0.35;
-            targetRoll = Math.sin(e.weavePhase) * 0.45;
-          } else if (e.state === 'JOUST') {
-            targetRoll = Math.sin(e.weavePhase * 1.4) * 0.25;
-            spdMul = 0.88;
-            e.atkCd -= dt;
-            if (e.atkCd <= 0 && e.chargeTimer <= 0) {
-              e.chargeTimer = 0.38;
-              spawnSparks(e.x, e.y, e.z, 5, e.variant === 1 ? 0xf59e0b : 0x22d3ee, 35);
-            }
-            if (e.chargeTimer > 0) {
-              e.chargeTimer -= dt;
-              if (e.chargeTimer <= 0) {
-                e.atkCd = 3.2 + Math.random() * 1.6;
-                const vx0 = (tx / dist), vy0 = (ty / dist), vz0 = (tz / dist);
-                if (e.variant === 0) {
-                  // Variant 0: Twin Cyan Homing Crescent Bolts
-                  for (let s = -1; s <= 1; s += 2) {
-                    spawnEnemyProjectile(e.x + s * 9, e.y, e.z, vx0 * 175 + s * 22, vy0 * 175, vz0 * 175, 175, 1.45, 2.2, 0xffffff, 0x22d3ee, 2);
-                  }
-                } else if (e.variant === 1) {
-                  // Variant 1: Zetton Solar Magma Homing Fireball
-                  spawnEnemyProjectile(e.x, e.y, e.z, vx0 * 165, vy0 * 165, vz0 * 165, 165, 2.05, 3.0, 0xfef08a, 0xf97316, 1);
-                } else {
-                  // Variant 2: 3-Way Fan Plasma Volley
-                  for (let k = -1; k <= 1; k++) {
-                    const ang = Math.atan2(tz, tx) + k * 0.24;
-                    spawnEnemyProjectile(e.x, e.y, e.z, Math.cos(ang) * 185, vy0 * 135, Math.sin(ang) * 185, 190, 0.4, 2.2, 0xe0f2fe, 0x38bdf8, 2);
-                  }
-                }
-                // Enter breakaway swoop right after firing!
-                e.state = 'BREAKAWAY'; e.stateTimer = 1.9;
+          // Fair Melee / Spin Counter (NO cheap body-bump damage on regular Kaiju passes!)
+          const hitR = e.isBoss ? 32 : 20;
+          if (dist < hitR + heroR) {
+            if (player.lightSphereTimer > 0) {
+              damageEnemy(i, 16 * dt, true);
+              spawnSparks(e.x, e.y, e.z, 3, 0xfbbf24, 90);
+            } else if (!e.isBoss && (player.rollAnim > 0 || boosting)) {
+              if (e.ramCd <= 0) {
+                e.ramCd = 0.65;
+                e.x += fwd.x * 95; e.y += fwd.y * 95; e.z += fwd.z * 95;
+                score += 120;
+                showBanner('🌀 旋翼撞击弹反！将怪兽震飞前方并造成重创！');
+                damageEnemy(i, 4, false);
               }
+            } else if (e.isBoss && e.dashState === 'DASH') {
+              damagePlayer(2, '💥 被霸主狂暴冲撞命中！绿环亮起时翻滚可完美反击！');
+            } else if (!e.isBoss) {
+              e.x += (rx / dist) * 26; e.z += (rz / dist) * 26;
             }
-          } else {
-            // BREAKAWAY: sharp peel-off turn + dive/climb
-            desiredYaw += e.breakDir * 1.35;
-            desiredPitch = e.breakDir * 0.35;
-            targetRoll = e.breakDir * 0.92;
-            spdMul = 1.35;
           }
-
-          let diff = desiredYaw - e.yaw;
-          while (diff > Math.PI) diff -= Math.PI * 2;
-          while (diff < -Math.PI) diff += Math.PI * 2;
-          e.yaw += diff * Math.min(1, dt * 3.0);
-          e.pitch += (desiredPitch - e.pitch) * Math.min(1, dt * 3.2);
-          e.roll += (targetRoll - e.roll) * Math.min(1, dt * 4.5);
-
-          const ecp = Math.cos(e.pitch);
-          e.x += (-Math.sin(e.yaw) * ecp * e.speed * spdMul + e.evadeVx) * dt;
-          e.y += (Math.sin(e.pitch) * e.speed * spdMul + e.evadeVy) * dt;
-          e.z += (-Math.cos(e.yaw) * ecp * e.speed * spdMul + e.evadeVz) * dt;
         }
 
-        // Body Ram Collision with Enemy
-        const hitR = e.isBoss ? 25 : 16;
-        if (dist < hitR + heroR) {
-          if (player.lightSphereTimer > 0) {
-            e.hp -= 12 * dt; e.flash = 0.08;
-            spawnSparks(e.x, e.y, e.z, 3, 0xfbbf24, 90);
-            if (e.hp <= 0) {
-              score += e.isBoss ? 1500 : 250; kills++;
-              sfx.boom(); spawnSparks(e.x, e.y, e.z, e.isBoss ? 38 : 20, 0xfacc15, 115);
-              const wasBoss = e.isBoss;
-              enemies.splice(i, 1);
-              if (wasBoss) { wave++; spawnWave(wave); }
-              else if (enemies.length === 0) spawnBoss();
+        // 4. Visible Enemy Homing Fireballs & Cluster Star-Bombs Update
+        for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+          const ep = enemyProjectiles[i];
+          ep.life -= dt; ep.age += dt;
+          if (ep.life <= 0) { enemyProjectiles.splice(i, 1); continue; }
+
+          const dx = player.x - ep.x, dy = player.y - ep.y, dz = player.z - ep.z;
+          const d = Math.hypot(dx, dy, dz) || 1;
+
+          if (ep.isCluster && (ep.age > 1.05 || d < 125)) {
+            enemyProjectiles.splice(i, 1);
+            spawnSparks(ep.x, ep.y, ep.z, 10, 0x34d399, 65);
+            for (let k = 0; k < 4; k++) {
+              const ang = (k / 4) * Math.PI * 2 + 0.4;
+              const bx = dx / d + right.x * Math.cos(ang) * 0.42 + up.x * Math.sin(ang) * 0.42;
+              const by = dy / d + right.y * Math.cos(ang) * 0.42 + up.y * Math.sin(ang) * 0.42;
+              const bz = dz / d + right.z * Math.cos(ang) * 0.42 + up.z * Math.sin(ang) * 0.42;
+              const bl = Math.hypot(bx, by, bz) || 1;
+              spawnEnemyProjectile(ep.x, ep.y, ep.z, (bx / bl) * 165, (by / bl) * 165, (bz / bl) * 165, 165, 0.65, 2.2, 0xe0f2fe, 0x2dd4bf, 4, false);
             }
-          } else {
-            const isDashHit = e.isBoss && e.dashState === 'DASH';
-            damagePlayer(isDashHit ? 2 : 1, isDashHit ? '💥 被混沌霸主狂暴冲撞命中！按翻滚可完美反击！' : '💥 与怪兽发生碰撞！');
+            continue;
           }
-        }
-      }
 
-      // 4. Visible Enemy Homing Fireballs & Plasma Update
-      for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
-        const ep = enemyProjectiles[i];
-        ep.life -= dt; ep.age += dt;
-        if (ep.life <= 0) { enemyProjectiles.splice(i, 1); continue; }
+          const pSpd = Math.hypot(ep.vx, ep.vy, ep.vz) || 1;
+          const closingDot = (dx * ep.vx + dy * ep.vy + dz * ep.vz) / (d * pSpd);
+          if (ep.homing > 0 && d > 42 && closingDot > -0.1) {
+            const turn = Math.min(1, ep.homing * dt);
+            ep.vx += ((dx / d) * ep.speed - ep.vx) * turn;
+            ep.vy += ((dy / d) * ep.speed - ep.vy) * turn;
+            ep.vz += ((dz / d) * ep.speed - ep.vz) * turn;
+            const nl = Math.hypot(ep.vx, ep.vy, ep.vz) || 1;
+            ep.vx = (ep.vx / nl) * ep.speed;
+            ep.vy = (ep.vy / nl) * ep.speed;
+            ep.vz = (ep.vz / nl) * ep.speed;
+          }
 
-        const dx = player.x - ep.x, dy = player.y - ep.y, dz = player.z - ep.z;
-        const d = Math.hypot(dx, dy, dz) || 1;
-        const pSpd = Math.hypot(ep.vx, ep.vy, ep.vz) || 1;
-        const closingDot = (dx * ep.vx + dy * ep.vy + dz * ep.vz) / (d * pSpd);
+          ep.x += ep.vx * dt; ep.y += ep.vy * dt; ep.z += ep.vz * dt;
+          if (ep.homing > 1.2 && Math.random() < 0.35) spawnSparks(ep.x, ep.y, ep.z, 1, 0xf97316, 18);
 
-        // Homing steers smoothly until within 42m or if missile passed the player
-        if (ep.homing > 0 && d > 42 && closingDot > -0.1) {
-          const turn = Math.min(1, ep.homing * dt);
-          ep.vx += ((dx / d) * ep.speed - ep.vx) * turn;
-          ep.vy += ((dy / d) * ep.speed - ep.vy) * turn;
-          ep.vz += ((dz / d) * ep.speed - ep.vz) * turn;
-          const nl = Math.hypot(ep.vx, ep.vy, ep.vz) || 1;
-          ep.vx = (ep.vx / nl) * ep.speed;
-          ep.vy = (ep.vy / nl) * ep.speed;
-          ep.vz = (ep.vz / nl) * ep.speed;
-        }
-
-        ep.x += ep.vx * dt; ep.y += ep.vy * dt; ep.z += ep.vz * dt;
-
-        // Ember particle trail for glowing fireballs
-        if (ep.homing > 1.2 && Math.random() < 0.35) {
-          spawnSparks(ep.x, ep.y, ep.z, 1, 0xf97316, 18);
-        }
-
-        // Hit Ultraman
-        if (d < heroR + ep.radius) {
-          enemyProjectiles.splice(i, 1);
-          damagePlayer(1, '💥 被怪兽高能火球击中！绿环亮起时翻滚可完美躲避并反击');
-        }
-      }
-
-      // 5. Player Projectiles (vs Enemies, Destructible Enemy Fireballs, & Asteroids)
-      for (let i = projectiles.length - 1; i >= 0; i--) {
-        const p = projectiles[i];
-        p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
-        p.life -= dt; p.spin += dt * 32;
-        let hit = false;
-
-        // Intercept Enemy Fireballs mid-air!
-        for (let k = enemyProjectiles.length - 1; k >= 0; k--) {
-          const ep = enemyProjectiles[k];
-          if (ep.destructible && Math.hypot(p.x - ep.x, p.y - ep.y, p.z - ep.z) < ep.radius + (p.isBeam ? 10 : 7)) {
-            enemyProjectiles.splice(k, 1);
-            score += 30; sfx.hit();
-            spawnSparks(ep.x, ep.y, ep.z, 6, 0x38bdf8, 65);
-            if (!p.isBeam) { hit = true; break; }
+          if (d < heroR + ep.radius) {
+            enemyProjectiles.splice(i, 1);
+            damagePlayer(1, '💥 被怪兽高能火球击中！绿环亮起时翻滚可完美躲避并反击');
           }
         }
 
-        if (!hit) {
-          for (let j = enemies.length - 1; j >= 0; j--) {
-            const e = enemies[j];
-            const hr = e.isBoss ? 30 : 18;
-            if (Math.hypot(p.x - e.x, p.y - e.y, p.z - e.z) < hr) {
-              const dmg = p.isBeam ? 4 : 2;
-              e.hp -= dmg; e.flash = 0.08;
+        // 5. Player Curving Homing Ultra Slashes & Beams
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+          const p = projectiles[i];
+          if (!p.isBeam && p.target && enemies.indexOf(p.target) !== -1) {
+            const tx = p.target.x - p.x, ty = p.target.y - p.y, tz = p.target.z - p.z;
+            const td = Math.hypot(tx, ty, tz) || 1;
+            const cdot = (tx * p.vx + ty * p.vy + tz * p.vz) / (td * p.speed);
+            if (cdot > 0.05) {
+              const turn = Math.min(1, 2.6 * dt);
+              p.vx += ((tx / td) * p.speed - p.vx) * turn;
+              p.vy += ((ty / td) * p.speed - p.vy) * turn;
+              p.vz += ((tz / td) * p.speed - p.vz) * turn;
+              const nl = Math.hypot(p.vx, p.vy, p.vz) || 1;
+              p.vx = (p.vx / nl) * p.speed;
+              p.vy = (p.vy / nl) * p.speed;
+              p.vz = (p.vz / nl) * p.speed;
+              p.yaw = Math.atan2(-p.vx, -p.vz);
+            }
+          }
+
+          p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+          p.life -= dt; p.spin += dt * 36;
+          let removeProj = false;
+
+          // Intercept Enemy Fireballs & Cluster Star-Bombs mid-air!
+          for (let k = enemyProjectiles.length - 1; k >= 0; k--) {
+            const ep = enemyProjectiles[k];
+            if (ep.destructible && Math.hypot(p.x - ep.x, p.y - ep.y, p.z - ep.z) < ep.radius + (p.isBeam ? 12 : 9)) {
+              const wasCluster = ep.isCluster;
+              enemyProjectiles.splice(k, 1);
+              score += wasCluster ? 60 : 30;
               sfx.hit();
-              // Carapace Voxel Peeling Debris + Lateral Evasive Jink on non-boss Kaiju!
-              spawnSparks(p.x, p.y, p.z, p.isBeam ? 10 : 5, p.isBeam ? 0xf43f5e : 0x22d3ee, 75);
-              if (!e.isBoss) {
-                e.evadeVx = (Math.random() - 0.5) * 95;
-                e.evadeVy = (Math.random() - 0.5) * 50;
-                e.evadeVz = (Math.random() - 0.5) * 95;
-              }
-              if (!p.isBeam) hit = true;
-              else if (++p.pierce >= 3) hit = true;
+              spawnSparks(ep.x, ep.y, ep.z, wasCluster ? 10 : 6, 0x38bdf8, 65);
+              if (!p.isBeam && --p.pierceLeft <= 0) { removeProj = true; break; }
+            }
+          }
 
-              if (e.hp <= 0) {
-                score += e.isBoss ? 1500 : 250; kills++;
-                sfx.boom();
-                spawnSparks(e.x, e.y, e.z, e.isBoss ? 38 : 20, 0xfacc15, 115);
-                const wasBoss = e.isBoss;
-                enemies.splice(j, 1);
-                if (wasBoss) {
-                  wave++;
-                  spawnWave(wave);
-                } else if (enemies.length === 0) {
-                  spawnBoss();
+          if (!removeProj) {
+            for (let j = enemies.length - 1; j >= 0; j--) {
+              if (j >= enemies.length) continue;
+              const e = enemies[j];
+              if (p.hitIds.has(e.uid)) continue;
+              const hr = e.isBoss ? (p.isBeam ? 58 : 44) : (p.isBeam ? 34 : 24);
+              if (Math.hypot(p.x - e.x, p.y - e.y, p.z - e.z) < hr) {
+                p.hitIds.add(e.uid);
+                spawnSparks(p.x, p.y, p.z, p.isBeam ? 10 : 5, p.isBeam ? 0xf43f5e : 0x22d3ee, 75);
+                damageEnemy(j, p.dmg, p.isBeam);
+                if (--p.pierceLeft <= 0) { removeProj = true; break; }
+              }
+            }
+          }
+
+          if (!removeProj) {
+            for (let a of asteroids) {
+              if (!a.dead && Math.hypot(p.x - a.x, p.y - a.y, p.z - a.z) < a.radius + 5) {
+                a.hp -= p.isBeam ? 15 : 5;
+                spawnSparks(p.x, p.y, p.z, 5, 0x38bdf8, 50);
+                if (a.hp <= 0) {
+                  a.dead = true;
+                  if (a.kind === 'magma') triggerMagmaBlast(a.x, a.y, a.z);
+                  else if (a.kind === 'crystal') spawnPickup(a.x, a.y, a.z, Math.random() < 0.7 ? 0 : 1);
+                  else { sfx.boom(); spawnSparks(a.x, a.y, a.z, 12, 0x94a3b8, 85); }
                 }
+                if (!p.isBeam) { removeProj = true; break; }
               }
-              if (hit) break;
             }
           }
+          if (removeProj || p.life <= 0) projectiles.splice(i, 1);
         }
 
-        if (!hit) {
-          for (let a of asteroids) {
-            if (!a.dead && Math.hypot(p.x - a.x, p.y - a.y, p.z - a.z) < a.radius + 4) {
-              a.hp -= p.isBeam ? 15 : 5;
-              spawnSparks(p.x, p.y, p.z, 5, 0x38bdf8, 50);
-              if (a.hp <= 0) { a.dead = true; sfx.boom(); spawnSparks(a.x, a.y, a.z, 12, 0x94a3b8, 85); }
-              if (!p.isBeam) { hit = true; break; }
-            }
-          }
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.x += pt.vx * dt; pt.y += pt.vy * dt; pt.z += pt.vz * dt;
+          pt.life -= rawDt;
+          if (pt.life <= 0) particles.splice(i, 1);
         }
-        if (hit || p.life <= 0) projectiles.splice(i, 1);
       }
 
-      // 6. Camera Placement
+      // 6. Camera Placement (CHASE / 1ST COCKPIT / TOP)
       let camX, camY, camZ;
       if (cfg.view === 'top') {
         camX = player.x;
         camY = player.y + cfg.camDist * 2.15;
         camZ = player.z + 32;
+      } else if (cfg.view === 'cockpit') {
+        camX = player.x + fwd.x * 5;
+        camY = player.y + fwd.y * 5 + 1.5;
+        camZ = player.z + fwd.z * 5;
       } else {
         const backX = Math.sin(player.yaw), backZ = Math.cos(player.yaw);
         camX = player.x + backX * cfg.camDist;
@@ -2236,7 +2875,8 @@
         camX += (Math.random() - 0.5) * player.shake * 0.5;
         camY += (Math.random() - 0.5) * player.shake * 0.5;
       }
-      setCameraLookAt(camX, camY, camZ, player.x + fwd.x * 34, player.y + fwd.y * 34, player.z + fwd.z * 34);
+      const lookDist = cfg.view === 'cockpit' ? 160 : 34;
+      setCameraLookAt(camX, camY, camZ, player.x + fwd.x * lookDist, player.y + fwd.y * lookDist, player.z + fwd.z * lookDist);
 
       // =========================================================================
       // 10. SOFTWARE RASTERIZATION PIPELINE
@@ -2246,20 +2886,31 @@
       for (let i = 0; i < asteroids.length; i++) {
         const a = asteroids[i];
         if (a.dead) continue;
-        drawSpriteStack(a.isLarge ? AST_LARGE : AST_SMALL, a.x, a.y, a.z, a.yaw, a.pitch, 0, a.scale, 1.0, 0, false, 0);
+        const st = a.kind === 'magma' ? AST_MAGMA : (a.kind === 'crystal' ? AST_CRYSTAL : (a.isLarge ? AST_LARGE : AST_SMALL));
+        drawSpriteStack(st, a.x, a.y, a.z, a.yaw, a.pitch, 0, a.scale, 1.0, 0, false, 0);
       }
 
-      // Boss Warp Dash Afterimages
+      for (let i = 0; i < starRings.length; i++) {
+        if (!starRings[i].used) drawCosmicRing3D(starRings[i], sec);
+      }
+
+      for (let i = 0; i < pickups.length; i++) {
+        const pk = pickups[i];
+        const ovMat = pk.type === 0 ? 5 : (pk.type === 1 ? 11 : 18);
+        drawSpriteStack(PICKUP_STACK, pk.x, pk.y, pk.z, pk.spin, pk.spin * 0.4, 0, 1.4, 1.0, 0, false, ovMat);
+      }
+
+      // Boss & Baltan Afterimage Ghosts
       for (let i = ghosts.length - 1; i >= 0; i--) {
         const g = ghosts[i];
-        g.life -= rawDt;
+        if (!freezeSim) g.life -= rawDt;
         if (g.life <= 0) { ghosts.splice(i, 1); continue; }
-        drawSpriteStack(BOSS_STACK, g.x, g.y, g.z, g.yaw, 0, 0, 1.85, 1.0, 0, false, 0);
+        drawSpriteStack(g.stack || BOSS_ZETTON_STACK, g.x, g.y, g.z, g.yaw, 0, 0, g.scale || 1.85, 1.0, 0, false, 0);
       }
 
       for (let i = 0; i < enemies.length; i++) {
         const e = enemies[i];
-        const st = e.isBoss ? BOSS_STACK : KAIJU_STACKS[e.variant];
+        const st = e.isBoss ? BOSS_STACKS[e.bossType || 0] : KAIJU_STACKS[e.variant];
         const sc = e.isBoss ? 1.85 : 1.25;
         const roll = e.isBoss ? e.roll : (e.roll + Math.sin(sec * 2 + i) * 0.1);
         drawSpriteStack(st, e.x, e.y, e.z, e.yaw, e.pitch || 0, roll, sc, 1.0, 2, e.flash > 0, 0);
@@ -2268,11 +2919,11 @@
       // Dual Wingtip Light Ribbons
       const ribCol = packHex(0x38bdf8);
       for (let i = 0; i < ribbonsL.length; i++) {
-        ribbonsL[i].life -= rawDt;
+        if (!freezeSim) ribbonsL[i].life -= rawDt;
         if (ribbonsL[i].life > 0) drawPixelBillboard(ribbonsL[i].x, ribbonsL[i].y, ribbonsL[i].z, 0.9, ribCol, 2);
       }
       for (let i = 0; i < ribbonsR.length; i++) {
-        ribbonsR[i].life -= rawDt;
+        if (!freezeSim) ribbonsR[i].life -= rawDt;
         if (ribbonsR[i].life > 0) drawPixelBillboard(ribbonsR[i].x, ribbonsR[i].y, ribbonsR[i].z, 0.9, ribCol, 2);
       }
 
@@ -2280,14 +2931,13 @@
       if (player.lightSphereTimer > 0) {
         drawPixelBillboard(player.x, player.y, player.z, 12.5, packHex(0xf43f5e), 3);
         drawPixelBillboard(player.x, player.y, player.z, 8.2, packHex(0xfef08a), 1);
-      } else if (!(player.invulnTimer > 0 && ((sec * 22) | 0) % 2 === 0)) {
+      } else if (cfg.view !== 'cockpit' && !(player.invulnTimer > 0 && ((sec * 22) | 0) % 2 === 0)) {
         const effRoll = player.roll + (player.rollAnim > 0 ? (Math.PI * 2 - player.rollAnim) * player.rollDir : 0);
-        const effPitchHero = effPitch;
         const timerOverride = player.hull <= 2 ? ((((sec * 4.5) | 0) % 2 === 0) ? 13 : 14) : 0;
-        drawSpriteStack(HERO_STACK, player.x, player.y, player.z, player.yaw, effPitchHero, effRoll, cfg.heroScale, cfg.spread, 1, false, timerOverride);
+        drawSpriteStack(HERO_STACK, player.x, player.y, player.z, player.yaw, effPitch, effRoll, cfg.heroScale, cfg.spread, 1, false, timerOverride);
       }
 
-      // Visible Two-Tone Enemy Homing Fireballs & Chaos Orbs
+      // Visible Two-Tone Enemy Homing Fireballs & Cluster Orbs
       for (let i = 0; i < enemyProjectiles.length; i++) {
         const ep = enemyProjectiles[i];
         drawPixelBillboard(ep.x, ep.y, ep.z, ep.radius * 1.15, ep.colOuter, ep.glowType);
@@ -2299,18 +2949,15 @@
       for (let i = 0; i < projectiles.length; i++) {
         const p = projectiles[i];
         if (p.isBeam) {
-          drawPixelBillboard(p.x, p.y, p.z, 3.8, beamCol, 2);
-          drawPixelBillboard(p.x, p.y, p.z, 1.9, beamCoreCol, 2);
+          drawPixelBillboard(p.x, p.y, p.z, 4.0, beamCol, 2);
+          drawPixelBillboard(p.x, p.y, p.z, 2.0, beamCoreCol, 2);
         } else {
-          drawSpriteStack(SLASH_STACK, p.x, p.y, p.z, p.yaw, p.pitch, p.spin, 0.72, 1.0, 0, false, 0);
+          drawSpriteStack(SLASH_STACK, p.x, p.y, p.z, p.yaw, p.pitch, p.spin, 0.78, 1.0, 0, false, 0);
         }
       }
 
-      for (let i = particles.length - 1; i >= 0; i--) {
+      for (let i = 0; i < particles.length; i++) {
         const pt = particles[i];
-        pt.x += pt.vx * dt; pt.y += pt.vy * dt; pt.z += pt.vz * dt;
-        pt.life -= rawDt;
-        if (pt.life <= 0) { particles.splice(i, 1); continue; }
         drawPixelBillboard(pt.x, pt.y, pt.z, pt.r, pt.col, 1);
       }
 
@@ -2318,25 +2965,73 @@
       ctx.putImageData(imgData, 0, 0);
 
       // =========================================================================
-      // 11. 2D HIGH-DPI HUD OVERLAY: LOCK-ON, DODGE RINGS, BOSS DASH LINE & RADAR
+      // 11. 2D HIGH-DPI HUD OVERLAY: LOCK-ON, DISTANCE, SHIELDS, RINGS & RADAR
       // =========================================================================
       hctx.clearRect(0, 0, hudOverlay.width, hudOverlay.height);
       hctx.save();
       hctx.scale(hudDpr, hudDpr);
       const sx = cssW / W, sy = cssH / H;
       const locked = getLockedEnemy(fwd);
+      if (locked) {
+        if (locked.uid !== lastLockedUid) { lastLockedUid = locked.uid; player.lockProgress = 0.15; }
+        else player.lockProgress = Math.min(1, player.lockProgress + rawDt * 2.2);
+      } else {
+        lastLockedUid = 0; player.lockProgress = 0;
+      }
 
-      worldToCam(player.x + fwd.x * 140, player.y + fwd.y * 140, player.z + fwd.z * 140, _tmpC);
+      if (cfg.view === 'cockpit') {
+        hctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+        hctx.lineWidth = 1.5;
+        const cx = cssW * 0.5, cy = cssH * 0.5;
+        hctx.strokeRect(cx - 58, cy - 36, 116, 72);
+      }
+
+      worldToCam(player.x + fwd.x * 160, player.y + fwd.y * 160, player.z + fwd.z * 160, _tmpC);
       if (_tmpC.z > 5) {
         const rx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
         const ry = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
-        hctx.strokeStyle = locked ? '#fbbf24' : 'rgba(56, 189, 248, 0.8)';
-        hctx.lineWidth = 1.6;
-        hctx.strokeRect(rx - 9, ry - 9, 18, 18);
+        hctx.strokeStyle = locked ? '#fbbf24' : 'rgba(56, 189, 248, 0.85)';
+        hctx.lineWidth = 1.8;
+        hctx.strokeRect(rx - 10, ry - 10, 20, 20);
       }
 
-      // Enemy Lock Brackets & Off-Screen Edge Radar Arrows
+      // Highlight Forward Boost Star Rings & Pickups
+      for (let sr of starRings) {
+        if (sr.used) continue;
+        worldToCam(sr.x, sr.y, sr.z, _tmpC);
+        if (_tmpC.z > 15 && _tmpC.z < 2400) {
+          const cxR = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
+          const cyR = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+          if (cxR > 12 && cxR < cssW - 12 && cyR > 30 && cyR < cssH - 12) {
+            hctx.save();
+            hctx.translate(cxR, cyR);
+            hctx.rotate(Math.PI * 0.25);
+            hctx.strokeStyle = 'rgba(103, 232, 249, 0.55)';
+            hctx.lineWidth = 1.3;
+            hctx.strokeRect(-5, -5, 10, 10);
+            hctx.restore();
+          }
+        }
+      }
+
+      for (let pk of pickups) {
+        worldToCam(pk.x, pk.y, pk.z, _tmpC);
+        if (_tmpC.z > 10 && _tmpC.z < 1200) {
+          const px = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
+          const py = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+          if (px > 10 && px < cssW - 10 && py > 28 && py < cssH - 10) {
+            hctx.strokeStyle = pk.type === 0 ? '#38bdf8' : (pk.type === 1 ? '#fb7185' : '#34d399');
+            hctx.lineWidth = 1.5;
+            hctx.beginPath(); hctx.arc(px, py, 9, 0, Math.PI * 2); hctx.stroke();
+          }
+        }
+      }
+
+      // Enemy Lock Brackets, Distance Readout, Shields & Sightlines
+      hctx.font = 'bold 10px monospace';
+      hctx.textAlign = 'center';
       for (let e of enemies) {
+        const dPlayer = Math.round(Math.hypot(e.x - player.x, e.y - player.y, e.z - player.z));
         worldToCam(e.x, e.y, e.z, _tmpC);
         const onScreen = _tmpC.z > 8;
         const bx = onScreen ? W * 0.5 + (_tmpC.x * focal) / _tmpC.z : -99;
@@ -2350,22 +3045,42 @@
           hctx.lineWidth = isLock ? 2.2 : 1.5;
           const sz = e.isBoss ? 24 : 16;
           hctx.strokeRect(ex - sz, ey - sz, sz * 2, sz * 2);
-          // Mini HP Bar above enemy
+
+          if (isLock) {
+            const ls = sz + (1 - player.lockProgress) * 18;
+            hctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+            hctx.lineWidth = 1.6;
+            hctx.beginPath();
+            hctx.arc(ex, ey, ls, 0, Math.PI * 2);
+            hctx.stroke();
+          }
+
+          // Mini HP Bar & Distance
           const hpFrac = Math.max(0, e.hp / e.maxHp);
           hctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
           hctx.fillRect(ex - sz, ey - sz - 8, sz * 2, 4);
           hctx.fillStyle = e.isBoss ? '#f43f5e' : '#22d3ee';
           hctx.fillRect(ex - sz, ey - sz - 8, sz * 2 * hpFrac, 4);
+          hctx.fillStyle = isLock ? '#67e8f9' : '#cbd5e1';
+          hctx.fillText(`${dPlayer}m`, ex, ey + sz + 11);
 
-          // Boss Windup Warning Dashed Vector Line!
-          if (e.isBoss && e.dashState === 'WINDUP') {
+          // Zetton Amber Shield Arc
+          if (!e.isBoss && e.shieldTimer > 0) {
+            hctx.strokeStyle = '#fbbf24';
+            hctx.lineWidth = 2.6;
+            hctx.beginPath(); hctx.arc(ex, ey, sz + 7, 0, Math.PI * 2); hctx.stroke();
+          }
+
+          // King Joe Sniper Sightline & Boss Windup Warning Laser
+          const showLaser = (e.isBoss && e.dashState === 'WINDUP') || (!e.isBoss && e.variant === 2 && e.chargeTimer > 0);
+          if (showLaser) {
             worldToCam(player.x, player.y, player.z, _tmpC);
             if (_tmpC.z > 5) {
               const hx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
               const hy = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
               hctx.setLineDash([8, 6]);
-              hctx.strokeStyle = '#ef4444';
-              hctx.lineWidth = 2;
+              hctx.strokeStyle = e.isBoss ? '#ef4444' : 'rgba(251, 191, 36, 0.78)';
+              hctx.lineWidth = e.isBoss ? 2.2 : 1.5;
               hctx.beginPath(); hctx.moveTo(ex, ey); hctx.lineTo(hx, hy); hctx.stroke();
               hctx.setLineDash([]);
             }
