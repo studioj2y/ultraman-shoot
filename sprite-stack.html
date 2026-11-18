@@ -1831,6 +1831,20 @@
       if (ribbonsL.length > 24) ribbonsL.shift();
       if (ribbonsR.length > 24) ribbonsR.shift();
 
+      function reflectHeroHeading(nx, ny, nz) {
+        const fn = fwd.x * nx + fwd.y * ny + fwd.z * nz;
+        if (fn < 0) {
+          let rx = fwd.x - 1.85 * fn * nx;
+          let ry = fwd.y - 1.85 * fn * ny;
+          let rz = fwd.z - 1.85 * fn * nz;
+          const rl = Math.hypot(rx, ry, rz) || 1;
+          rx /= rl; ry /= rl; rz /= rl;
+          player.yaw = Math.atan2(-rx, -rz);
+          player.pitch = Math.max(-0.62, Math.min(0.62, Math.asin(Math.max(-1, Math.min(1, ry)))));
+          fwd.x = rx; fwd.y = ry; fwd.z = rz;
+        }
+      }
+
       // 1. Celestial Planet Collisions (Bounce Ultraman!)
       const heroR = 7.5 * cfg.heroScale;
       for (let i = 0; i < PLANETS.length; i++) {
@@ -1840,9 +1854,10 @@
         const minD = p.r + heroR;
         if (d < minD) {
           const nx = dx / d, ny = dy / d, nz = dz / d;
-          player.x = p.x + nx * (minD + 1.5);
-          player.y = p.y + ny * (minD + 1.5);
-          player.z = p.z + nz * (minD + 1.5);
+          player.x = p.x + nx * (minD + 2.5);
+          player.y = p.y + ny * (minD + 2.5);
+          player.z = p.z + nz * (minD + 2.5);
+          reflectHeroHeading(nx, ny, nz);
           player.shake = 12; sfx.dodge();
           spawnSparks(player.x, player.y, player.z, 10, 0x38bdf8, 70);
         }
@@ -1872,6 +1887,7 @@
           } else {
             const push = (heroR + a.radius - d) + 3.0;
             player.x += nx * push; player.y += ny * push; player.z += nz * push;
+            reflectHeroHeading(nx, ny, nz);
             a.vx -= nx * 24; a.vy -= ny * 24; a.vz -= nz * 24;
             player.shake = 10; sfx.dodge();
             spawnSparks(player.x, player.y, player.z, 9, 0x38bdf8, 65);

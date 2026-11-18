@@ -1741,6 +1741,41 @@
             osc.stop(now + idx * 0.05 + 0.3);
           });
         },
+        playDodge() {
+          if (!this.ctx || this.muted) return;
+          const nowMs = performance.now();
+          if (nowMs - (this.lastDodgeSfx || 0) < 120) return;
+          this.lastDodgeSfx = nowMs;
+
+          const now = this.ctx.currentTime;
+          const dest = this.sfxGain || this.ctx.destination;
+
+          // Punchy elastic shield-bounce synth tone
+          const oscHi = this.ctx.createOscillator();
+          const gHi = this.ctx.createGain();
+          oscHi.type = 'triangle';
+          oscHi.frequency.setValueAtTime(320, now);
+          oscHi.frequency.exponentialRampToValueAtTime(620, now + 0.14);
+          gHi.gain.setValueAtTime(0.11, now);
+          gHi.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+          oscHi.connect(gHi);
+          gHi.connect(dest);
+          oscHi.start(now);
+          oscHi.stop(now + 0.17);
+
+          // Low deflection thump
+          const oscLo = this.ctx.createOscillator();
+          const gLo = this.ctx.createGain();
+          oscLo.type = 'sine';
+          oscLo.frequency.setValueAtTime(140, now);
+          oscLo.frequency.exponentialRampToValueAtTime(55, now + 0.12);
+          gLo.gain.setValueAtTime(0.14, now);
+          gLo.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+          oscLo.connect(gLo);
+          gLo.connect(dest);
+          oscLo.start(now);
+          oscLo.stop(now + 0.14);
+        },
         playHit() {
           if (!this.ctx || this.muted) return;
           const now = this.ctx.currentTime;
@@ -4289,6 +4324,17 @@
           const fwd = new THREE.Vector3(0, 0, -1).applyEuler(euler);
           player.pos.addScaledVector(fwd, player.speed * dt);
 
+          // Helper: reflect Ultraman's flight heading cleanly off massive obstacles
+          function reflectHeading(norm) {
+            const fn = fwd.dot(norm);
+            if (fn < 0) {
+              const refl = fwd.clone().addScaledVector(norm, -1.85 * fn).normalize();
+              player.yaw = Math.atan2(-refl.x, -refl.z);
+              player.pitch = Math.max(-0.62, Math.min(0.62, Math.asin(Math.max(-1, Math.min(1, refl.y)))));
+              fwd.copy(refl);
+            }
+          }
+
           // 1. Celestial Planet Collisions (Massive bodies: deflect and bounce Ultraman)
           const heroRadius = 8.0 * params.heroScale;
           for (let pi = 0; pi < planets.length; pi++) {
@@ -4298,7 +4344,8 @@
             const minDist = pl.radius + heroRadius;
             if (distP < minDist) {
               const norm = player.pos.clone().sub(pPos).normalize();
-              player.pos.copy(pPos).addScaledVector(norm, minDist + 1.2);
+              player.pos.copy(pPos).addScaledVector(norm, minDist + 2.5);
+              reflectHeading(norm);
               camState.shake = Math.min(22, camState.shake + 12.0);
               soundEngine.playDodge();
               if (navigator.vibrate) { try { navigator.vibrate([40, 20, 50]); } catch (e) {} }
@@ -4368,7 +4415,8 @@
                   }
                 } else {
                   // [Case B: 比奥特曼大] —— 巨石不可撼动，把奥特曼弹开！
-                  player.pos.addScaledVector(norm, overlap + 2.5);
+                  player.pos.addScaledVector(norm, overlap + 3.0);
+                  reflectHeading(norm);
                   a.vel.addScaledVector(norm, -28); // 巨石受到反作用力
                   camState.shake = Math.min(22, camState.shake + 10.0);
                   soundEngine.playDodge();
@@ -5513,11 +5561,11 @@
       let animId = null;
 
       function animate(now) {
+        animId = requestAnimationFrame(animate);
         const rawDt = (now - lastTime) / 1000;
         lastTime = now;
         updateSimulation(rawDt);
         renderFrame();
-        animId = requestAnimationFrame(animate);
       }
 
       function startLoop() {
