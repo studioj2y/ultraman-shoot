@@ -788,10 +788,10 @@
 
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
-              <label for="ctrlPixelSize" class="text-slate-300">Render Resolution (像素化解析度)</label>
-              <span id="valPixelSize" class="text-slate-400">1 (高清锐利)</span>
+              <label for="ctrlPixelSize" class="text-slate-300">Render Resolution (复古街机像素比)</label>
+              <span id="valPixelSize" class="text-slate-400">2 (经典 427×240)</span>
             </div>
-            <input id="ctrlPixelSize" type="range" min="1" max="4" step="1" value="1" class="w-full" />
+            <input id="ctrlPixelSize" type="range" min="1" max="4" step="1" value="2" class="w-full" />
           </div>
 
           <div class="space-y-1">
@@ -979,14 +979,6 @@
 
           <div class="space-y-1 pt-1">
             <div class="flex justify-between text-[11px]">
-              <label for="ctrlAnimeOutline" class="text-slate-300" title="2D 动漫赛璐珞黑线描边与轮廓墨线强度">2D Anime Inking (动漫赛璐珞描边)</label>
-              <span id="valAnimeOutline" class="text-slate-400">0.90</span>
-            </div>
-            <input id="ctrlAnimeOutline" type="range" min="0.0" max="1.5" step="0.05" value="0.90" class="w-full" />
-          </div>
-
-          <div class="space-y-1">
-            <div class="flex justify-between text-[11px]">
               <label for="ctrlGlow" class="text-slate-300" title="软拐点与 Karis 抗闪烁阈值辉光 (当前降至轻量30%强度)">Selective Bloom (防闪烁阈值辉光)</label>
               <span id="valGlow" class="text-slate-400">0.30</span>
             </div>
@@ -1031,26 +1023,26 @@
           <div class="text-[11px] font-bold text-rose-300 uppercase tracking-wider">Hero Colours (初代奥特曼经典涂装)</div>
 
           <div class="flex items-center justify-between">
-            <label for="ctrlColorBody" class="text-[11px] text-slate-300">Silver skin (经典银白)</label>
+            <label for="ctrlColorBody" class="text-[11px] text-slate-300">Silver skin (金属钛银)</label>
             <div class="flex items-center gap-2">
-              <span id="valColorBody" class="text-[10px] text-slate-400">#F1F5F9</span>
-              <input id="ctrlColorBody" type="color" value="#f1f5f9" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
+              <span id="valColorBody" class="text-[10px] text-slate-400">#C8D1DC</span>
+              <input id="ctrlColorBody" type="color" value="#c8d1dc" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
             </div>
           </div>
 
           <div class="flex items-center justify-between">
             <label for="ctrlColorAccent" class="text-[11px] text-slate-300">Red markings (英雄赤红)</label>
             <div class="flex items-center gap-2">
-              <span id="valColorAccent" class="text-[10px] text-slate-400">#EF4444</span>
-              <input id="ctrlColorAccent" type="color" value="#ef4444" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
+              <span id="valColorAccent" class="text-[10px] text-slate-400">#E11D48</span>
+              <input id="ctrlColorAccent" type="color" value="#e11d48" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
             </div>
           </div>
 
           <div class="flex items-center justify-between">
-            <label for="ctrlColorTimer" class="text-[11px] text-slate-300">Color Timer (计时器亮蓝)</label>
+            <label for="ctrlColorTimer" class="text-[11px] text-slate-300">Color Timer (计时器电青)</label>
             <div class="flex items-center gap-2">
-              <span id="valColorTimer" class="text-[10px] text-slate-400">#06B6D4</span>
-              <input id="ctrlColorTimer" type="color" value="#06b6d4" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
+              <span id="valColorTimer" class="text-[10px] text-slate-400">#00E5FF</span>
+              <input id="ctrlColorTimer" type="color" value="#00e5ff" class="w-6 h-6 rounded border border-slate-700 bg-transparent cursor-pointer" />
             </div>
           </div>
         </section>
@@ -1112,7 +1104,7 @@
       const DEFAULT_PARAMS = {
         heroScale: 1.0,
         sliceSpacing: 1.0,
-        pixelSize: 1,
+        pixelSize: 2,
         sharpness: 0.65,
         explodeSlices: false,
         view: 'chase',
@@ -1139,10 +1131,9 @@
         subpixelSmooth: true,
         vignette: 0.35,
         filmGrain: 0.04,
-        animeOutline: 0.90,
-        colorBody: '#f1f5f9',
-        colorAccent: '#ef4444',
-        colorTimer: '#06b6d4'
+        colorBody: '#c8d1dc',
+        colorAccent: '#e11d48',
+        colorTimer: '#00e5ff'
       };
       const params = Object.assign({}, DEFAULT_PARAMS);
 
@@ -1822,23 +1813,23 @@
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(60, 1, 0.5, 4200);
 
-      // Lighting Rig tuned for 2D Anime Cel Shading (Crisp Key Light + Stylized Rim)
-      const ambientLight = new THREE.AmbientLight(0x475569, 1.4);
+      // Balanced Lighting Rig tuned for High-Contrast Faceted Voxel Art (No White Bleed)
+      const ambientLight = new THREE.AmbientLight(0x475569, 1.1);
       scene.add(ambientLight);
-      // Key Sun Light: Crisp daylight stellar illumination
-      const sunLight = new THREE.DirectionalLight(0xffffff, 2.3);
-      sunLight.position.set(160, 260, -220);
+      // Key Sun Light: Crisp stellar illumination
+      const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.6);
+      sunLight.position.set(180, 260, -220);
       scene.add(sunLight);
       // Fill Light: Soft Cosmic Indigo bounce from deep space
-      const fillLight = new THREE.DirectionalLight(0x334155, 0.75);
+      const fillLight = new THREE.DirectionalLight(0x1e293b, 0.45);
       fillLight.position.set(-140, -90, -160);
       scene.add(fillLight);
-      // Upper Rim Light: Anime Backlight edge on head crest & shoulders
-      const rimLightUpper = new THREE.DirectionalLight(0x93c5fd, 1.5);
-      rimLightUpper.position.set(-160, 180, 240);
+      // Upper Rim Light: Electric Cyan razor glints on metallic voxel bevels
+      const rimLightUpper = new THREE.DirectionalLight(0x38bdf8, 0.7);
+      rimLightUpper.position.set(-160, 160, 220);
       scene.add(rimLightUpper);
-      // Lower Rim Light: Warm contour separation from cosmic void
-      const rimLightLower = new THREE.DirectionalLight(0xf43f5e, 0.6);
+      // Lower Rim Light: Subtle warm contour separation
+      const rimLightLower = new THREE.DirectionalLight(0xf43f5e, 0.4);
       rimLightLower.position.set(140, -160, 180);
       scene.add(rimLightLower);
 
@@ -1877,9 +1868,10 @@
               float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
               // Anti-firefly Karis weighting: stabilizes specular highlights from flashing
               float karis = 1.0 / (1.0 + luma * 0.42);
-              // Quadratic soft knee threshold curve (smooth C1 transition eliminates hard pop)
-              float threshold = 0.56;
-              float knee = 0.28;
+              // High-threshold selective bloom (ONLY eyes, timer, thrusters, beams, explosions)
+              // Protects the silver body and red markings from blooming and washing out!
+              float threshold = 0.88;
+              float knee = 0.12;
               float soft = clamp(luma - threshold + knee, 0.0, 2.0 * knee);
               soft = (soft * soft) / (4.0 * knee + 1e-4);
               float contrib = max(soft, luma - threshold) / max(luma, 1e-4);
@@ -1902,7 +1894,7 @@
       });
 
       // Pass 2: Final Composite
-      // Features: Subpixel AA Smooth Upscale + Contrast Adaptive Sharpening (CAS) + 2D Anime Cel Inking + Optical Diffraction + Dithering
+      // Features: Subpixel AA Smooth Upscale + Contrast Adaptive Sharpening (CAS) + Optical Diffraction + Dithering
       const compositeMat = new THREE.ShaderMaterial({
         uniforms: {
           tScene: { value: null },
@@ -1914,7 +1906,6 @@
           uSubpixelSmooth: { value: 1.0 },
           uVignette: { value: params.vignette },
           uGrain: { value: params.filmGrain },
-          uAnimeOutline: { value: params.animeOutline },
           uResolution: { value: new THREE.Vector2(800, 600) },
           uRtResolution: { value: new THREE.Vector2(400, 300) },
           uTime: { value: 0.0 }
@@ -1933,7 +1924,6 @@
           uniform float uSubpixelSmooth;
           uniform float uVignette;
           uniform float uGrain;
-          uniform float uAnimeOutline;
           uniform vec2 uResolution;
           uniform vec2 uRtResolution;
           uniform float uTime;
@@ -2023,32 +2013,6 @@
             return clamp(sharp, 0.0, 1.0);
           }
 
-          // 5. 2D Anime Cel Outline & Ink Line Filter (Sobel Edge Detector)
-          float getAnimeOutline(sampler2D tex, vec2 uv, vec2 res) {
-            vec2 d = 1.0 / res;
-            vec3 cC = texture2D(tex, uv).rgb;
-            vec3 cN = texture2D(tex, uv + vec2(0.0, d.y)).rgb;
-            vec3 cS = texture2D(tex, uv - vec2(0.0, d.y)).rgb;
-            vec3 cE = texture2D(tex, uv + vec2(d.x, 0.0)).rgb;
-            vec3 cW = texture2D(tex, uv - vec2(d.x, 0.0)).rgb;
-            vec3 cNE = texture2D(tex, uv + vec2(d.x, d.y)).rgb;
-            vec3 cNW = texture2D(tex, uv + vec2(-d.x, d.y)).rgb;
-            vec3 cSE = texture2D(tex, uv + vec2(d.x, -d.y)).rgb;
-            vec3 cSW = texture2D(tex, uv + vec2(-d.x, -d.y)).rgb;
-
-            vec3 gx = (-cNW - 2.0 * cW - cSW + cNE + 2.0 * cE + cSE);
-            vec3 gy = (-cNW - 2.0 * cN - cNE + cSW + 2.0 * cS + cSE);
-            float edge = sqrt(dot(gx, gx) + dot(gy, gy));
-
-            // Suppress outlines on faint background celestial space
-            float maxL = max(dot(cC, vec3(0.299, 0.587, 0.114)),
-                         max(dot(cN, vec3(0.299, 0.587, 0.114)),
-                             dot(cS, vec3(0.299, 0.587, 0.114))));
-            if (maxL < 0.04) return 0.0;
-
-            return smoothstep(0.18, 0.42, edge);
-          }
-
           float rand(vec2 co) {
             return fract(sin(dot(co, vec2(12.9898, 78.233)) + uTime * 7.1) * 43758.5453);
           }
@@ -2058,13 +2022,6 @@
               ? vUv
               : smoothPixelUV(vUv, uResolution, uRtResolution, uSubpixelSmooth);
             vec3 base = sampleSharpened(tScene, uvScene, uRtResolution, uSharpness);
-
-            // 2D Anime Cel Outline & Inking Pass
-            if (uAnimeOutline > 0.01) {
-              float edge = getAnimeOutline(tScene, uvScene, uRtResolution);
-              vec3 inkCol = vec3(0.03, 0.04, 0.08); // Classic anime comic dark ink
-              base = mix(base, inkCol, edge * clamp(uAnimeOutline, 0.0, 1.0));
-            }
 
             // Sample optical diffraction bloom
             vec3 bloom = sampleDiffraction(tBloom, vUv, uResolution, uDiffraction);
@@ -2509,25 +2466,6 @@
         return ringMesh;
       }
 
-      // 2D Anime Cel-Shading Ramp Map (Discrete 4-band tone quantization)
-      function createToonRampTexture() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 4;
-        canvas.height = 1;
-        const ctx = canvas.getContext('2d');
-        const tones = ['#64748b', '#94a3b8', '#e2e8f0', '#ffffff'];
-        tones.forEach((col, i) => {
-          ctx.fillStyle = col;
-          ctx.fillRect(i, 0, 1, 1);
-        });
-        const tex = new THREE.CanvasTexture(canvas);
-        tex.minFilter = THREE.NearestFilter;
-        tex.magFilter = THREE.NearestFilter;
-        tex.generateMipmaps = false;
-        return tex;
-      }
-      const toonGradientMap = createToonRampTexture();
-
       const cosmosGroup = new THREE.Group();
       scene.add(cosmosGroup);
       const planets = [];
@@ -2608,13 +2546,15 @@
           });
         }
 
-        // 4. Build Faceted Asteroid Belt with 2D Anime Cel Shading
+        // 4. Build Faceted Asteroid Belt
         const astCount = Math.round(params.asteroidsDensity * 280);
         if (astCount > 0) {
           const astGeo = new THREE.DodecahedronGeometry(1, 0);
-          const astMat = new THREE.MeshToonMaterial({
+          const astMat = new THREE.MeshStandardMaterial({
             color: 0x64748b,
-            gradientMap: toonGradientMap
+            metalness: 0.15,
+            roughness: 0.80,
+            flatShading: true
           });
           const astInst = new THREE.InstancedMesh(astGeo, astMat, astCount);
           const dummy = new THREE.Object3D();
@@ -2653,36 +2593,38 @@
         const slices = [];
         const NUM_SLICES = 16;
 
-        // 2D Anime Cel Shading Materials:
-        // 1. Quicksilver White (Classic 2D Anime Hero Silver)
-        const matSilver = new THREE.MeshToonMaterial({
+        // Faceted Voxel Materials matching Forge UI8 reference:
+        // 1. Quicksilver Slate-Silver (Classic faceted metallic silver)
+        const matSilver = new THREE.MeshStandardMaterial({
           color: params.colorBody,
-          gradientMap: toonGradientMap
+          metalness: 0.42,
+          roughness: 0.32,
+          flatShading: true
         });
-        // 2. Radiant Heroic Crimson (Classic 2D Anime Ultraman Red)
-        const matRed = new THREE.MeshToonMaterial({
+        // 2. Radiant Heroic Crimson (Punchy accent red)
+        const matRed = new THREE.MeshStandardMaterial({
           color: params.colorAccent,
-          gradientMap: toonGradientMap
+          metalness: 0.18,
+          roughness: 0.35,
+          flatShading: true
         });
         // 3. Classic Egg Eyes (Bright luminous warm yellow core)
-        const matEye = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+        const matEye = new THREE.MeshBasicMaterial({ color: 0xfffbeb });
         // 4. Warm Golden Amber Outer Eye Rim
         const matEyeRim = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
         // 5. Classic Color Timer Crystal (Emissive Sky Cyan Gem Core)
         const matTimer = new THREE.MeshBasicMaterial({ color: params.colorTimer });
         // 6. Color Timer Raised Metallic Bezel Frame
-        const matTimerBezel = new THREE.MeshToonMaterial({
+        const matTimerBezel = new THREE.MeshStandardMaterial({
           color: 0x94a3b8,
-          gradientMap: toonGradientMap
+          metalness: 0.75,
+          roughness: 0.20,
+          flatShading: true
         });
 
-        // Classic Standard Ultraman (初代奥特曼) flying pose along -Z (head at z = -14, boots at z = +17)
-        // Grid: x in [-9..9], z in [-17..17], y (slice) in [0..15]
+        // Pass 1: generate all voxel coordinates and materials
+        const voxelGrid = new Map();
         for (let s = 0; s < NUM_SLICES; s++) {
-          const sliceGroup = new THREE.Group();
-          sliceGroup.userData.baseY = (s - 7.5) * VOXEL_SIZE;
-          sliceGroup.position.y = sliceGroup.userData.baseY;
-
           for (let z = -17; z <= 17; z++) {
             for (let x = -9; x <= 9; x++) {
               const ax = Math.abs(x);
@@ -2767,14 +2709,35 @@
               }
 
               if (mat) {
-                const cube = new THREE.Mesh(voxelBoxGeo, mat);
-                cube.position.set(x * VOXEL_SIZE, 0, z * VOXEL_SIZE);
-                sliceGroup.add(cube);
+                voxelGrid.set(`${x},${s},${z}`, { x, s, z, mat });
               }
             }
           }
+        }
+
+        // Pass 2: instantiate slice groups and surface voxels (Forge UI8 shell culling)
+        for (let s = 0; s < NUM_SLICES; s++) {
+          const sliceGroup = new THREE.Group();
+          sliceGroup.userData.baseY = (s - 7.5) * VOXEL_SIZE;
+          sliceGroup.position.y = sliceGroup.userData.baseY;
           slices.push(sliceGroup);
           root.add(sliceGroup);
+        }
+
+        for (const [key, v] of voxelGrid) {
+          // Keep only surface voxels where at least 1 of 6 faces is exposed to empty air
+          if (
+            !voxelGrid.has(`${v.x + 1},${v.s},${v.z}`) ||
+            !voxelGrid.has(`${v.x - 1},${v.s},${v.z}`) ||
+            !voxelGrid.has(`${v.x},${v.s + 1},${v.z}`) ||
+            !voxelGrid.has(`${v.x},${v.s - 1},${v.z}`) ||
+            !voxelGrid.has(`${v.x},${v.s},${v.z + 1}`) ||
+            !voxelGrid.has(`${v.x},${v.s},${v.z - 1}`)
+          ) {
+            const cube = new THREE.Mesh(voxelBoxGeo, v.mat);
+            cube.position.set(v.x * VOXEL_SIZE, 0, v.z * VOXEL_SIZE);
+            slices[v.s].add(cube);
+          }
         }
 
         root.userData.slices = slices;
@@ -2800,16 +2763,28 @@
         ];
         const pal = palettes[variant % palettes.length];
 
-        const matShell = new THREE.MeshToonMaterial({ color: pal.shell, gradientMap: toonGradientMap });
-        const matBelly = new THREE.MeshToonMaterial({ color: pal.belly, gradientMap: toonGradientMap });
-        const matHorn  = new THREE.MeshToonMaterial({ color: pal.horn, gradientMap: toonGradientMap });
-        const matGlow  = new THREE.MeshBasicMaterial({ color: pal.glow });
+        const matShell = new THREE.MeshStandardMaterial({
+          color: pal.shell,
+          metalness: pal.metal,
+          roughness: pal.rough,
+          flatShading: true
+        });
+        const matBelly = new THREE.MeshStandardMaterial({
+          color: pal.belly,
+          metalness: pal.metal * 0.7,
+          roughness: pal.rough,
+          flatShading: true
+        });
+        const matHorn = new THREE.MeshStandardMaterial({
+          color: pal.horn,
+          metalness: 0.20,
+          roughness: 0.40,
+          flatShading: true
+        });
+        const matGlow = new THREE.MeshBasicMaterial({ color: pal.glow });
 
+        const voxelGrid = new Map();
         for (let s = 0; s < NUM_SLICES; s++) {
-          const sliceGroup = new THREE.Group();
-          sliceGroup.userData.baseY = (s - 6.5) * VOXEL_SIZE;
-          sliceGroup.position.y = sliceGroup.userData.baseY;
-
           for (let z = -14; z <= 14; z++) {
             for (let x = -11; x <= 11; x++) {
               const ax = Math.abs(x);
@@ -2848,15 +2823,35 @@
               }
 
               if (mat) {
-                const cube = new THREE.Mesh(voxelBoxGeo, mat);
-                cube.position.set(x * VOXEL_SIZE, 0, z * VOXEL_SIZE);
-                sliceGroup.add(cube);
+                voxelGrid.set(`${x},${s},${z}`, { x, s, z, mat });
               }
             }
           }
+        }
+
+        for (let s = 0; s < NUM_SLICES; s++) {
+          const sliceGroup = new THREE.Group();
+          sliceGroup.userData.baseY = (s - 6.5) * VOXEL_SIZE;
+          sliceGroup.position.y = sliceGroup.userData.baseY;
           slices.push(sliceGroup);
           root.add(sliceGroup);
         }
+
+        for (const [key, v] of voxelGrid) {
+          if (
+            !voxelGrid.has(`${v.x + 1},${v.s},${v.z}`) ||
+            !voxelGrid.has(`${v.x - 1},${v.s},${v.z}`) ||
+            !voxelGrid.has(`${v.x},${v.s + 1},${v.z}`) ||
+            !voxelGrid.has(`${v.x},${v.s - 1},${v.z}`) ||
+            !voxelGrid.has(`${v.x},${v.s},${v.z + 1}`) ||
+            !voxelGrid.has(`${v.x},${v.s},${v.z - 1}`)
+          ) {
+            const cube = new THREE.Mesh(voxelBoxGeo, v.mat);
+            cube.position.set(v.x * VOXEL_SIZE, 0, v.z * VOXEL_SIZE);
+            slices[v.s].add(cube);
+          }
+        }
+
         root.userData.slices = slices;
         return root;
       }
@@ -2867,17 +2862,29 @@
         const slices = [];
         const NUM_SLICES = 18;
 
-        const matArmor = new THREE.MeshToonMaterial({ color: 0x18181b, gradientMap: toonGradientMap });
-        const matPlate = new THREE.MeshToonMaterial({ color: 0x27272a, gradientMap: toonGradientMap });
-        const matHorn  = new THREE.MeshToonMaterial({ color: 0x991b1b, gradientMap: toonGradientMap });
-        const matGlow  = new THREE.MeshBasicMaterial({ color: 0xf43f5e }); // Bright emissive crimson
-        const matCore  = new THREE.MeshBasicMaterial({ color: 0xfbbf24 }); // Gold-orange chaos reactor
+        const matArmor = new THREE.MeshStandardMaterial({
+          color: 0x18181b,
+          metalness: 0.70,
+          roughness: 0.25,
+          flatShading: true
+        });
+        const matPlate = new THREE.MeshStandardMaterial({
+          color: 0x27272a,
+          metalness: 0.50,
+          roughness: 0.35,
+          flatShading: true
+        });
+        const matHorn = new THREE.MeshStandardMaterial({
+          color: 0x991b1b,
+          metalness: 0.20,
+          roughness: 0.40,
+          flatShading: true
+        });
+        const matGlow = new THREE.MeshBasicMaterial({ color: 0xf43f5e }); // Bright emissive crimson
+        const matCore = new THREE.MeshBasicMaterial({ color: 0xfbbf24 }); // Gold-orange chaos reactor
 
+        const voxelGrid = new Map();
         for (let s = 0; s < NUM_SLICES; s++) {
-          const sliceGroup = new THREE.Group();
-          sliceGroup.userData.baseY = (s - 8.5) * VOXEL_SIZE;
-          sliceGroup.position.y = sliceGroup.userData.baseY;
-
           for (let z = -18; z <= 18; z++) {
             for (let x = -16; x <= 16; x++) {
               const ax = Math.abs(x);
@@ -2921,14 +2928,33 @@
               }
 
               if (mat) {
-                const cube = new THREE.Mesh(voxelBoxGeo, mat);
-                cube.position.set(x * VOXEL_SIZE, 0, z * VOXEL_SIZE);
-                sliceGroup.add(cube);
+                voxelGrid.set(`${x},${s},${z}`, { x, s, z, mat });
               }
             }
           }
+        }
+
+        for (let s = 0; s < NUM_SLICES; s++) {
+          const sliceGroup = new THREE.Group();
+          sliceGroup.userData.baseY = (s - 8.5) * VOXEL_SIZE;
+          sliceGroup.position.y = sliceGroup.userData.baseY;
           slices.push(sliceGroup);
           root.add(sliceGroup);
+        }
+
+        for (const [key, v] of voxelGrid) {
+          if (
+            !voxelGrid.has(`${v.x + 1},${v.s},${v.z}`) ||
+            !voxelGrid.has(`${v.x - 1},${v.s},${v.z}`) ||
+            !voxelGrid.has(`${v.x},${v.s + 1},${v.z}`) ||
+            !voxelGrid.has(`${v.x},${v.s - 1},${v.z}`) ||
+            !voxelGrid.has(`${v.x},${v.s},${v.z + 1}`) ||
+            !voxelGrid.has(`${v.x},${v.s},${v.z - 1}`)
+          ) {
+            const cube = new THREE.Mesh(voxelBoxGeo, v.mat);
+            cube.position.set(v.x * VOXEL_SIZE, 0, v.z * VOXEL_SIZE);
+            slices[v.s].add(cube);
+          }
         }
 
         root.userData.slices = slices;
@@ -4694,7 +4720,6 @@
         compositeMat.uniforms.uRtResolution.value.set(rtW, rtH);
         compositeMat.uniforms.uVignette.value = params.vignette;
         compositeMat.uniforms.uGrain.value = params.filmGrain;
-        compositeMat.uniforms.uAnimeOutline.value = params.animeOutline;
         compositeMat.uniforms.uTime.value = performance.now() * 0.001;
         renderer.setRenderTarget(null);
         renderer.render(postScene, postCam);
@@ -4938,7 +4963,6 @@
       bindRange('ctrlDither', 'valDither', 'ditherStrength', (v) => v.toFixed(2));
       bindRange('ctrlVignette', 'valVignette', 'vignette', (v) => v.toFixed(2));
       bindRange('ctrlFilmGrain', 'valFilmGrain', 'filmGrain', (v) => v.toFixed(2));
-      bindRange('ctrlAnimeOutline', 'valAnimeOutline', 'animeOutline', (v) => v.toFixed(2));
 
       const ctrlSubpixelEl = document.getElementById('ctrlSubpixel');
       if (ctrlSubpixelEl) {
@@ -5175,10 +5199,6 @@
         if (document.getElementById('ctrlFilmGrain')) {
           document.getElementById('ctrlFilmGrain').value = params.filmGrain;
           document.getElementById('valFilmGrain').textContent = params.filmGrain.toFixed(2);
-        }
-        if (document.getElementById('ctrlAnimeOutline')) {
-          document.getElementById('ctrlAnimeOutline').value = params.animeOutline;
-          document.getElementById('valAnimeOutline').textContent = params.animeOutline.toFixed(2);
         }
         document.getElementById('ctrlColorBody').value = params.colorBody;
         document.getElementById('valColorBody').textContent = params.colorBody.toUpperCase();
