@@ -783,9 +783,9 @@
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
               <label for="ctrlHeroScale" class="text-slate-300">Hero scale (体型比例)</label>
-              <span id="valHeroScale" class="text-slate-400">1.00</span>
+              <span id="valHeroScale" class="text-slate-400">0.85</span>
             </div>
-            <input id="ctrlHeroScale" type="range" min="0.6" max="1.6" step="0.05" value="1.00" class="w-full" />
+            <input id="ctrlHeroScale" type="range" min="0.5" max="1.6" step="0.05" value="0.85" class="w-full" />
           </div>
 
           <div class="space-y-1">
@@ -842,17 +842,17 @@
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
               <label for="ctrlChaseDist" class="text-slate-300">Chase distance</label>
-              <span id="valChaseDist" class="text-slate-400">2.6</span>
+              <span id="valChaseDist" class="text-slate-400">3.4</span>
             </div>
-            <input id="ctrlChaseDist" type="range" min="1.5" max="4.5" step="0.1" value="2.6" class="w-full" />
+            <input id="ctrlChaseDist" type="range" min="1.5" max="5.5" step="0.1" value="3.4" class="w-full" />
           </div>
 
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
               <label for="ctrlChaseHeight" class="text-slate-300">Chase elevation</label>
-              <span id="valChaseHeight" class="text-slate-400">12°</span>
+              <span id="valChaseHeight" class="text-slate-400">14°</span>
             </div>
-            <input id="ctrlChaseHeight" type="range" min="2" max="35" step="1" value="12" class="w-full" />
+            <input id="ctrlChaseHeight" type="range" min="2" max="35" step="1" value="14" class="w-full" />
           </div>
         </section>
 
@@ -1112,15 +1112,15 @@
       // 1. DEFAULT PARAMETERS
       // ==========================================
       const DEFAULT_PARAMS = {
-        heroScale: 1.0,
+        heroScale: 0.85,
         sliceSpacing: 1.0,
         pixelSize: 2,
-        sharpness: 0.65,
+        sharpness: 0.75,
         explodeSlices: false,
         view: 'chase',
         viewChange: 1.2,
-        chaseDist: 2.6,
-        chaseHeight: 12,
+        chaseDist: 3.4,
+        chaseHeight: 14,
         speed: 95,
         boostMultiplier: 1.9,
         turnRate: 1.30,
@@ -1137,7 +1137,7 @@
         wingtipTrails: true,
         glow: 0.30,
         diffraction: 0.15,
-        ditherStrength: 0.10,
+        ditherStrength: 0.16,
         subpixelSmooth: true,
         vignette: 0.35,
         filmGrain: 0.04,
@@ -1821,7 +1821,7 @@
       renderer.setPixelRatio(1);
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(60, 1, 0.5, 4200);
+      const camera = new THREE.PerspectiveCamera(64, 1, 0.5, 4500);
 
       // Balanced Lighting Rig tuned for High-Contrast Faceted Voxel Art (No White Bleed)
       const ambientLight = new THREE.AmbientLight(0x475569, 1.1);
@@ -2480,6 +2480,7 @@
       scene.add(cosmosGroup);
       const planets = [];
       const asteroids = [];
+      let astInstMesh = null;
 
       function seededRandom(seedObj) {
         seedObj.val = (seedObj.val * 1664525 + 1013904223) % 4294967296;
@@ -2494,6 +2495,7 @@
         }
         planets.length = 0;
         asteroids.length = 0;
+        astInstMesh = null;
 
         const rng = { val: params.worldSeed * 98765 + 1337 };
 
@@ -2556,7 +2558,7 @@
           });
         }
 
-        // 4. Build Faceted Asteroid Belt
+        // 4. Build Faceted Asteroid Belt with Physical Interaction
         const astCount = Math.round(params.asteroidsDensity * 280);
         if (astCount > 0) {
           const astGeo = new THREE.DodecahedronGeometry(1, 0);
@@ -2578,14 +2580,30 @@
             const sx = 3.5 + seededRandom(rng) * 12;
             const sy = sx * (0.6 + seededRandom(rng) * 0.7);
             const sz = sx * (0.6 + seededRandom(rng) * 0.7);
+            const rx = seededRandom(rng) * 6;
+            const ry = seededRandom(rng) * 6;
+            const rz = seededRandom(rng) * 6;
 
             dummy.position.set(x, y, z);
             dummy.scale.set(sx, sy, sz);
-            dummy.rotation.set(seededRandom(rng) * 6, seededRandom(rng) * 6, seededRandom(rng) * 6);
+            dummy.rotation.set(rx, ry, rz);
             dummy.updateMatrix();
             astInst.setMatrixAt(i, dummy.matrix);
+
+            asteroids.push({
+              id: i,
+              pos: new THREE.Vector3(x, y, z),
+              vel: new THREE.Vector3(0, 0, 0),
+              rot: new THREE.Euler(rx, ry, rz),
+              rotVel: new THREE.Vector3((seededRandom(rng) - 0.5) * 0.4, (seededRandom(rng) - 0.5) * 0.4, (seededRandom(rng) - 0.5) * 0.4),
+              radius: sx,
+              scale: new THREE.Vector3(sx, sy, sz),
+              health: sx * 2.5,
+              destroyed: false
+            });
           }
           astInst.instanceMatrix.needsUpdate = true;
+          astInstMesh = astInst;
           cosmosGroup.add(astInst);
         }
       }
@@ -3198,10 +3216,10 @@
             sl.position.y = sl.userData.baseY * breatheSpacing;
           });
 
-          // Orbit camera around hero
+          // Orbit camera around hero (Pulled back for refined pixel-art miniature view)
           const orbitAngle = now * 0.45;
-          const orbitDist = 58;
-          const orbitH = 15 + Math.sin(now * 0.6) * 8;
+          const orbitDist = 76;
+          const orbitH = 18 + Math.sin(now * 0.6) * 10;
           camera.position.set(Math.cos(orbitAngle) * orbitDist, orbitH, Math.sin(orbitAngle) * orbitDist);
           camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -3217,8 +3235,8 @@
           heroMesh.position.copy(player.pos);
           heroMesh.quaternion.setFromEuler(new THREE.Euler(player.pitch, 0, player.roll, 'YXZ'));
 
-          // Cinematic camera tracking from 3/4 quarter chase view
-          const camOffset = new THREE.Vector3(26, 12, 45);
+          // Cinematic camera tracking from pulled-back 3/4 quarter chase view
+          const camOffset = new THREE.Vector3(38, 18, 66);
           camera.position.copy(player.pos).add(camOffset);
           camera.lookAt(player.pos.clone().add(new THREE.Vector3(-10, 0, -50)));
 
@@ -3282,7 +3300,7 @@
 
           // Low angle dramatic orbiting camera
           const bAngle = now * 0.35 + Math.PI;
-          const bDist = 110;
+          const bDist = 135;
           const bH = -15 + Math.sin(now * 0.5) * 12;
           camera.position.set(Math.cos(bAngle) * bDist, bH, Math.sin(bAngle) * bDist - 40);
           camera.lookAt(new THREE.Vector3(0, 8, -40));
@@ -4061,6 +4079,20 @@
         }
       }
 
+      function spawnImpactSparks(pos, normal, colorHex) {
+        const count = 7;
+        const geo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+        const mat = new THREE.MeshBasicMaterial({ color: colorHex || 0x38bdf8 });
+        for (let i = 0; i < count; i++) {
+          const m = new THREE.Mesh(geo, mat);
+          m.position.copy(pos);
+          scene.add(m);
+          const v = normal.clone().multiplyScalar(45 + Math.random() * 75)
+            .add(new THREE.Vector3((Math.random() - 0.5) * 35, (Math.random() - 0.5) * 35, (Math.random() - 0.5) * 35));
+          particles.push({ mesh: m, vel: v, life: 0.22 + Math.random() * 0.18 });
+        }
+      }
+
       function setCameraView(mode) {
         params.view = mode;
         markTutorial('view');
@@ -4224,6 +4256,107 @@
           const euler = new THREE.Euler(effPitch, player.yaw, effRoll, 'YXZ');
           const fwd = new THREE.Vector3(0, 0, -1).applyEuler(euler);
           player.pos.addScaledVector(fwd, player.speed * dt);
+
+          // 1. Celestial Planet Collisions (Massive bodies: deflect and bounce Ultraman)
+          const heroRadius = 8.0 * params.heroScale;
+          for (let pi = 0; pi < planets.length; pi++) {
+            const pl = planets[pi];
+            const pPos = pl.mesh.position;
+            const distP = player.pos.distanceTo(pPos);
+            const minDist = pl.radius + heroRadius;
+            if (distP < minDist) {
+              const norm = player.pos.clone().sub(pPos).normalize();
+              player.pos.copy(pPos).addScaledVector(norm, minDist + 1.2);
+              camState.shake = Math.min(22, camState.shake + 12.0);
+              soundEngine.playDodge();
+              if (navigator.vibrate) { try { navigator.vibrate([40, 20, 50]); } catch (e) {} }
+              spawnImpactSparks(player.pos.clone().addScaledVector(norm, -heroRadius * 0.4), norm, 0x38bdf8);
+            }
+          }
+
+          // 2. Asteroid Belt Interactive Collisions (Volume-based Interaction)
+          if (astInstMesh && asteroids.length > 0) {
+            const dummyAst = new THREE.Object3D();
+            let astMatrixUpdated = false;
+
+            for (let ai = 0; ai < asteroids.length; ai++) {
+              const a = asteroids[ai];
+              if (a.destroyed) {
+                if (a.scale.x > 0.02) {
+                  a.scale.multiplyScalar(0.82);
+                  dummyAst.position.copy(a.pos);
+                  dummyAst.scale.copy(a.scale);
+                  dummyAst.rotation.copy(a.rot);
+                  dummyAst.updateMatrix();
+                  astInstMesh.setMatrixAt(a.id, dummyAst.matrix);
+                  astMatrixUpdated = true;
+                }
+                continue;
+              }
+
+              // Apply velocity and tumbling rotation
+              if (a.vel.lengthSq() > 0.02 || Math.abs(a.rotVel.x) > 0.01) {
+                a.pos.addScaledVector(a.vel, dt);
+                a.vel.multiplyScalar(Math.pow(0.88, dt * 60)); // Space drag
+                a.rot.x += a.rotVel.x * dt;
+                a.rot.y += a.rotVel.y * dt;
+                a.rot.z += a.rotVel.z * dt;
+                dummyAst.position.copy(a.pos);
+                dummyAst.scale.copy(a.scale);
+                dummyAst.rotation.copy(a.rot);
+                dummyAst.updateMatrix();
+                astInstMesh.setMatrixAt(a.id, dummyAst.matrix);
+                astMatrixUpdated = true;
+              }
+
+              // Distance to Ultraman
+              const distToHero = player.pos.distanceTo(a.pos);
+              const colDist = heroRadius + a.radius;
+
+              if (distToHero < colDist) {
+                const overlap = colDist - distToHero;
+                const norm = player.pos.clone().sub(a.pos).normalize();
+
+                // Size comparison: threshold is Ultraman's radius (~7.0)
+                if (a.radius < 7.2) {
+                  // [Case A: 比奥特曼小] —— 被奥特曼猛烈撞开/撞碎！
+                  const impactSpd = player.speed * (player.boosting ? 2.4 : 1.5) + 120;
+                  a.vel.copy(fwd).multiplyScalar(impactSpd).addScaledVector(norm, -35);
+                  a.rotVel.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20);
+                  camState.shake = Math.min(14, camState.shake + 4.0);
+                  soundEngine.playHit();
+                  if (navigator.vibrate) { try { navigator.vibrate(25); } catch (e) {} }
+                  spawnImpactSparks(a.pos, norm, 0xf59e0b);
+
+                  if (player.boosting || a.health <= 0) {
+                    a.destroyed = true;
+                    spawnVoxelExplosion(a.pos, 10, 0x94a3b8);
+                  } else {
+                    a.health -= 25;
+                  }
+                } else {
+                  // [Case B: 比奥特曼大] —— 巨石不可撼动，把奥特曼弹开！
+                  player.pos.addScaledVector(norm, overlap + 2.5);
+                  a.vel.addScaledVector(norm, -28); // 巨石受到反作用力
+                  camState.shake = Math.min(22, camState.shake + 10.0);
+                  soundEngine.playDodge();
+                  if (navigator.vibrate) { try { navigator.vibrate([45, 25, 45]); } catch (e) {} }
+                  spawnImpactSparks(player.pos.clone().addScaledVector(norm, -heroRadius * 0.3), norm, 0x38bdf8);
+                }
+
+                dummyAst.position.copy(a.pos);
+                dummyAst.scale.copy(a.scale);
+                dummyAst.rotation.copy(a.rot);
+                dummyAst.updateMatrix();
+                astInstMesh.setMatrixAt(a.id, dummyAst.matrix);
+                astMatrixUpdated = true;
+              }
+            }
+
+            if (astMatrixUpdated) {
+              astInstMesh.instanceMatrix.needsUpdate = true;
+            }
+          }
 
           // Update Hero Mesh 3D Transform + Slice Stacking Spacing
           heroMesh.position.copy(player.pos);
@@ -4574,6 +4707,29 @@
           let removeProj = false;
           p.hitEnemies = p.hitEnemies || new Set();
 
+          // Projectile collisions with Asteroids
+          if (astInstMesh && !removeProj) {
+            for (let ai = 0; ai < asteroids.length; ai++) {
+              const a = asteroids[ai];
+              if (a.destroyed) continue;
+              if (p.mesh.position.distanceTo(a.pos) < a.radius + 5.5) {
+                const dmg = p.isBeamStream ? 5 : (p.isSlash ? 3 : 1);
+                a.health -= dmg * 12;
+                a.vel.addScaledVector(p.vel.clone().normalize(), dmg * 20);
+                spawnImpactSparks(p.mesh.position, p.vel.clone().normalize().negate(), p.isSlash ? 0x00e5ff : 0xf43f5e);
+                soundEngine.playHit();
+                if (a.health <= 0 || (p.isSlash && a.radius < 7.2)) {
+                  a.destroyed = true;
+                  spawnVoxelExplosion(a.pos, 10, 0x94a3b8);
+                }
+                if (!p.isBeamStream) {
+                  removeProj = true;
+                  break;
+                }
+              }
+            }
+          }
+
           for (let j = 0; j < enemies.length; j++) {
             const e = enemies[j];
             if (p.hitEnemies.has(e)) continue;
@@ -4680,11 +4836,11 @@
 
         const chaseEuler = new THREE.Euler(player.pitch * 0.45, player.yaw, 0, 'YXZ');
         const backDir = new THREE.Vector3(0, 0, 1).applyEuler(chaseEuler);
-        const chaseDist = params.chaseDist * 26;
+        const chaseDist = params.chaseDist * 32;
         const chaseElev = Math.sin((params.chaseHeight * Math.PI) / 180) * chaseDist;
 
         const chasePos = player.pos.clone().addScaledVector(backDir, chaseDist).add(new THREE.Vector3(0, chaseElev, 0));
-        const topPos = player.pos.clone().add(new THREE.Vector3(0, 165, 25));
+        const topPos = player.pos.clone().add(new THREE.Vector3(0, 260, 40));
         const firstPos = player.pos.clone().addScaledVector(fwd, 4);
 
         const finalPos = chasePos.clone().lerp(topPos, camState.blendTop).lerp(firstPos, camState.blendFirst);
@@ -4694,7 +4850,7 @@
         }
         camera.position.copy(finalPos);
 
-        const lookTarget = player.pos.clone().addScaledVector(fwd, camState.blendFirst > 0.5 ? 120 : 28);
+        const lookTarget = player.pos.clone().addScaledVector(fwd, camState.blendFirst > 0.5 ? 140 : 36);
         camera.lookAt(lookTarget);
 
         heroMesh.visible = !player.transforming && camState.blendFirst < 0.72;
@@ -5244,6 +5400,14 @@
         if (document.getElementById('ctrlFilmGrain')) {
           document.getElementById('ctrlFilmGrain').value = params.filmGrain;
           document.getElementById('valFilmGrain').textContent = params.filmGrain.toFixed(2);
+        }
+        if (document.getElementById('ctrlChaseDist')) {
+          document.getElementById('ctrlChaseDist').value = params.chaseDist;
+          document.getElementById('valChaseDist').textContent = params.chaseDist.toFixed(1);
+        }
+        if (document.getElementById('ctrlChaseHeight')) {
+          document.getElementById('ctrlChaseHeight').value = params.chaseHeight;
+          document.getElementById('valChaseHeight').textContent = `${Math.round(params.chaseHeight)}°`;
         }
         document.getElementById('ctrlColorBody').value = params.colorBody;
         document.getElementById('valColorBody').textContent = params.colorBody.toUpperCase();
