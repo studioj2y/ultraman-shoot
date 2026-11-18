@@ -53,6 +53,10 @@
       image-rendering: pixelated;
       cursor: crosshair;
     }
+    #hudOverlay {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 12;
+    }
 
     /* Damage Flash Overlay */
     #dmgFlash {
@@ -277,6 +281,7 @@
   <div class="stage-wrap">
     <main class="viewport" id="viewport">
       <canvas id="pixelCanvas"></canvas>
+      <canvas id="hudOverlay"></canvas>
       <div id="dmgFlash"></div>
 
       <!-- Top Telemetry & Combat HUD -->
@@ -291,7 +296,7 @@
         </div>
         <div class="hud-card">
           <div class="hud-row">
-            <div><span class="stat-lbl">BUF </span><span class="stat-val" id="hudRes">427×267</span></div>
+            <div><span class="stat-lbl">BUF </span><span class="stat-val" id="hudRes">640×360</span></div>
             <div><span class="stat-lbl">CPU </span><span class="stat-val stat-cyan" id="hudMs">0.8ms</span></div>
             <div><span class="stat-lbl">FPS </span><span class="stat-val" id="hudFps">60</span></div>
           </div>
@@ -413,8 +418,8 @@
       <div class="ctrl-sec">
         <div class="ctrl-sec-title">1. 像素缓冲与切片堆叠</div>
         <div class="ctrl-item">
-          <div class="ctrl-lbl-row"><span>纵向像素基准 (Res)</span><span id="vResBase">427 px</span></div>
-          <input id="cResBase" type="range" min="280" max="600" step="10" value="427" />
+          <div class="ctrl-lbl-row"><span>长边像素基准 (Res)</span><span id="vResBase">640 px</span></div>
+          <input id="cResBase" type="range" min="320" max="960" step="16" value="640" />
         </div>
         <div class="ctrl-item">
           <div class="ctrl-lbl-row"><span>切片层距展开 (Spread)</span><span id="vSpread">1.00×</span></div>
@@ -441,8 +446,8 @@
       <div class="ctrl-sec">
         <div class="ctrl-sec-title">2. 视角与飞行物理</div>
         <div class="ctrl-item">
-          <div class="ctrl-lbl-row"><span>相机拉远距离 (Dist)</span><span id="vCamDist">112</span></div>
-          <input id="cCamDist" type="range" min="65" max="180" step="1" value="112" />
+          <div class="ctrl-lbl-row"><span>相机拉远距离 (Dist)</span><span id="vCamDist">94</span></div>
+          <input id="cCamDist" type="range" min="65" max="180" step="1" value="94" />
         </div>
         <div class="ctrl-item">
           <div class="ctrl-lbl-row"><span>巡航速度 (Speed)</span><span id="vSpeed">95</span></div>
@@ -740,26 +745,39 @@
     // =========================================================================
     const canvas = document.getElementById('pixelCanvas');
     const ctx = canvas.getContext('2d', { alpha: false });
+    const hudOverlay = document.getElementById('hudOverlay');
+    const hctx = hudOverlay.getContext('2d');
 
     const cfg = {
-      resBase: 427,
+      resBase: 640,
       spread: 1.0,
       heroScale: 0.88,
       outline: true,
       gapFill: true,
       glow: true,
       view: 'chase',
-      camDist: 112,
+      camDist: 94,
       speed: 95
     };
 
-    let W = 427, H = 267;
+    let W = 640, H = 360;
+    let cssW = 800, cssH = 450, hudDpr = 1;
     let imgData = null, fb32 = null, zbuf = null, mask = null, glowBuf = null;
 
     function syncBufferSize() {
       const rect = canvas.parentElement.getBoundingClientRect();
       if (rect.width < 10 || rect.height < 10) return;
-      const aspect = rect.width / rect.height;
+      cssW = rect.width;
+      cssH = rect.height;
+      hudDpr = Math.min(window.devicePixelRatio || 1, 3);
+      const hudW = Math.max(1, Math.round(cssW * hudDpr));
+      const hudH = Math.max(1, Math.round(cssH * hudDpr));
+      if (hudOverlay.width !== hudW || hudOverlay.height !== hudH) {
+        hudOverlay.width = hudW;
+        hudOverlay.height = hudH;
+      }
+
+      const aspect = cssW / cssH;
       let targetW, targetH;
       if (aspect >= 1.0) {
         targetW = cfg.resBase;
@@ -781,8 +799,8 @@
     }
     window.addEventListener('resize', syncBufferSize);
 
-    const offX = new Float32Array(128);
-    const offY = new Float32Array(128);
+    const offX = new Float32Array(1024);
+    const offY = new Float32Array(1024);
     const sliceOrder = new Int32Array(32);
     const sliceDepth = new Float32Array(32);
 
@@ -861,9 +879,9 @@
 
       let ns = 1, nu = 1;
       if (cfg.gapFill) {
-        ns = Math.max(1, Math.min(3, Math.ceil(m0 * 1.25)));
+        ns = Math.max(1, Math.min(9, Math.ceil(m0 * 1.25)));
         const sliceGapPx = Math.hypot(pux, puy);
-        nu = Math.max(1, Math.min(4, Math.ceil(sliceGapPx * 1.15)));
+        nu = Math.max(1, Math.min(10, Math.ceil(sliceGapPx * 1.15)));
       }
 
       let nOff = 0;
@@ -1133,7 +1151,7 @@
             const offs = [-1, 1, -W, W, -2, 2, -W * 2, W * 2];
             for (let k = 0; k < 8; k++) {
               const idx = row + x + offs[k];
-              if (glowBuf[idx]) continue;
+              if (glowBuf[idx] || mask[idx] === 1) continue;
               const p = fb32[idx];
               const fall = k < 4 ? 1.0 : 0.45;
               const r = Math.min(255, (p & 255) + ((addR * fall) | 0));
@@ -1647,11 +1665,11 @@
     document.getElementById('cGlow').addEventListener('change', e => { cfg.glow = e.target.checked; });
 
     document.getElementById('btnReset').addEventListener('click', () => {
-      Object.assign(cfg, { resBase: 427, spread: 1.0, heroScale: 0.88, outline: true, gapFill: true, glow: true, camDist: 112, speed: 95 });
-      document.getElementById('cResBase').value = 427; document.getElementById('vResBase').textContent = '427 px';
+      Object.assign(cfg, { resBase: 640, spread: 1.0, heroScale: 0.88, outline: true, gapFill: true, glow: true, camDist: 94, speed: 95 });
+      document.getElementById('cResBase').value = 640; document.getElementById('vResBase').textContent = '640 px';
       document.getElementById('cSpread').value = 1.0; document.getElementById('vSpread').textContent = '1.00×';
       document.getElementById('cScale').value = 0.88; document.getElementById('vScale').textContent = '0.88';
-      document.getElementById('cCamDist').value = 112; document.getElementById('vCamDist').textContent = '112';
+      document.getElementById('cCamDist').value = 94; document.getElementById('vCamDist').textContent = '94';
       document.getElementById('cSpeed').value = 95; document.getElementById('vSpeed').textContent = '95';
       document.getElementById('cOutline').checked = true;
       document.getElementById('cGapFill').checked = true;
@@ -1699,27 +1717,27 @@
       document.getElementById('hudBeams').innerHTML = dotsHtml;
     }
 
-    // Draw off-screen radar directional triangle on 2D canvas
-    function drawEdgeArrow(wx, wy, wz, color, size = 5) {
+    // Draw off-screen radar directional triangle on High-DPI 2D HUD overlay
+    function drawEdgeArrow(wx, wy, wz, color, size = 8) {
       worldToCam(wx, wy, wz, _tmpC);
       let sx = _tmpC.x, sy = -_tmpC.y;
       if (_tmpC.z < 0) { sx = -sx; sy = -sy; }
       const len = Math.hypot(sx, sy) || 1;
       const nx = sx / len, ny = sy / len;
-      const pad = 12;
-      const ax = Math.max(pad, Math.min(W - pad, W * 0.5 + nx * (W * 0.48 - pad)));
-      const ay = Math.max(pad + 18, Math.min(H - pad, H * 0.5 + ny * (H * 0.48 - pad)));
-      ctx.save();
-      ctx.translate(ax, ay);
-      ctx.rotate(Math.atan2(ny, nx));
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.moveTo(size, 0);
-      ctx.lineTo(-size, -size * 0.72);
-      ctx.lineTo(-size, size * 0.72);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
+      const pad = 20;
+      const ax = Math.max(pad, Math.min(cssW - pad, cssW * 0.5 + nx * (cssW * 0.48 - pad)));
+      const ay = Math.max(pad + 34, Math.min(cssH - pad, cssH * 0.5 + ny * (cssH * 0.48 - pad)));
+      hctx.save();
+      hctx.translate(ax, ay);
+      hctx.rotate(Math.atan2(ny, nx));
+      hctx.fillStyle = color;
+      hctx.beginPath();
+      hctx.moveTo(size, 0);
+      hctx.lineTo(-size, -size * 0.72);
+      hctx.lineTo(-size, size * 0.72);
+      hctx.closePath();
+      hctx.fill();
+      hctx.restore();
     }
 
     // =========================================================================
@@ -1739,6 +1757,7 @@
       lastT = now;
 
       if (gameState === 'PAUSED' || gameState === 'GAMEOVER') return;
+      syncBufferSize();
 
       if (bannerTimer > 0) {
         bannerTimer -= rawDt;
@@ -1762,6 +1781,7 @@
         drawSpriteStack(HERO_STACK, 0, Math.sin(sec * 1.6) * 1.5, 0, 0, 0, Math.sin(sec * 1.1) * 0.1, cfg.heroScale * 1.15, cfg.spread, 1, false, 0);
         applyPostPixelFX();
         ctx.putImageData(imgData, 0, 0);
+        hctx.clearRect(0, 0, hudOverlay.width, hudOverlay.height);
         return;
       }
 
@@ -2298,56 +2318,60 @@
       ctx.putImageData(imgData, 0, 0);
 
       // =========================================================================
-      // 11. 2D PIXEL HUD OVERLAY: LOCK-ON, DODGE RINGS, BOSS DASH LINE & RADAR
+      // 11. 2D HIGH-DPI HUD OVERLAY: LOCK-ON, DODGE RINGS, BOSS DASH LINE & RADAR
       // =========================================================================
-      ctx.save();
+      hctx.clearRect(0, 0, hudOverlay.width, hudOverlay.height);
+      hctx.save();
+      hctx.scale(hudDpr, hudDpr);
+      const sx = cssW / W, sy = cssH / H;
       const locked = getLockedEnemy(fwd);
 
       worldToCam(player.x + fwd.x * 140, player.y + fwd.y * 140, player.z + fwd.z * 140, _tmpC);
       if (_tmpC.z > 5) {
-        const rx = W * 0.5 + (_tmpC.x * focal) / _tmpC.z;
-        const ry = H * 0.5 - (_tmpC.y * focal) / _tmpC.z;
-        ctx.strokeStyle = locked ? '#fbbf24' : 'rgba(56, 189, 248, 0.75)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect((rx - 6) | 0, (ry - 6) | 0, 12, 12);
+        const rx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
+        const ry = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+        hctx.strokeStyle = locked ? '#fbbf24' : 'rgba(56, 189, 248, 0.8)';
+        hctx.lineWidth = 1.6;
+        hctx.strokeRect(rx - 9, ry - 9, 18, 18);
       }
 
       // Enemy Lock Brackets & Off-Screen Edge Radar Arrows
       for (let e of enemies) {
         worldToCam(e.x, e.y, e.z, _tmpC);
         const onScreen = _tmpC.z > 8;
-        const ex = onScreen ? W * 0.5 + (_tmpC.x * focal) / _tmpC.z : -99;
-        const ey = onScreen ? H * 0.5 - (_tmpC.y * focal) / _tmpC.z : -99;
-        const inView = onScreen && ex > 8 && ex < W - 8 && ey > 24 && ey < H - 8;
+        const bx = onScreen ? W * 0.5 + (_tmpC.x * focal) / _tmpC.z : -99;
+        const by = onScreen ? H * 0.5 - (_tmpC.y * focal) / _tmpC.z : -99;
+        const inView = onScreen && bx > 8 && bx < W - 8 && by > 24 && by < H - 8;
 
         if (inView) {
+          const ex = bx * sx, ey = by * sy;
           const isLock = e === locked;
-          ctx.strokeStyle = isLock ? '#22d3ee' : (e.isBoss ? '#f43f5e' : '#fbbf24');
-          ctx.lineWidth = isLock ? 1.5 : 1;
-          const sz = e.isBoss ? 14 : 9;
-          ctx.strokeRect((ex - sz) | 0, (ey - sz) | 0, sz * 2, sz * 2);
+          hctx.strokeStyle = isLock ? '#22d3ee' : (e.isBoss ? '#f43f5e' : '#fbbf24');
+          hctx.lineWidth = isLock ? 2.2 : 1.5;
+          const sz = e.isBoss ? 24 : 16;
+          hctx.strokeRect(ex - sz, ey - sz, sz * 2, sz * 2);
           // Mini HP Bar above enemy
           const hpFrac = Math.max(0, e.hp / e.maxHp);
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect((ex - sz) | 0, (ey - sz - 5) | 0, sz * 2, 3);
-          ctx.fillStyle = e.isBoss ? '#f43f5e' : '#22d3ee';
-          ctx.fillRect((ex - sz) | 0, (ey - sz - 5) | 0, Math.round(sz * 2 * hpFrac), 3);
+          hctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+          hctx.fillRect(ex - sz, ey - sz - 8, sz * 2, 4);
+          hctx.fillStyle = e.isBoss ? '#f43f5e' : '#22d3ee';
+          hctx.fillRect(ex - sz, ey - sz - 8, sz * 2 * hpFrac, 4);
 
           // Boss Windup Warning Dashed Vector Line!
           if (e.isBoss && e.dashState === 'WINDUP') {
             worldToCam(player.x, player.y, player.z, _tmpC);
             if (_tmpC.z > 5) {
-              const hx = W * 0.5 + (_tmpC.x * focal) / _tmpC.z;
-              const hy = H * 0.5 - (_tmpC.y * focal) / _tmpC.z;
-              ctx.setLineDash([4, 3]);
-              ctx.strokeStyle = '#ef4444';
-              ctx.lineWidth = 1.5;
-              ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(hx, hy); ctx.stroke();
-              ctx.setLineDash([]);
+              const hx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
+              const hy = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+              hctx.setLineDash([8, 6]);
+              hctx.strokeStyle = '#ef4444';
+              hctx.lineWidth = 2;
+              hctx.beginPath(); hctx.moveTo(ex, ey); hctx.lineTo(hx, hy); hctx.stroke();
+              hctx.setLineDash([]);
             }
           }
         } else {
-          drawEdgeArrow(e.x, e.y, e.z, e.isBoss ? '#f43f5e' : '#fbbf24', e.isBoss ? 7 : 5);
+          drawEdgeArrow(e.x, e.y, e.z, e.isBoss ? '#f43f5e' : '#fbbf24', e.isBoss ? 11 : 8);
         }
       }
 
@@ -2356,10 +2380,10 @@
         for (let ep of enemyProjectiles) {
           if (ep.homing <= 0) continue;
           worldToCam(ep.x, ep.y, ep.z, _tmpC);
-          const ex = _tmpC.z > 5 ? W * 0.5 + (_tmpC.x * focal) / _tmpC.z : -99;
-          const ey = _tmpC.z > 5 ? H * 0.5 - (_tmpC.y * focal) / _tmpC.z : -99;
-          if (_tmpC.z <= 5 || ex < 4 || ex > W - 4 || ey < 18 || ey > H - 4) {
-            drawEdgeArrow(ep.x, ep.y, ep.z, '#ef4444', 4);
+          const bx = _tmpC.z > 5 ? W * 0.5 + (_tmpC.x * focal) / _tmpC.z : -99;
+          const by = _tmpC.z > 5 ? H * 0.5 - (_tmpC.y * focal) / _tmpC.z : -99;
+          if (_tmpC.z <= 5 || bx < 4 || bx > W - 4 || by < 18 || by > H - 4) {
+            drawEdgeArrow(ep.x, ep.y, ep.z, '#ef4444', 7);
           }
         }
       }
@@ -2369,19 +2393,19 @@
       if (threat) {
         worldToCam(player.x, player.y, player.z, _tmpC);
         if (_tmpC.z > 5) {
-          const hx = W * 0.5 + (_tmpC.x * focal) / _tmpC.z;
-          const hy = H * 0.5 - (_tmpC.y * focal) / _tmpC.z;
-          const innerR = 13;
+          const hx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
+          const hy = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+          const innerR = 24;
           const tNorm = Math.max(0, Math.min(1, (threat.dist - 24) / 150));
-          const outerR = innerR + tNorm * 30;
+          const outerR = innerR + tNorm * 52;
           const inWindow = threat.dist <= 105;
-          ctx.beginPath(); ctx.arc(hx, hy, innerR, 0, Math.PI * 2);
-          ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 1.5; ctx.stroke();
-          ctx.beginPath(); ctx.arc(hx, hy, outerR, 0, Math.PI * 2);
-          ctx.strokeStyle = inWindow ? '#4ade80' : '#f43f5e'; ctx.lineWidth = 2; ctx.stroke();
+          hctx.beginPath(); hctx.arc(hx, hy, innerR, 0, Math.PI * 2);
+          hctx.strokeStyle = '#22d3ee'; hctx.lineWidth = 2; hctx.stroke();
+          hctx.beginPath(); hctx.arc(hx, hy, outerR, 0, Math.PI * 2);
+          hctx.strokeStyle = inWindow ? '#4ade80' : '#f43f5e'; hctx.lineWidth = 2.2; hctx.stroke();
         }
       }
-      ctx.restore();
+      hctx.restore();
 
       const cpuTime = performance.now() - t0;
       fpsAcc += rawDt; fpsFrames++;

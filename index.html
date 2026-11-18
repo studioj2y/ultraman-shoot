@@ -97,8 +97,6 @@
       width: 100%;
       height: 100%;
       touch-action: none;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
     }
     #hudCanvas {
       position: absolute;
@@ -382,7 +380,7 @@
       <canvas id="hudCanvas"></canvas>
 
       <!-- Title Screen Overlay (Attract Mode & Cinematic Showcase) -->
-      <div id="titleOverlay" class="absolute inset-0 z-40 flex flex-col justify-between items-center p-2.5 sm:p-6 pointer-events-auto select-none bg-gradient-to-b from-[#03050a]/90 via-[#03050a]/40 to-[#03050a]/95 backdrop-blur-[1.5px] transition-all duration-700 overflow-y-auto overflow-x-hidden overscroll-contain">
+      <div id="titleOverlay" class="absolute inset-0 z-40 flex flex-col justify-between items-center p-2.5 sm:p-6 pointer-events-auto select-none bg-gradient-to-b from-[#03050a]/90 via-[#03050a]/15 to-[#03050a]/95 transition-all duration-700 overflow-y-auto overflow-x-hidden overscroll-contain">
         
         <!-- Top Title Bar Tag (Pixel Badge) -->
         <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-slate-950/90 border-2 border-cyan-400 shadow-[3px_3px_0px_#0284c7] backdrop-blur-md">
@@ -795,17 +793,17 @@
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
               <label for="ctrlPixelSize" class="text-slate-300">Render Resolution (复古街机像素比)</label>
-              <span id="valPixelSize" class="text-slate-400">2 (经典 427×240)</span>
+              <span id="valPixelSize" class="text-slate-400">1 (原生超清 1:1)</span>
             </div>
-            <input id="ctrlPixelSize" type="range" min="1" max="4" step="1" value="2" class="w-full" />
+            <input id="ctrlPixelSize" type="range" min="1" max="4" step="1" value="1" class="w-full" />
           </div>
 
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
               <label for="ctrlSharpness" class="text-slate-300" title="CAS 动态自适应边缘对比度锐化，消除一切模糊">Edge Sharpness (CAS 锐利度)</label>
-              <span id="valSharpness" class="text-slate-400">0.22</span>
+              <span id="valSharpness" class="text-slate-400">0.38</span>
             </div>
-            <input id="ctrlSharpness" type="range" min="0.0" max="1.0" step="0.02" value="0.22" class="w-full" />
+            <input id="ctrlSharpness" type="range" min="0.0" max="1.0" step="0.02" value="0.38" class="w-full" />
           </div>
 
           <div class="flex items-center justify-between pt-1">
@@ -838,9 +836,9 @@
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
               <label for="ctrlChaseDist" class="text-slate-300">Chase distance</label>
-              <span id="valChaseDist" class="text-slate-400">3.4</span>
+              <span id="valChaseDist" class="text-slate-400">2.9</span>
             </div>
-            <input id="ctrlChaseDist" type="range" min="1.5" max="5.5" step="0.1" value="3.4" class="w-full" />
+            <input id="ctrlChaseDist" type="range" min="1.5" max="5.5" step="0.1" value="2.9" class="w-full" />
           </div>
 
           <div class="space-y-1">
@@ -1110,12 +1108,12 @@
       const DEFAULT_PARAMS = {
         heroScale: 0.85,
         sliceSpacing: 1.0,
-        pixelSize: 2,
-        sharpness: 0.22,
+        pixelSize: 1,
+        sharpness: 0.38,
         explodeSlices: false,
         view: 'chase',
         viewChange: 1.2,
-        chaseDist: 3.4,
+        chaseDist: 2.9,
         chaseHeight: 14,
         speed: 95,
         boostMultiplier: 1.9,
@@ -1874,10 +1872,15 @@
       rimLightLower.position.set(140, -160, 180);
       scene.add(rimLightLower);
 
-      // Offscreen RenderTargets for Selective Bloom + Pixelation + Dithering + AA
-      let rtScene = new THREE.WebGLRenderTarget(320, 180, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
-      let rtBloomA = new THREE.WebGLRenderTarget(160, 90, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
-      let rtBloomB = new THREE.WebGLRenderTarget(160, 90, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
+      // Offscreen RenderTargets for Selective Bloom + Native 4x MSAA / Pixelation + Dithering + AA
+      const rtOpts = { format: THREE.RGBAFormat, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter };
+      let rtScene = new THREE.WebGLRenderTarget(320, 180, rtOpts);
+      let rtSceneMSAA = (renderer.capabilities.isWebGL2 && THREE.WebGLMultisampleRenderTarget)
+        ? new THREE.WebGLMultisampleRenderTarget(320, 180, rtOpts)
+        : null;
+      if (rtSceneMSAA) rtSceneMSAA.samples = 4;
+      let rtBloomA = new THREE.WebGLRenderTarget(160, 90, rtOpts);
+      let rtBloomB = new THREE.WebGLRenderTarget(160, 90, rtOpts);
 
       const postScene = new THREE.Scene();
       const postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -1977,13 +1980,13 @@
             if (enableSmooth < 0.5) {
               return (floor(uv * rtRes) + 0.5) / rtRes;
             }
-            vec2 p = uv * rtRes;
+            vec2 p = uv * rtRes - 0.5;
             vec2 i = floor(p);
             vec2 f = fract(p);
             vec2 fw = max(rtRes / screenRes, vec2(1e-4));
-            // Razor-sharp transition width: only ~0.35 display pixel transition, 95%+ area is 100% crisp
+            // Razor-sharp transition width: only ~0.35 display pixel transition, plateaus hit exact texel centers
             f = clamp((f - 0.5) / (fw * 0.35) + 0.5, 0.0, 1.0);
-            return (i + f) / rtRes;
+            return (i + f + 0.5) / rtRes;
           }
 
           // 2. Optical Diffraction Stars & Cross-Spikes
@@ -2059,7 +2062,7 @@
           }
 
           void main() {
-            vec2 uvScene = (uRtResolution.x >= uResolution.x * 0.98 || uSubpixelSmooth < 0.5)
+            vec2 uvScene = (uRtResolution.x >= uResolution.x * 0.98)
               ? vUv
               : smoothPixelUV(vUv, uResolution, uRtResolution, uSubpixelSmooth);
             vec3 base = sampleSharpened(tScene, uvScene, uRtResolution, uSharpness);
@@ -4945,14 +4948,14 @@
         const rect = glCanvas.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) return;
 
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const dpr = Math.min(window.devicePixelRatio || 1, 3);
         const cssW = rect.width;
         const cssH = rect.height;
-        const W = Math.floor(cssW * dpr);
-        const H = Math.floor(cssH * dpr);
-        const pxDiv = Math.max(1, params.pixelSize);
-        const rtW = Math.max(240, Math.floor(W / pxDiv));
-        const rtH = Math.max(140, Math.floor(H / pxDiv));
+        const W = Math.max(1, Math.round(cssW * dpr));
+        const H = Math.max(1, Math.round(cssH * dpr));
+        const pxDiv = Math.max(1, Math.round(params.pixelSize));
+        const rtW = pxDiv === 1 ? W : Math.max(240, Math.round(W / pxDiv));
+        const rtH = pxDiv === 1 ? H : Math.max(140, Math.round(H / pxDiv));
 
         if (glCanvas.width !== W || glCanvas.height !== H) {
           renderer.setSize(W, H, false);
@@ -4961,24 +4964,24 @@
           hudCanvas.width = W;
           hudCanvas.height = H;
         }
-        if (rtScene.width !== rtW || rtScene.height !== rtH) {
-          rtScene.setSize(rtW, rtH);
-          rtBloomA.setSize(Math.max(120, Math.floor(rtW / 2)), Math.max(70, Math.floor(rtH / 2)));
-          rtBloomB.setSize(Math.max(120, Math.floor(rtW / 2)), Math.max(70, Math.floor(rtH / 2)));
+        const activeRt = (pxDiv === 1 && rtSceneMSAA) ? rtSceneMSAA : rtScene;
+        if (activeRt.width !== rtW || activeRt.height !== rtH) {
+          activeRt.setSize(rtW, rtH);
         }
-        const wantMag = (params.pixelSize > 1 && !params.subpixelSmooth) ? THREE.NearestFilter : THREE.LinearFilter;
-        if (rtScene.texture.magFilter !== wantMag) {
-          rtScene.texture.magFilter = wantMag;
-          rtScene.texture.needsUpdate = true;
+        const bloomW = Math.max(120, Math.round(rtW / 2));
+        const bloomH = Math.max(70, Math.round(rtH / 2));
+        if (rtBloomA.width !== bloomW || rtBloomA.height !== bloomH) {
+          rtBloomA.setSize(bloomW, bloomH);
+          rtBloomB.setSize(bloomW, bloomH);
         }
 
-        // Pass 1: Render 3D Scene to RenderTarget
-        renderer.setRenderTarget(rtScene);
+        // Pass 1: Render 3D Scene to active RenderTarget (4x MSAA at 1:1 native res)
+        renderer.setRenderTarget(activeRt);
         renderer.render(scene, camera);
 
         // Pass 2: Extract High-Luminance Glow + Horizontal Blur
         postQuad.material = blurMat;
-        blurMat.uniforms.tDiffuse.value = rtScene.texture;
+        blurMat.uniforms.tDiffuse.value = activeRt.texture;
         blurMat.uniforms.uResolution.value.set(rtBloomA.width, rtBloomA.height);
         blurMat.uniforms.uDirection.value.set(1.2, 0.0);
         blurMat.uniforms.uThresholdOnly.value = 1.0;
@@ -4994,7 +4997,7 @@
 
         // Pass 4: Composite to Main Screen (CAS Contrast Adaptive Sharpening + Optical Diffraction + Dither)
         postQuad.material = compositeMat;
-        compositeMat.uniforms.tScene.value = rtScene.texture;
+        compositeMat.uniforms.tScene.value = activeRt.texture;
         compositeMat.uniforms.tBloom.value = rtBloomB.texture;
         compositeMat.uniforms.uBloomStrength.value = params.glow;
         compositeMat.uniforms.uDiffraction.value = params.diffraction;
@@ -5225,7 +5228,7 @@
 
       bindRange('ctrlHeroScale', 'valHeroScale', 'heroScale', (v) => v.toFixed(2));
       bindRange('ctrlSliceSpacing', 'valSliceSpacing', 'sliceSpacing', (v) => v.toFixed(1));
-      bindRange('ctrlPixelSize', 'valPixelSize', 'pixelSize', (v) => v === 1 ? '1 (高清锐利)' : `${Math.round(v)} (复古像素)`);
+      bindRange('ctrlPixelSize', 'valPixelSize', 'pixelSize', (v) => v === 1 ? '1 (原生超清 1:1)' : `${Math.round(v)} (复古街机像素)`);
       bindRange('ctrlSharpness', 'valSharpness', 'sharpness', (v) => v.toFixed(2));
       bindRange('ctrlViewChange', 'valViewChange', 'viewChange', (v) => v.toFixed(1));
       bindRange('ctrlChaseDist', 'valChaseDist', 'chaseDist', (v) => v.toFixed(1));
@@ -5455,7 +5458,7 @@
         document.getElementById('ctrlSliceSpacing').value = params.sliceSpacing;
         document.getElementById('valSliceSpacing').textContent = params.sliceSpacing.toFixed(1);
         document.getElementById('ctrlPixelSize').value = params.pixelSize;
-        document.getElementById('valPixelSize').textContent = params.pixelSize === 1 ? '1 (高清锐利)' : String(params.pixelSize);
+        document.getElementById('valPixelSize').textContent = params.pixelSize === 1 ? '1 (原生超清 1:1)' : `${Math.round(params.pixelSize)} (复古街机像素)`;
         if (document.getElementById('ctrlSharpness')) {
           document.getElementById('ctrlSharpness').value = params.sharpness;
           document.getElementById('valSharpness').textContent = params.sharpness.toFixed(2);
