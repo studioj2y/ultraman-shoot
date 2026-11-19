@@ -1311,21 +1311,48 @@
     // =========================================================================
     // 5B. GETTER-1 ARMAGEDDON PLEATED & TORN 3D CAPE + FOCUSED PINK BEAM ENGINE
     // =========================================================================
-    const CAPE_ROWS = 12, CAPE_COLS = 15;
-    const CAPE_COL_LEN = [1.24, 0.92, 1.42, 0.76, 1.24, 0.84, 1.16, 0.90, 1.16, 0.84, 1.24, 0.76, 1.42, 0.92, 1.24];
-    const CAPE_PLEAT = [0.95, -0.95, 1.0, -0.9, 0.95, -0.95, 1.0, -0.85, 1.0, -0.95, 0.95, -0.9, 1.0, -0.95, 0.95];
-    const CAPE_HOLES = new Set(['4,2', '6,1', '7,4', '5,11', '8,12', '6,13', '9,6', '8,8', '10,3', '10,10', '5,6']);
-    const CAPE_HALF_HOLES = new Set(['7,1', '6,10', '4,9']);
+    const CAPE_ROWS = 10;
+    const TENDRIL_SEGS = 9;
+    const CAPE_TENDRILS = [
+      // k=0: Far-left upper bat-wing spear (longest sweeping scythe, hooks high & far left)
+      { u0: -1.00, len: 1.48, latDir: -29.0, upDir:  11.5, curl: -8.5, upCurl:  6.5, backScale: 0.72, wBase: 2.35, freq: 1.18, phase: 0.20, ridgeH: 2.4, notchSeg: 4, notchSide: -1 },
+      // k=1: Upper-left secondary wing fang (medium-short jagged spur, flares left)
+      { u0: -0.82, len: 0.96, latDir: -22.5, upDir:   6.8, curl: -3.2, upCurl:  2.2, backScale: 0.84, wBase: 1.85, freq: 1.34, phase: 1.55, ridgeH: 1.9, notchSeg: 5, notchSide:  1 },
+      // k=2: Mid-left long battle streamer (long whipping crimson blade)
+      { u0: -0.62, len: 1.38, latDir: -17.5, upDir:   2.4, curl: -5.8, upCurl: -1.8, backScale: 1.02, wBase: 2.15, freq: 0.96, phase: 2.90, ridgeH: 2.5, notchSeg: 3, notchSide: -1 },
+      // k=3: Inner-left torn stub (short ragged tear creating a large negative-space bay)
+      { u0: -0.40, len: 0.72, latDir: -10.0, upDir:  -2.2, curl:  2.6, upCurl: -2.8, backScale: 0.94, wBase: 1.65, freq: 1.42, phase: 4.10, ridgeH: 1.7, notchSeg: 4, notchSide:  1 },
+      // k=4: Left-center main dorsal tail (long flowing ribbon dipping & whipping left)
+      { u0: -0.18, len: 1.26, latDir:  -5.4, upDir:  -4.6, curl: -4.2, upCurl:  1.6, backScale: 1.12, wBase: 2.05, freq: 1.04, phase: 5.35, ridgeH: 2.3, notchSeg: 5, notchSide: -1 },
+      // k=5: Center jagged keel (asymmetric mid-length spear biased slightly right with upward flick)
+      { u0:  0.03, len: 0.92, latDir:   1.4, upDir:  -1.8, curl:  3.8, upCurl:  3.4, backScale: 1.05, wBase: 1.85, freq: 1.26, phase: 0.95, ridgeH: 2.1, notchSeg: 4, notchSide:  1 },
+      // k=6: Right-center long sweeping streamer (long asymmetric tail curving right & down)
+      { u0:  0.24, len: 1.34, latDir:   7.6, upDir:  -5.2, curl:  5.4, upCurl: -2.4, backScale: 1.15, wBase: 2.10, freq: 0.92, phase: 2.25, ridgeH: 2.4, notchSeg: 6, notchSide: -1 },
+      // k=7: Inner-right medium jagged shard (tilts slightly upward to cross-layer in 3D)
+      { u0:  0.46, len: 0.84, latDir:  13.2, upDir:   1.8, curl: -2.4, upCurl:  2.8, backScale: 0.96, wBase: 1.75, freq: 1.38, phase: 3.60, ridgeH: 1.8, notchSeg: 3, notchSide:  1 },
+      // k=8: Mid-right whip streamer (very long jagged blade slicing outward & slightly down)
+      { u0:  0.66, len: 1.42, latDir:  19.8, upDir:  -0.8, curl:  6.6, upCurl: -1.6, backScale: 1.04, wBase: 2.15, freq: 1.01, phase: 4.85, ridgeH: 2.5, notchSeg: 5, notchSide:  1 },
+      // k=9: Upper-right torn wing spur (short-medium jagged notch between mid-right and top spear)
+      { u0:  0.84, len: 0.78, latDir:  24.2, upDir:   6.4, curl:  2.8, upCurl:  3.2, backScale: 0.82, wBase: 1.80, freq: 1.46, phase: 5.90, ridgeH: 1.9, notchSeg: 4, notchSide: -1 },
+      // k=10: Far-right upper bat-wing spear (asymmetric counterpart — shorter & wider splay than left)
+      { u0:  1.00, len: 1.36, latDir:  31.5, upDir:  10.2, curl:  9.2, upCurl:  5.8, backScale: 0.68, wBase: 2.30, freq: 1.12, phase: 1.25, ridgeH: 2.4, notchSeg: 4, notchSide:  1 }
+    ];
+    const CAPE_TENDRIL_COUNT = CAPE_TENDRILS.length;
+    // 10 asymmetric tear depths for inner connecting membrane between tendrils k and k+1
+    const CAPE_WEB_CUT = [4, 2, 5, 2, 4, 3, 5, 2, 4, 3];
+    // Battle-damage bullet/beam holes in inner webbing ('seg,gapIndex')
+    const CAPE_WEB_HOLES = new Set(['2,0', '3,2', '1,4', '2,6', '3,6', '1,8', '2,9']);
     const capeSpine = [];
     for (let r = 0; r < CAPE_ROWS; r++) {
-      capeSpine.push({ x: 0, y: 0, z: r * 3, rx: 1, ry: 0, rz: 0, ux: 0, uy: 1, uz: 0, bx: 0, by: 0, bz: 1 });
+      capeSpine.push({ x: 0, y: 0, z: r * 2.6, rx: 1, ry: 0, rz: 0, ux: 0, uy: 1, uz: 0, bx: 0, by: 0, bz: 1 });
     }
-    const capeVX = new Float32Array(CAPE_ROWS * CAPE_COLS);
-    const capeVY = new Float32Array(CAPE_ROWS * CAPE_COLS);
-    const capeVZ = new Float32Array(CAPE_ROWS * CAPE_COLS);
-    const capeW3X = new Float32Array(CAPE_ROWS * CAPE_COLS);
-    const capeW3Y = new Float32Array(CAPE_ROWS * CAPE_COLS);
-    const capeW3Z = new Float32Array(CAPE_ROWS * CAPE_COLS);
+    const CAPE_VCOUNT = CAPE_TENDRIL_COUNT * TENDRIL_SEGS * 3;
+    const capeSX = new Float32Array(CAPE_VCOUNT);
+    const capeSY = new Float32Array(CAPE_VCOUNT);
+    const capeSZ = new Float32Array(CAPE_VCOUNT);
+    const capeWX = new Float32Array(CAPE_VCOUNT);
+    const capeWY = new Float32Array(CAPE_VCOUNT);
+    const capeWZ = new Float32Array(CAPE_VCOUNT);
     const capeState = { wingSpread: 0, billow: 0 };
     const capeTipL = { x: 0, y: 0, z: 0 }, capeTipR = { x: 0, y: 0, z: 0 };
 
@@ -1345,7 +1372,7 @@
       const ax = px + b.ux * 4.0 * scale - b.bx * 1.8 * scale;
       const ay = py + b.uy * 4.0 * scale - b.by * 1.8 * scale;
       const az = pz + b.uz * 4.0 * scale - b.bz * 1.8 * scale;
-      const seg = 3.2 * scale;
+      const seg = 2.6 * scale;
       for (let r = 0; r < CAPE_ROWS; r++) {
         const nd = capeSpine[r];
         nd.x = ax + b.bx * r * seg;
@@ -1374,7 +1401,7 @@
       n0.ux = b.ux; n0.uy = b.uy; n0.uz = b.uz;
       n0.bx = b.bx; n0.by = b.by; n0.bz = b.bz;
 
-      const segLen = (3.05 + (awakened ? 0.72 : 0) + capeState.wingSpread * 0.58) * scale;
+      const segLen = (2.55 + (awakened ? 0.45 : 0) + capeState.wingSpread * 0.42) * scale;
       const spdFactor = Math.max(0.55, Math.min(2.2, speed / 105));
       const stiffBase = 19.5 * spdFactor;
 
@@ -1462,96 +1489,177 @@
       }
     }
 
+    function drawCapeTri(ia, ib, ic, pleatBias, glowType) {
+      if (capeSZ[ia] < 5.5 || capeSZ[ib] < 5.5 || capeSZ[ic] < 5.5) return;
+      const e1x = capeWX[ib] - capeWX[ia], e1y = capeWY[ib] - capeWY[ia], e1z = capeWZ[ib] - capeWZ[ia];
+      const e2x = capeWX[ic] - capeWX[ia], e2y = capeWY[ic] - capeWY[ia], e2z = capeWZ[ic] - capeWZ[ia];
+      let nx = e1y * e2z - e1z * e2y;
+      let ny = e1z * e2x - e1x * e2z;
+      let nz = e1x * e2y - e1y * e2x;
+      const nlen = Math.hypot(nx, ny, nz) || 1;
+      nx /= nlen; ny /= nlen; nz /= nlen;
+
+      const facing = nx * (camPos.x - capeWX[ia]) + ny * (camPos.y - capeWY[ia]) + nz * (camPos.z - capeWZ[ia]);
+      const isFront = facing >= 0;
+      const ndotl = (nx * SUN_X + ny * SUN_Y + nz * SUN_Z) * (isFront ? 1 : -1);
+      const lit = ndotl * 0.62 + pleatBias;
+      const col = isFront
+        ? CAPE_FRONT_RAMP[Math.max(0, Math.min(6, Math.floor((lit + 0.72) * 4.5)))]
+        : CAPE_BACK_RAMP[Math.max(0, Math.min(4, Math.floor((lit + 0.65) * 3.4)))];
+
+      rasterTriPixel(
+        capeSX[ia], capeSY[ia], capeSZ[ia],
+        capeSX[ib], capeSY[ib], capeSZ[ib],
+        capeSX[ic], capeSY[ic], capeSZ[ic],
+        col, 1, glowType
+      );
+    }
+
+    function projectCapeVertex(vi, wx, wy, wz, cxScreen, cyScreen) {
+      capeWX[vi] = wx; capeWY[vi] = wy; capeWZ[vi] = wz;
+      worldToCam(wx, wy, wz, _tmpC);
+      capeVZSet(vi, cxScreen, cyScreen);
+    }
+
+    function capeVZSet(vi, cxScreen, cyScreen) {
+      capeSZ[vi] = _tmpC.z;
+      if (_tmpC.z > 5.0) {
+        const invZ = focal / _tmpC.z;
+        capeSX[vi] = cxScreen + _tmpC.x * invZ;
+        capeSY[vi] = cyScreen - _tmpC.y * invZ;
+      } else {
+        capeSX[vi] = -9999;
+        capeSY[vi] = -9999;
+      }
+    }
+
     function drawGetterCape3D(sec, scale, cycloneTimer, awakened, boosting, braking) {
       const cxScreen = W * 0.5, cyScreen = H * 0.5;
       const spread = capeState.wingSpread;
       const billow = capeState.billow;
       const waveFreq = cycloneTimer > 0 ? 22.0 : (boosting ? 15.5 : 9.4);
-      const waveAmpBase = (1.1 + spread * 1.45 + billow * 2.3) * scale;
+      const latWaveAmp = (1.35 + spread * 1.4 + billow * 1.9) * scale;
+      const upWaveAmp = (1.25 + spread * 1.5 + billow * 2.4) * scale;
+      const latMul = 1.0 + spread * 0.38 + (awakened ? 0.14 : 0);
+      const upMul = 1.0 + spread * 0.25;
 
-      for (let r = 0; r < CAPE_ROWS; r++) {
-        const nd = capeSpine[r];
-        const t = r / (CAPE_ROWS - 1);
-        const halfSpan = 5.4 * scale + Math.pow(t, 0.78) * ((awakened ? 16.5 : 13.0) * scale + spread * (awakened ? 15.0 : 11.5) * scale);
+      for (let k = 0; k < CAPE_TENDRIL_COUNT; k++) {
+        const td = CAPE_TENDRILS[k];
+        for (let s = 0; s < TENDRIL_SEGS; s++) {
+          const t = s / (TENDRIL_SEGS - 1);
+          const uSpine = Math.min(CAPE_ROWS - 1.001, t * td.len * td.backScale * 5.6);
+          const r0 = Math.floor(uSpine), r1 = r0 + 1, f = uSpine - r0;
+          const a = capeSpine[r0], b = capeSpine[r1];
 
-        for (let c = 0; c < CAPE_COLS; c++) {
-          const u = (c / (CAPE_COLS - 1)) * 2 - 1;
-          const colLen = CAPE_COL_LEN[c];
-          const pleat = CAPE_PLEAT[c] * (0.85 + t * 2.15) * scale;
-          const tendrilFlare = 1.0 + (colLen - 1.0) * Math.pow(t, 1.3) * 0.14;
-          const lat = u * halfSpan * tendrilFlare;
-          const wingArc = Math.pow(Math.abs(u), 1.45) * (3.2 + spread * 6.4) * scale * t;
-          const bellLift = (1.0 - u * u) * Math.sin(t * Math.PI) * billow * 5.2 * scale;
-          const flutter = Math.sin(sec * waveFreq - r * 0.78 + Math.abs(u) * 1.9 + c * 0.4) * waveAmpBase * (0.2 + t * 0.88);
-          const upOff = wingArc + bellLift + pleat + flutter - t * 1.2 * scale;
-          const backJ = (colLen - 1.0) * 14.0 * Math.pow(t, 1.55) * scale;
+          const sx = a.x + (b.x - a.x) * f;
+          const sy = a.y + (b.y - a.y) * f;
+          const sz = a.z + (b.z - a.z) * f;
 
-          const wx = nd.x + nd.rx * lat + nd.ux * upOff + nd.bx * backJ;
-          const wy = nd.y + nd.ry * lat + nd.uy * upOff + nd.by * backJ;
-          const wz = nd.z + nd.rz * lat + nd.uz * upOff + nd.bz * backJ;
-          const idx = r * CAPE_COLS + c;
-          capeW3X[idx] = wx; capeW3Y[idx] = wy; capeW3Z[idx] = wz;
+          let rx = a.rx + (b.rx - a.rx) * f, ry = a.ry + (b.ry - a.ry) * f, rz = a.rz + (b.rz - a.rz) * f;
+          const rl = Math.hypot(rx, ry, rz) || 1;
+          rx /= rl; ry /= rl; rz /= rl;
 
-          worldToCam(wx, wy, wz, _tmpC);
-          capeVZ[idx] = _tmpC.z;
-          if (_tmpC.z > 5.0) {
-            const invZ = focal / _tmpC.z;
-            capeVX[idx] = cxScreen + _tmpC.x * invZ;
-            capeVY[idx] = cyScreen - _tmpC.y * invZ;
-          } else {
-            capeVX[idx] = -9999; capeVY[idx] = -9999;
+          let ux = a.ux + (b.ux - a.ux) * f, uy = a.uy + (b.uy - a.uy) * f, uz = a.uz + (b.uz - a.uz) * f;
+          const ul = Math.hypot(ux, uy, uz) || 1;
+          ux /= ul; uy /= ul; uz /= ul;
+
+          let bx = a.bx + (b.bx - a.bx) * f, by = a.by + (b.by - a.by) * f, bz = a.bz + (b.bz - a.bz) * f;
+          const bl = Math.hypot(bx, by, bz) || 1;
+          bx /= bl; by /= bl; bz /= bl;
+
+          const latWave = Math.sin(sec * waveFreq * td.freq - t * 4.6 + td.phase) * latWaveAmp * t * (0.45 + 0.55 * t);
+          const upWave = Math.cos(sec * waveFreq * td.freq * 0.92 - t * 5.2 + td.phase * 1.37) * upWaveAmp * (0.18 + t * 0.92);
+          const billowLift = Math.sin(t * Math.PI) * billow * (5.8 + Math.abs(td.u0) * 2.2) * scale;
+          const latOff = td.u0 * 5.2 * scale + (Math.pow(t, 0.85) * td.latDir + t * t * td.curl) * latMul * scale + latWave;
+          const upOff = (Math.pow(t, 0.88) * td.upDir + t * t * td.upCurl) * upMul * scale + billowLift + upWave;
+          const backOff = Math.sin(sec * waveFreq * td.freq * 0.7 + td.phase) * 0.85 * t * scale;
+
+          const cx = sx + rx * latOff + ux * upOff + bx * backOff;
+          const cy = sy + ry * latOff + uy * upOff + by * backOff;
+          const cz = sz + rz * latOff + uz * upOff + bz * backOff;
+
+          // Build tangent-perpendicular frame so outer bat-wing spears keep crisp width without foreshortening
+          const dBack = td.len * td.backScale * 14.5;
+          const dLat = (0.85 * td.latDir + 2.0 * t * td.curl) * latMul;
+          const dUp = (0.88 * td.upDir + 2.0 * t * td.upCurl) * upMul;
+          let dx = bx * dBack + rx * dLat + ux * dUp;
+          let dy = by * dBack + ry * dLat + uy * dUp;
+          let dz = bz * dBack + rz * dLat + uz * dUp;
+          const dl = Math.hypot(dx, dy, dz) || 1;
+          dx /= dl; dy /= dl; dz /= dl;
+
+          let sideX = uy * dz - uz * dy, sideY = uz * dx - ux * dz, sideZ = ux * dy - uy * dx;
+          const sl = Math.hypot(sideX, sideY, sideZ) || 1;
+          sideX /= sl; sideY /= sl; sideZ /= sl;
+
+          let normX = dy * sideZ - dz * sideY, normY = dz * sideX - dx * sideZ, normZ = dx * sideY - dy * sideX;
+          const nl = Math.hypot(normX, normY, normZ) || 1;
+          normX /= nl; normY /= nl; normZ /= nl;
+
+          let hwL = 0, hwR = 0, rh = 0;
+          if (s < TENDRIL_SEGS - 1) {
+            const taper = Math.pow(1.0 - t, 0.92) * (1.0 + Math.sin(t * Math.PI) * 0.42);
+            const hw = td.wBase * scale * (1.0 + spread * 0.14) * taper;
+            hwL = hw; hwR = hw;
+            if (s === td.notchSeg) {
+              if (td.notchSide < 0) hwL *= 0.42;
+              else hwR *= 0.42;
+            }
+            rh = td.ridgeH * scale * Math.sin(Math.min(1, t * 1.15) * Math.PI * 0.85) * (1.0 - t * 0.75) + 0.42 * scale * (1.0 - t);
           }
+
+          const vi = (k * TENDRIL_SEGS + s) * 3;
+          projectCapeVertex(vi,     cx - sideX * hwL, cy - sideY * hwL, cz - sideZ * hwL, cxScreen, cyScreen);
+          projectCapeVertex(vi + 1, cx + normX * rh,  cy + normY * rh,  cz + normZ * rh,  cxScreen, cyScreen);
+          projectCapeVertex(vi + 2, cx + sideX * hwR, cy + sideY * hwR, cz + sideZ * hwR, cxScreen, cyScreen);
         }
       }
 
-      const bIdx = (CAPE_ROWS - 1) * CAPE_COLS;
-      capeTipL.x = capeW3X[bIdx + 2]; capeTipL.y = capeW3Y[bIdx + 2]; capeTipL.z = capeW3Z[bIdx + 2];
-      capeTipR.x = capeW3X[bIdx + 12]; capeTipR.y = capeW3Y[bIdx + 12]; capeTipR.z = capeW3Z[bIdx + 12];
+      const tipIdxL = (TENDRIL_SEGS - 1) * 3 + 1;
+      const tipIdxR = ((CAPE_TENDRIL_COUNT - 1) * TENDRIL_SEGS + (TENDRIL_SEGS - 1)) * 3 + 1;
+      capeTipL.x = capeWX[tipIdxL]; capeTipL.y = capeWY[tipIdxL]; capeTipL.z = capeWZ[tipIdxL];
+      capeTipR.x = capeWX[tipIdxR]; capeTipR.y = capeWY[tipIdxR]; capeTipR.z = capeWZ[tipIdxR];
 
-      for (let r = 0; r < CAPE_ROWS - 1; r++) {
-        for (let c = 0; c < CAPE_COLS - 1; c++) {
-          if (r >= CAPE_ROWS - 3 && (c === 2 || c === 5 || c === 8 || c === 11)) continue;
-          const key = `${r},${c}`;
-          if (CAPE_HOLES.has(key)) continue;
+      // 1. Render all 11 asymmetric 3D V-pleated crimson wing-tendrils
+      const tipGlow = (cycloneTimer > 0 || awakened) ? 1 : (boosting ? 3 : 0);
+      for (let k = 0; k < CAPE_TENDRIL_COUNT; k++) {
+        const isOuter = (k === 0 || k === CAPE_TENDRIL_COUNT - 1);
+        for (let s = 0; s < TENDRIL_SEGS - 2; s++) {
+          const i0 = (k * TENDRIL_SEGS + s) * 3;
+          const i1 = i0 + 3;
+          const isTipEdge = isOuter || s >= TENDRIL_SEGS - 3;
+          const glowType = (cycloneTimer > 0) ? (isTipEdge ? 1 : 3) : ((awakened && isTipEdge) ? 1 : ((boosting && isTipEdge) ? 3 : 0));
 
-          const i00 = r * CAPE_COLS + c;
-          const i10 = i00 + 1;
-          const i01 = i00 + CAPE_COLS;
-          const i11 = i01 + 1;
-          if (capeVZ[i00] < 5.5 || capeVZ[i10] < 5.5 || capeVZ[i01] < 5.5 || capeVZ[i11] < 5.5) continue;
+          // Left V-flank (brighter sunlit slope) & Right V-flank (contrasting shaded slope for sharp crease)
+          drawCapeTri(i0,     i1,     i1 + 1, 0.28, glowType);
+          drawCapeTri(i0,     i1 + 1, i0 + 1, 0.28, glowType);
+          drawCapeTri(i0 + 1, i1 + 1, i1 + 2, 0.06, glowType);
+          drawCapeTri(i0 + 1, i1 + 2, i0 + 2, 0.06, glowType);
+        }
+        const iEnd = (k * TENDRIL_SEGS + TENDRIL_SEGS - 2) * 3;
+        const tipV = iEnd + 4;
+        drawCapeTri(iEnd,     tipV, iEnd + 1, 0.34, tipGlow);
+        drawCapeTri(iEnd + 1, tipV, iEnd + 2, 0.10, tipGlow);
+      }
 
-          const e1x = capeW3X[i10] - capeW3X[i00], e1y = capeW3Y[i10] - capeW3Y[i00], e1z = capeW3Z[i10] - capeW3Z[i00];
-          const e2x = capeW3X[i01] - capeW3X[i00], e2y = capeW3Y[i01] - capeW3Y[i00], e2z = capeW3Z[i01] - capeW3Z[i00];
-          let nx = e1y * e2z - e1z * e2y;
-          let ny = e1z * e2x - e1x * e2z;
-          let nz = e1x * e2y - e1y * e2x;
-          const nlen = Math.hypot(nx, ny, nz) || 1;
-          nx /= nlen; ny /= nlen; nz /= nlen;
+      // 2. Render irregular battle-torn inner connecting webbing between tendril roots
+      for (let k = 0; k < CAPE_TENDRIL_COUNT - 1; k++) {
+        const cut = CAPE_WEB_CUT[k];
+        for (let s = 0; s < cut; s++) {
+          if (CAPE_WEB_HOLES.has(`${s},${k}`)) continue;
+          const a0 = (k * TENDRIL_SEGS + s) * 3 + 2;
+          const a1 = a0 + 3;
+          const b0 = ((k + 1) * TENDRIL_SEGS + s) * 3;
+          const b1 = b0 + 3;
+          const isTornHem = (s === cut - 1);
+          const webGlow = (cycloneTimer > 0) ? (isTornHem ? 1 : 3) : ((awakened && isTornHem) ? 1 : 0);
 
-          const toCamX = camPos.x - capeW3X[i00], toCamY = camPos.y - capeW3Y[i00], toCamZ = camPos.z - capeW3Z[i00];
-          const facing = nx * toCamX + ny * toCamY + nz * toCamZ;
-          const isFront = facing >= 0;
-          const sgn = isFront ? 1 : -1;
-          const ndotl = (nx * SUN_X + ny * SUN_Y + nz * SUN_Z) * sgn;
-          const pMid = (CAPE_PLEAT[c] + CAPE_PLEAT[c + 1]) * 0.5;
-          const slope = CAPE_PLEAT[c + 1] - CAPE_PLEAT[c];
-          const lit = ndotl * 0.56 + pMid * 0.46 + slope * 0.24;
-
-          let col;
-          if (isFront) {
-            const s7 = Math.max(0, Math.min(6, Math.floor((lit + 0.72) * 4.5)));
-            col = CAPE_FRONT_RAMP[s7];
+          if (isTornHem) {
+            if (k % 2 === 0) drawCapeTri(a0, a1, b0, -0.32, webGlow);
+            else drawCapeTri(a0, b1, b0, -0.32, webGlow);
           } else {
-            const s5 = Math.max(0, Math.min(4, Math.floor((lit + 0.65) * 3.4)));
-            col = CAPE_BACK_RAMP[s5];
-          }
-
-          const isEdge = r >= CAPE_ROWS - 2 || c === 0 || c === CAPE_COLS - 2;
-          const glowType = (cycloneTimer > 0) ? (isEdge ? 1 : 3) : ((awakened && isEdge) ? 1 : ((boosting && isEdge) ? 3 : 0));
-
-          rasterTriPixel(capeVX[i00], capeVY[i00], capeVZ[i00], capeVX[i10], capeVY[i10], capeVZ[i10], capeVX[i11], capeVY[i11], capeVZ[i11], col, 1, glowType);
-          if (!CAPE_HALF_HOLES.has(key)) {
-            rasterTriPixel(capeVX[i00], capeVY[i00], capeVZ[i00], capeVX[i11], capeVY[i11], capeVZ[i11], capeVX[i01], capeVY[i01], capeVZ[i01], col, 1, glowType);
+            drawCapeTri(a0, a1, b1, -0.32, webGlow);
+            drawCapeTri(a0, b1, b0, -0.32, webGlow);
           }
         }
       }
