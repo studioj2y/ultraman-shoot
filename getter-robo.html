@@ -379,7 +379,7 @@
           <div class="pixel-tag">GETTER ROBO · 3D PIXEL VOXEL + DYNAMIC 3D CLOTH CAPE</div>
           <h1 class="main-h1">盖塔机器人：超空战</h1>
           <p class="sub-desc">
-            <strong>盖塔1号</strong>（实时3D红披风·血红旋风弹反·战斧·翡翠射线） / <strong>盖塔2号</strong>（极速钻头残影） / <strong>盖塔3号</strong>（重装导弹大雪山）！<br/>
+            <strong>盖塔1号</strong>（战损褶皱3D红披风·血红旋风弹反·战斧·粉红集束射线） / <strong>盖塔2号</strong>（极速钻头残影） / <strong>盖塔3号</strong>（重装导弹大雪山）！<br/>
             按 <strong>Tab / 1·2·3</strong> 随时触发 <strong>OPEN GET!</strong> 三机重组（0.25s分离无敌+冲击清弹），击破第1波 Boss 觉醒<strong>真盖塔燃焰巨翼</strong>！
           </p>
           <div class="diff-row">
@@ -403,7 +403,7 @@
           <h2 style="font-size:20px;font-weight:900;color:#fff;margin-bottom:8px;">早乙女研究所 · 作战暂停中</h2>
           <div style="font-size:11px;color:#cbd5e1;text-align:left;line-height:1.75;background:#111827;padding:12px;border-radius:8px;border:1px solid #1e293b;">
             • <strong>盖塔1号 3D动态红披风 (Getter Wing)</strong>：巡航呈锯齿红披风、冲刺张开为血红蝠翼、减速兜风鼓胀；翻滚时卷起<strong>血红旋风弹反敌弹</strong>，高速掠过还可触发<strong>披风甩尾横扫</strong>震飞机械兽！<br/>
-            • <strong>OPEN GET! 三机合体 (Tab / 1·2·3)</strong>：<strong>🔴 1号</strong>战斧+翡翠射线；<strong>⚪ 2号</strong>极速钻头残影+贯穿幻影束；<strong>🟡 3号</strong>范围导弹+大雪山冲击波！切换附带 <strong>0.25s 分离无敌与清弹冲击波</strong>。<br/>
+            • <strong>OPEN GET! 三机合体 (Tab / 1·2·3)</strong>：<strong>🔴 1号</strong>战斧+粉红集束射线；<strong>⚪ 2号</strong>极速钻头残影+贯穿幻影束；<strong>🟡 3号</strong>范围导弹+大雪山冲击波！切换附带 <strong>0.25s 分离无敌与清弹冲击波</strong>。<br/>
             • <strong>突发使命与护盾破甲</strong>：每波触发「早乙女指挥机 / 火星赤月陨石雨 / 侵略者母舰」事件；击碎 Boss 护盾浮游炮可触发 4.6秒 <strong>ARMOR BREAK 双倍伤害</strong>！<br/>
             • <strong>真盖塔炉心觉醒 &amp; 三选一强化</strong>：击败第1波首领激活燃焰巨翼，击破恐龙帝国与侵略者 Boss 抽取盖塔强化卡与 ✈️ 盖塔战机僚机！
           </div>
@@ -584,6 +584,13 @@
       22:[packHex(0x450a0a), packHex(0x6b0f1a), packHex(0x881337), packHex(0x9f1239), packHex(0xbe123c)],
       23:[packHex(0x1e1035), packHex(0x3b0764), packHex(0x581c87), packHex(0x7e22ce), packHex(0xa855f7)]
     };
+    const CAPE_FRONT_RAMP = [
+      packHex(0x38040d), packHex(0x6b0818), packHex(0x990f26),
+      packHex(0xc8142e), packHex(0xe11d38), packHex(0xf43f5e), packHex(0xff8da1)
+    ];
+    const CAPE_BACK_RAMP = [
+      packHex(0x220208), packHex(0x450610), packHex(0x690b1a), packHex(0x881328), packHex(0xa81832)
+    ];
     const EMISSIVE_MAT = new Uint8Array(24);
     EMISSIVE_MAT[3] = 1; EMISSIVE_MAT[5] = 2; EMISSIVE_MAT[10] = 2; EMISSIVE_MAT[11] = 3; EMISSIVE_MAT[13] = 3; EMISSIVE_MAT[15] = 2; EMISSIVE_MAT[18] = 4;
 
@@ -1302,10 +1309,13 @@
     }
 
     // =========================================================================
-    // 5B. GETTER-1 REAL-TIME 3D PIXEL-ART DYNAMIC CLOTH RED CAPE ENGINE
+    // 5B. GETTER-1 ARMAGEDDON PLEATED & TORN 3D CAPE + FOCUSED PINK BEAM ENGINE
     // =========================================================================
-    const CAPE_ROWS = 10, CAPE_COLS = 6;
-    const CAPE_HEM_JAG = [1.30, 0.88, 1.14, 1.14, 0.88, 1.30];
+    const CAPE_ROWS = 12, CAPE_COLS = 15;
+    const CAPE_COL_LEN = [1.24, 0.92, 1.42, 0.76, 1.24, 0.84, 1.16, 0.90, 1.16, 0.84, 1.24, 0.76, 1.42, 0.92, 1.24];
+    const CAPE_PLEAT = [0.95, -0.95, 1.0, -0.9, 0.95, -0.95, 1.0, -0.85, 1.0, -0.95, 0.95, -0.9, 1.0, -0.95, 0.95];
+    const CAPE_HOLES = new Set(['4,2', '6,1', '7,4', '5,11', '8,12', '6,13', '9,6', '8,8', '10,3', '10,10', '5,6']);
+    const CAPE_HALF_HOLES = new Set(['7,1', '6,10', '4,9']);
     const capeSpine = [];
     for (let r = 0; r < CAPE_ROWS; r++) {
       capeSpine.push({ x: 0, y: 0, z: r * 3, rx: 1, ry: 0, rz: 0, ux: 0, uy: 1, uz: 0, bx: 0, by: 0, bz: 1 });
@@ -1335,7 +1345,7 @@
       const ax = px + b.ux * 4.0 * scale - b.bx * 1.8 * scale;
       const ay = py + b.uy * 4.0 * scale - b.by * 1.8 * scale;
       const az = pz + b.uz * 4.0 * scale - b.bz * 1.8 * scale;
-      const seg = 3.5 * scale;
+      const seg = 3.2 * scale;
       for (let r = 0; r < CAPE_ROWS; r++) {
         const nd = capeSpine[r];
         nd.x = ax + b.bx * r * seg;
@@ -1351,7 +1361,7 @@
 
     function updateCapePhysics(dt, sec, px, py, pz, yaw, pitch, roll, scale, speed, boosting, braking, rollAnim, cycloneTimer, snapTimer, awakened) {
       const b = computeHeroBasis(yaw, pitch, roll);
-      const targetWing = (boosting || cycloneTimer > 0 || snapTimer > 0) ? 1.0 : (awakened ? 0.36 : 0.0);
+      const targetWing = (boosting || cycloneTimer > 0 || snapTimer > 0) ? 1.0 : (awakened ? 0.45 : 0.0);
       const targetBillow = braking ? 1.0 : 0.0;
       capeState.wingSpread += (targetWing - capeState.wingSpread) * Math.min(1, dt * 7.5);
       capeState.billow += (targetBillow - capeState.billow) * Math.min(1, dt * 8.5);
@@ -1364,20 +1374,20 @@
       n0.ux = b.ux; n0.uy = b.uy; n0.uz = b.uz;
       n0.bx = b.bx; n0.by = b.by; n0.bz = b.bz;
 
-      const segLen = (3.45 + (awakened ? 0.9 : 0) + capeState.wingSpread * 0.72) * scale;
-      const spdFactor = Math.max(0.5, Math.min(2.2, speed / 105));
-      const stiffBase = 18.0 * spdFactor;
+      const segLen = (3.05 + (awakened ? 0.72 : 0) + capeState.wingSpread * 0.58) * scale;
+      const spdFactor = Math.max(0.55, Math.min(2.2, speed / 105));
+      const stiffBase = 19.5 * spdFactor;
 
       for (let r = 1; r < CAPE_ROWS; r++) {
         const prev = capeSpine[r - 1];
         const cur = capeSpine[r];
-        const windLag = Math.min(1, dt * Math.max(6.5, stiffBase - r * 1.15));
+        const windLag = Math.min(1, dt * Math.max(6.2, stiffBase - r * 1.02));
 
-        let dirX = prev.bx * (1.0 - capeState.billow * 0.42) + prev.ux * (capeState.billow * 0.72);
-        let dirY = prev.by * (1.0 - capeState.billow * 0.42) + prev.uy * (capeState.billow * 0.72) - 0.07;
-        let dirZ = prev.bz * (1.0 - capeState.billow * 0.42) + prev.uz * (capeState.billow * 0.72);
+        let dirX = prev.bx * (1.0 - capeState.billow * 0.42) + prev.ux * (capeState.billow * 0.75);
+        let dirY = prev.by * (1.0 - capeState.billow * 0.42) + prev.uy * (capeState.billow * 0.75) - 0.06;
+        let dirZ = prev.bz * (1.0 - capeState.billow * 0.42) + prev.uz * (capeState.billow * 0.75);
         if (cycloneTimer > 0) {
-          const sw = Math.sin(sec * 24 + r * 0.9) * 0.55;
+          const sw = Math.sin(sec * 25 + r * 0.85) * 0.6;
           dirX += prev.rx * sw; dirY += prev.ry * sw; dirZ += prev.rz * sw;
         }
         const dl = Math.hypot(dirX, dirY, dirZ) || 1;
@@ -1393,12 +1403,12 @@
 
         let vx = cur.x - prev.x, vy = cur.y - prev.y, vz = cur.z - prev.z;
         const vlen = Math.hypot(vx, vy, vz) || 1;
-        const stretch = (r === CAPE_ROWS - 1) ? 1.12 : 1.0;
+        const stretch = (r === CAPE_ROWS - 1) ? 1.14 : 1.0;
         cur.x = prev.x + (vx / vlen) * segLen * stretch;
         cur.y = prev.y + (vy / vlen) * segLen * stretch;
         cur.z = prev.z + (vz / vlen) * segLen * stretch;
 
-        const bLerp = Math.min(1, dt * (15.0 - r * 0.8));
+        const bLerp = Math.min(1, dt * (15.5 - r * 0.65));
         cur.rx += (prev.rx - cur.rx) * bLerp; cur.ry += (prev.ry - cur.ry) * bLerp; cur.rz += (prev.rz - cur.rz) * bLerp;
         const rLen = Math.hypot(cur.rx, cur.ry, cur.rz) || 1;
         cur.rx /= rLen; cur.ry /= rLen; cur.rz /= rLen;
@@ -1456,23 +1466,25 @@
       const cxScreen = W * 0.5, cyScreen = H * 0.5;
       const spread = capeState.wingSpread;
       const billow = capeState.billow;
-      const waveFreq = cycloneTimer > 0 ? 21.0 : (boosting ? 15.0 : 9.2);
-      const waveAmpBase = (1.1 + spread * 1.4 + billow * 2.2) * scale;
+      const waveFreq = cycloneTimer > 0 ? 22.0 : (boosting ? 15.5 : 9.4);
+      const waveAmpBase = (1.1 + spread * 1.45 + billow * 2.3) * scale;
 
       for (let r = 0; r < CAPE_ROWS; r++) {
         const nd = capeSpine[r];
         const t = r / (CAPE_ROWS - 1);
-        const baseW = 4.9 * scale + Math.pow(t, 0.85) * ((awakened ? 10.6 : 7.4) * scale + spread * (awakened ? 16.5 : 12.0) * scale);
+        const halfSpan = 5.4 * scale + Math.pow(t, 0.78) * ((awakened ? 16.5 : 13.0) * scale + spread * (awakened ? 15.0 : 11.5) * scale);
 
         for (let c = 0; c < CAPE_COLS; c++) {
           const u = (c / (CAPE_COLS - 1)) * 2 - 1;
-          const jag = (r >= CAPE_ROWS - 2) ? (r === CAPE_ROWS - 1 ? CAPE_HEM_JAG[c] : (1 + (CAPE_HEM_JAG[c] - 1) * 0.45)) : 1.0;
-          const lat = u * baseW * (0.94 + jag * 0.08);
-          const wingLift = Math.pow(Math.abs(u), 1.65) * spread * (5.8 + t * 2.5) * scale;
+          const colLen = CAPE_COL_LEN[c];
+          const pleat = CAPE_PLEAT[c] * (0.85 + t * 2.15) * scale;
+          const tendrilFlare = 1.0 + (colLen - 1.0) * Math.pow(t, 1.3) * 0.14;
+          const lat = u * halfSpan * tendrilFlare;
+          const wingArc = Math.pow(Math.abs(u), 1.45) * (3.2 + spread * 6.4) * scale * t;
           const bellLift = (1.0 - u * u) * Math.sin(t * Math.PI) * billow * 5.2 * scale;
-          const flutter = Math.sin(sec * waveFreq - r * 0.82 + Math.abs(u) * 1.55) * waveAmpBase * (0.18 + t * 0.85);
-          const upOff = wingLift + bellLift + flutter - t * 1.1 * scale;
-          const backJ = (jag - 1.0) * 5.2 * scale;
+          const flutter = Math.sin(sec * waveFreq - r * 0.78 + Math.abs(u) * 1.9 + c * 0.4) * waveAmpBase * (0.2 + t * 0.88);
+          const upOff = wingArc + bellLift + pleat + flutter - t * 1.2 * scale;
+          const backJ = (colLen - 1.0) * 14.0 * Math.pow(t, 1.55) * scale;
 
           const wx = nd.x + nd.rx * lat + nd.ux * upOff + nd.bx * backJ;
           const wy = nd.y + nd.ry * lat + nd.uy * upOff + nd.by * backJ;
@@ -1493,14 +1505,15 @@
       }
 
       const bIdx = (CAPE_ROWS - 1) * CAPE_COLS;
-      capeTipL.x = capeW3X[bIdx]; capeTipL.y = capeW3Y[bIdx]; capeTipL.z = capeW3Z[bIdx];
-      capeTipR.x = capeW3X[bIdx + CAPE_COLS - 1]; capeTipR.y = capeW3Y[bIdx + CAPE_COLS - 1]; capeTipR.z = capeW3Z[bIdx + CAPE_COLS - 1];
-
-      const frontRamp = PAL_RAMPS[2];
-      const backRamp = PAL_RAMPS[22];
+      capeTipL.x = capeW3X[bIdx + 2]; capeTipL.y = capeW3Y[bIdx + 2]; capeTipL.z = capeW3Z[bIdx + 2];
+      capeTipR.x = capeW3X[bIdx + 12]; capeTipR.y = capeW3Y[bIdx + 12]; capeTipR.z = capeW3Z[bIdx + 12];
 
       for (let r = 0; r < CAPE_ROWS - 1; r++) {
         for (let c = 0; c < CAPE_COLS - 1; c++) {
+          if (r >= CAPE_ROWS - 3 && (c === 2 || c === 5 || c === 8 || c === 11)) continue;
+          const key = `${r},${c}`;
+          if (CAPE_HOLES.has(key)) continue;
+
           const i00 = r * CAPE_COLS + c;
           const i10 = i00 + 1;
           const i01 = i00 + CAPE_COLS;
@@ -1520,14 +1533,184 @@
           const isFront = facing >= 0;
           const sgn = isFront ? 1 : -1;
           const ndotl = (nx * SUN_X + ny * SUN_Y + nz * SUN_Z) * sgn;
-          const shade = ndotl > 0.52 ? 4 : (ndotl > 0.14 ? 3 : (ndotl > -0.22 ? 2 : (ndotl > -0.58 ? 1 : 0)));
-          const col = (isFront ? frontRamp : backRamp)[shade];
+          const pMid = (CAPE_PLEAT[c] + CAPE_PLEAT[c + 1]) * 0.5;
+          const slope = CAPE_PLEAT[c + 1] - CAPE_PLEAT[c];
+          const lit = ndotl * 0.56 + pMid * 0.46 + slope * 0.24;
+
+          let col;
+          if (isFront) {
+            const s7 = Math.max(0, Math.min(6, Math.floor((lit + 0.72) * 4.5)));
+            col = CAPE_FRONT_RAMP[s7];
+          } else {
+            const s5 = Math.max(0, Math.min(4, Math.floor((lit + 0.65) * 3.4)));
+            col = CAPE_BACK_RAMP[s5];
+          }
 
           const isEdge = r >= CAPE_ROWS - 2 || c === 0 || c === CAPE_COLS - 2;
           const glowType = (cycloneTimer > 0) ? (isEdge ? 1 : 3) : ((awakened && isEdge) ? 1 : ((boosting && isEdge) ? 3 : 0));
 
           rasterTriPixel(capeVX[i00], capeVY[i00], capeVZ[i00], capeVX[i10], capeVY[i10], capeVZ[i10], capeVX[i11], capeVY[i11], capeVZ[i11], col, 1, glowType);
-          rasterTriPixel(capeVX[i00], capeVY[i00], capeVZ[i00], capeVX[i11], capeVY[i11], capeVZ[i11], capeVX[i01], capeVY[i01], capeVZ[i01], col, 1, glowType);
+          if (!CAPE_HALF_HOLES.has(key)) {
+            rasterTriPixel(capeVX[i00], capeVY[i00], capeVZ[i00], capeVX[i11], capeVY[i11], capeVZ[i11], capeVX[i01], capeVY[i01], capeVZ[i01], col, 1, glowType);
+          }
+        }
+      }
+    }
+
+    function drawBeamStarburst3D(ox, oy, oz, dirX, dirY, dirZ, flareFrac, sec) {
+      if (flareFrac <= 0.02) return;
+      let ux = 0, uy = 1, uz = 0;
+      if (Math.abs(dirY) > 0.92) { ux = 0; uy = 0; uz = -1; }
+      let rx = dirY * uz - dirZ * uy, ry = dirZ * ux - dirX * uz, rz = dirX * uy - dirY * ux;
+      const rl = Math.hypot(rx, ry, rz) || 1;
+      rx /= rl; ry /= rl; rz /= rl;
+      ux = ry * dirZ - rz * dirY; uy = rz * dirX - rx * dirZ; uz = rx * dirY - ry * dirX;
+
+      worldToCam(ox, oy, oz, _tmpC);
+      if (_tmpC.z < 5.5) return;
+      const cxScreen = W * 0.5, cyScreen = H * 0.5;
+      const cz0 = _tmpC.z;
+      const sx0 = cxScreen + (_tmpC.x * focal) / cz0;
+      const sy0 = cyScreen - (_tmpC.y * focal) / cz0;
+
+      const spikes = 10;
+      const ptsX = [], ptsY = [], ptsZ = [];
+      const inX = [], inY = [], inZ = [];
+      const rIn = 4.2 * flareFrac;
+      const rot = sec * 5.2;
+
+      for (let i = 0; i < spikes; i++) {
+        const ang = (i / spikes) * Math.PI * 2 + rot;
+        const angMid = ang + Math.PI / spikes;
+        const rOut = ((i % 2 === 0) ? 21.0 : 12.5) * flareFrac;
+        const c1 = Math.cos(ang), s1 = Math.sin(ang);
+        const c2 = Math.cos(angMid), s2 = Math.sin(angMid);
+
+        worldToCam(ox + (rx * c1 + ux * s1) * rOut, oy + (ry * c1 + uy * s1) * rOut, oz + (rz * c1 + uz * s1) * rOut, _tmpC);
+        if (_tmpC.z < 5.5) return;
+        ptsZ.push(_tmpC.z);
+        ptsX.push(cxScreen + (_tmpC.x * focal) / _tmpC.z);
+        ptsY.push(cyScreen - (_tmpC.y * focal) / _tmpC.z);
+
+        worldToCam(ox + (rx * c2 + ux * s2) * rIn, oy + (ry * c2 + uy * s2) * rIn, oz + (rz * c2 + uz * s2) * rIn, _tmpC);
+        if (_tmpC.z < 5.5) return;
+        inZ.push(_tmpC.z);
+        inX.push(cxScreen + (_tmpC.x * focal) / _tmpC.z);
+        inY.push(cyScreen - (_tmpC.y * focal) / _tmpC.z);
+      }
+
+      const outerPink = packHex(0xf472b6);
+      const innerPink = packHex(0xfbcfe8);
+      for (let i = 0; i < spikes; i++) {
+        const prev = (i + spikes - 1) % spikes;
+        rasterTriPixel(sx0, sy0, cz0, inX[prev], inY[prev], inZ[prev], ptsX[i], ptsY[i], ptsZ[i], outerPink, 0, 5);
+        rasterTriPixel(sx0, sy0, cz0, ptsX[i], ptsY[i], ptsZ[i], inX[i], inY[i], inZ[i], outerPink, 0, 5);
+        const mx = (sx0 + ptsX[i]) * 0.52, my = (sy0 + ptsY[i]) * 0.52, mz = (cz0 + ptsZ[i]) * 0.5;
+        rasterTriPixel(sx0, sy0, cz0, inX[prev], inY[prev], inZ[prev], mx, my, mz, innerPink, 0, 5);
+      }
+      drawPixelBillboard(ox, oy, oz, 6.2 * flareFrac, packHex(0xfff1f8), 5);
+    }
+
+    function drawFocusedBeam3D(b, sec) {
+      const cxScreen = W * 0.5, cyScreen = H * 0.5;
+      const age = b.maxLife - b.life;
+      const reach = Math.min(980, age * 3600 + 210);
+      const fade = Math.min(1.0, b.life / 0.22);
+      const pulse = 1.0 + 0.14 * Math.sin(sec * 46);
+      const SEGS = 18;
+      const outerCol = packHex(b.colOuter);
+      const midCol = packHex(b.colMid);
+      const coreCol = packHex(b.colCore);
+      const ringCol = packHex(0xf9a8d4);
+
+      let dirX = b.dx, dirY = b.dy, dirZ = b.dz;
+      if (b.target && enemies.indexOf(b.target) !== -1) {
+        const tx = b.target.x - b.ox, ty = b.target.y - b.oy, tz = b.target.z - b.oz;
+        const tl = Math.hypot(tx, ty, tz) || 1;
+        dirX = b.dx * 0.5 + (tx / tl) * 0.5;
+        dirY = b.dy * 0.5 + (ty / tl) * 0.5;
+        dirZ = b.dz * 0.5 + (tz / tl) * 0.5;
+        const dl = Math.hypot(dirX, dirY, dirZ) || 1;
+        dirX /= dl; dirY /= dl; dirZ /= dl;
+      }
+
+      let prevOk = false;
+      let poLx = 0, poLy = 0, poLz = 0, poRx = 0, poRy = 0, poRz = 0;
+      let pmLx = 0, pmLy = 0, pmLz = 0, pmRx = 0, pmRy = 0, pmRz = 0;
+      let pcLx = 0, pcLy = 0, pcLz = 0, pcRx = 0, pcRy = 0, pcRz = 0;
+
+      for (let s = 0; s <= SEGS; s++) {
+        const u = s / SEGS;
+        const distA = u * reach;
+        const px = b.ox + dirX * distA;
+        const py = b.oy + dirY * distA;
+        const pz = b.oz + dirZ * distA;
+
+        const tcX = camPos.x - px, tcY = camPos.y - py, tcZ = camPos.z - pz;
+        let rx = dirY * tcZ - dirZ * tcY;
+        let ry = dirZ * tcX - dirX * tcZ;
+        let rz = dirX * tcY - dirY * tcX;
+        const rl = Math.hypot(rx, ry, rz);
+        if (rl < 1e-4) { rx = camR.x; ry = camR.y; rz = camR.z; }
+        else { rx /= rl; ry /= rl; rz /= rl; }
+
+        const nozzleTaper = u < 0.08 ? (0.58 + 0.42 * (u / 0.08)) : 1.0;
+        const tipTaper = u > 0.88 ? Math.max(0.25, (1.0 - u) / 0.12) : 1.0;
+        const widthScale = fade * pulse * nozzleTaper * tipTaper;
+        const wO = 12.6 * widthScale, wM = 7.8 * widthScale, wC = 3.5 * widthScale;
+
+        const projPt = (wOff) => {
+          worldToCam(px + rx * wOff, py + ry * wOff, pz + rz * wOff, _tmpC);
+          if (_tmpC.z < 5.5) return null;
+          const invZ = focal / _tmpC.z;
+          return [cxScreen + _tmpC.x * invZ, cyScreen - _tmpC.y * invZ, _tmpC.z];
+        };
+
+        const oL = projPt(-wO), oR = projPt(wO);
+        const mL = projPt(-wM), mR = projPt(wM);
+        const cL = projPt(-wC), cR = projPt(wC);
+        const curOk = !!(oL && oR && mL && mR && cL && cR);
+
+        if (prevOk && curOk) {
+          rasterTriPixel(poLx, poLy, poLz, poRx, poRy, poRz, oR[0], oR[1], oR[2], outerCol, 0, 5);
+          rasterTriPixel(poLx, poLy, poLz, oR[0], oR[1], oR[2], oL[0], oL[1], oL[2], outerCol, 0, 5);
+          rasterTriPixel(pmLx, pmLy, pmLz, pmRx, pmRy, pmRz, mR[0], mR[1], mR[2], midCol, 0, 5);
+          rasterTriPixel(pmLx, pmLy, pmLz, mR[0], mR[1], mR[2], mL[0], mL[1], mL[2], midCol, 0, 5);
+          rasterTriPixel(pcLx, pcLy, pcLz, pcRx, pcRy, pcRz, cR[0], cR[1], cR[2], coreCol, 0, 5);
+          rasterTriPixel(pcLx, pcLy, pcLz, cR[0], cR[1], cR[2], cL[0], cL[1], cL[2], coreCol, 0, 5);
+        }
+
+        if (curOk) {
+          prevOk = true;
+          poLx = oL[0]; poLy = oL[1]; poLz = oL[2]; poRx = oR[0]; poRy = oR[1]; poRz = oR[2];
+          pmLx = mL[0]; pmLy = mL[1]; pmLz = mL[2]; pmRx = mR[0]; pmRy = mR[1]; pmRz = mR[2];
+          pcLx = cL[0]; pcLy = cL[1]; pcLz = cL[2]; pcRx = cR[0]; pcRy = cR[1]; pcRz = cR[2];
+        } else {
+          prevOk = false;
+        }
+      }
+
+      // 3 Converging Spiral Focus Strands around the pink plasma beam
+      let ux = 0, uy = 1, uz = 0;
+      if (Math.abs(dirY) > 0.92) { ux = 0; uy = 0; uz = -1; }
+      let bx = dirY * uz - dirZ * uy, by = dirZ * ux - dirX * uz, bz = dirX * uy - dirY * ux;
+      const bl = Math.hypot(bx, by, bz) || 1;
+      bx /= bl; by /= bl; bz /= bl;
+      const upx = by * dirZ - bz * dirY, upy = bz * dirX - bx * dirZ, upz = bx * dirY - by * dirX;
+
+      for (let k = 0; k < 3; k++) {
+        for (let s = 1; s <= 9; s++) {
+          const u = s / 10;
+          const dA = u * Math.min(reach, 420);
+          const ang = u * 11.0 - sec * 24.0 + (k * Math.PI * 2) / 3;
+          const rad = (Math.pow(1.0 - u, 1.25) * 11.5 + 2.4) * fade;
+          const ox = Math.cos(ang) * rad, oy = Math.sin(ang) * rad;
+          drawPixelBillboard(
+            b.ox + dirX * dA + bx * ox + upx * oy,
+            b.oy + dirY * dA + by * ox + upy * oy,
+            b.oz + dirZ * dA + bz * ox + upz * oy,
+            2.4 * fade, ringCol, 5
+          );
         }
       }
     }
@@ -1763,15 +1946,15 @@
           for (let x = 2; x < W - 2; x++) {
             const g = glowBuf[row + x];
             if (!g) continue;
-            const addR = g === 1 ? 55 : (g === 2 ? 12 : (g === 4 ? 12 : 70));
-            const addG = g === 1 ? 48 : (g === 2 ? 58 : (g === 4 ? 66 : 16));
-            const addB = g === 1 ? 10 : (g === 2 ? 72 : (g === 4 ? 42 : 32));
+            const addR = g === 1 ? 55 : (g === 2 ? 12 : (g === 4 ? 12 : (g === 5 ? 92 : 70)));
+            const addG = g === 1 ? 48 : (g === 2 ? 58 : (g === 4 ? 66 : (g === 5 ? 24 : 16)));
+            const addB = g === 1 ? 10 : (g === 2 ? 72 : (g === 4 ? 42 : (g === 5 ? 78 : 32)));
             const offs = [-1, 1, -W, W, -2, 2, -W * 2, W * 2];
             for (let k = 0; k < 8; k++) {
               const idx = row + x + offs[k];
-              if (glowBuf[idx] || mask[idx] === 1) continue;
+              if (glowBuf[idx] || (mask[idx] === 1 && g !== 5)) continue;
               const p = fb32[idx];
-              const fall = k < 4 ? 1.0 : 0.45;
+              const fall = k < 4 ? 1.0 : 0.48;
               const r = Math.min(255, (p & 255) + ((addR * fall) | 0));
               const gr = Math.min(255, ((p >> 8) & 255) + ((addG * fall) | 0));
               const b = Math.min(255, ((p >> 16) & 255) + ((addB * fall) | 0));
@@ -1803,24 +1986,24 @@
 
     const FORM_CFG = {
       G1: {
-        name: '🔴 盖塔1号 (红披风战斧)', pill: '🔴 盖塔1号 [Tab]', stackKey: 'G1',
+        name: '🔴 盖塔1号 (战损披风战斧)', pill: '🔴 盖塔1号 [Tab]', stackKey: 'G1',
         spdMul: 1.08, fireCd: 0.135, dmgMul: 1.12, splashRad: 0,
         deflectWin: 0.56, scoreBonus: 1.05,
-        slashMat: 2, trailHex: 0xf43f5e, beamHex: 0x34d399,
+        slashMat: 2, trailHex: 0xf43f5e, beamHex: 0xf472b6,
         uiColor: '#fecdd3', uiBg: 'rgba(190,18,60,0.34)', uiBorder: 'rgba(251,113,133,0.72)'
       },
       G2: {
         name: '⚪ 盖塔2号 (极速钻头)', pill: '⚪ 盖塔2号 [Tab]', stackKey: 'G2',
         spdMul: 1.28, fireCd: 0.095, dmgMul: 0.96, splashRad: 0,
         deflectWin: 0.44, scoreBonus: 1.12,
-        slashMat: 5, trailHex: 0x38bdf8, beamHex: 0x67e8f9,
+        slashMat: 5, trailHex: 0x38bdf8, beamHex: 0xe879f9,
         uiColor: '#bae6fd', uiBg: 'rgba(14,116,144,0.34)', uiBorder: 'rgba(56,189,248,0.68)'
       },
       G3: {
         name: '🟡 盖塔3号 (重装导弹)', pill: '🟡 盖塔3号 [Tab]', stackKey: 'G3',
         spdMul: 0.92, fireCd: 0.185, dmgMul: 1.62, splashRad: 36,
         deflectWin: 0.42, scoreBonus: 1.10,
-        slashMat: 21, trailHex: 0xfacc15, beamHex: 0xfb923c,
+        slashMat: 21, trailHex: 0xfacc15, beamHex: 0xfb7185,
         uiColor: '#fef08a', uiBg: 'rgba(161,98,7,0.38)', uiBorder: 'rgba(250,204,21,0.72)'
       }
     };
@@ -1892,6 +2075,7 @@
       openGetAnim: 0,
       capeCycloneTimer: 0,
       capeSnapTimer: 0,
+      beamFlareTimer: 0,
       combo: 0, comboTimer: 0, maxCombo: 0,
       wingmen: 0, wingmanCd: 0,
       perks: defaultPerks(),
@@ -1917,6 +2101,7 @@
     let crisisState = { active: false, type: -1, timer: 0, maxTimer: 0, spawnCd: 0 };
     let perkChoices = [];
     const projectiles = [];
+    const beamFX = [];
     const enemyProjectiles = [];
     const particles = [];
     const ribbonsL = [];
@@ -2731,7 +2916,20 @@
       const beamDmg = 5 * fCfg.dmgMul * wakeMul * player.perks.beamMul * player.perks.globalDmgMul;
       const homingTurn = 2.2 * player.perks.homingMul;
       const splashRad = fCfg.splashRad * player.perks.splashMul;
-      spawnSparks(player.x + dx * 12, player.y + dy * 12, player.z + dz * 12, 18, fCfg.beamHex, 90);
+      player.beamFlareTimer = 0.45;
+      beamFX.push({
+        ox: player.x + dx * 12,
+        oy: player.y + dy * 12,
+        oz: player.z + dz * 12,
+        dx, dy, dz,
+        life: 0.58,
+        maxLife: 0.58,
+        target: tgt,
+        colOuter: 0xdb2777,
+        colMid: fCfg.beamHex,
+        colCore: 0xfff1f8
+      });
+      spawnSparks(player.x + dx * 12, player.y + dy * 12, player.z + dz * 12, 20, fCfg.beamHex, 95);
       const hitIds = new Set();
       for (let k = 0; k < 9; k++) {
         projectiles.push({
@@ -3173,13 +3371,14 @@
       player.openGetAnim = 0;
       player.capeCycloneTimer = 0;
       player.capeSnapTimer = 0;
+      player.beamFlareTimer = 0;
       player.combo = 0; player.comboTimer = 0; player.maxCombo = 0;
       player.wingmen = 0; player.wingmanCd = 0;
       player.perks = defaultPerks();
       player.reloadTimer = 0; player.invulnTimer = 0; player.lightSphereTimer = 0;
       player.ringBoostTimer = 0; player.ringsCleared = 0;
       score = 0; wave = 1; kills = 0; slowMoTimer = 0; hitStopTimer = 0;
-      projectiles.length = 0; enemyProjectiles.length = 0; particles.length = 0;
+      projectiles.length = 0; beamFX.length = 0; enemyProjectiles.length = 0; particles.length = 0;
       ribbonsL.length = 0; ribbonsR.length = 0; ghosts.length = 0; pickups.length = 0;
       bossBits.length = 0; crisisMeteors.length = 0; escortShip = null;
       crisisState = { active: false, type: -1, timer: 0, maxTimer: 0, spawnCd: 0 };
@@ -3448,6 +3647,17 @@
         if (player.openGetAnim > 0) player.openGetAnim = Math.max(0, player.openGetAnim - rawDt);
         if (player.capeCycloneTimer > 0) player.capeCycloneTimer = Math.max(0, player.capeCycloneTimer - rawDt);
         if (player.capeSnapTimer > 0) player.capeSnapTimer = Math.max(0, player.capeSnapTimer - rawDt);
+        if (player.beamFlareTimer > 0) player.beamFlareTimer = Math.max(0, player.beamFlareTimer - rawDt);
+        for (let bi = beamFX.length - 1; bi >= 0; bi--) {
+          const bf = beamFX[bi];
+          bf.life -= rawDt;
+          if (bf.maxLife - bf.life < 0.22) {
+            bf.ox = player.x + fwd.x * 13;
+            bf.oy = player.y + fwd.y * 13;
+            bf.oz = player.z + fwd.z * 13;
+          }
+          if (bf.life <= 0) beamFX.splice(bi, 1);
+        }
         if (player.openGetCd > 0) {
           player.openGetCd = Math.max(0, player.openGetCd - rawDt);
           updateFormUI();
@@ -4253,7 +4463,7 @@
               if (bi >= bossBits.length) continue;
               const b = bossBits[bi];
               if (p.hitIds.has(b.uid)) continue;
-              if (Math.hypot(p.x - b.x, p.y - b.y, p.z - b.z) < (p.isBeam ? 24 : 18)) {
+              if (Math.hypot(p.x - b.x, p.y - b.y, p.z - b.z) < (p.isBeam ? 28 : 18)) {
                 p.hitIds.add(b.uid);
                 damageBossBit(bi, p.dmg, p.isBeam);
                 if (--p.pierceLeft <= 0) { removeProj = true; break; }
@@ -4266,10 +4476,10 @@
               if (j >= enemies.length) continue;
               const e = enemies[j];
               if (p.hitIds.has(e.uid)) continue;
-              const hr = e.isBoss ? (p.isBeam ? 58 : 44) : (e.isCarrier ? 36 : (e.isElite ? 30 : (p.isBeam ? 34 : 24)));
+              const hr = e.isBoss ? (p.isBeam ? 68 : 44) : (e.isCarrier ? (p.isBeam ? 46 : 36) : (e.isElite ? (p.isBeam ? 40 : 30) : (p.isBeam ? 42 : 24)));
               if (Math.hypot(p.x - e.x, p.y - e.y, p.z - e.z) < hr) {
                 p.hitIds.add(e.uid);
-                spawnSparks(p.x, p.y, p.z, p.isBeam ? 10 : 5, p.isBeam ? 0xf43f5e : FORM_CFG[player.form].trailHex, 75);
+                spawnSparks(p.x, p.y, p.z, p.isBeam ? 12 : 5, p.isBeam ? 0xf472b6 : FORM_CFG[player.form].trailHex, 80);
                 damageEnemy(j, p.dmg, p.isBeam);
                 if (p.splashRad > 0) applyFormSplash(p.x, p.y, p.z, p.splashRad, p.dmg, e.uid);
                 if (--p.pierceLeft <= 0) { removeProj = true; break; }
@@ -4437,13 +4647,21 @@
         drawPixelBillboard(ep.x, ep.y, ep.z, ep.radius * 0.55, ep.colCore, ep.glowType);
       }
 
-      // 3D Weapon Stacks (Tomahawk / Drill Wave / Getter Missile) + Getter Beams
-      const beamCoreCol = packHex(0xffffff);
+      // 3D Weapon Stacks (Tomahawk / Drill Wave / Getter Missile) + Focused Pink Getter Beams
+      for (let i = 0; i < beamFX.length; i++) {
+        drawFocusedBeam3D(beamFX[i], sec);
+      }
+      if (player.beamFlareTimer > 0) {
+        drawBeamStarburst3D(player.x + fwd.x * 12, player.y + fwd.y * 12, player.z + fwd.z * 12, fwd.x, fwd.y, fwd.z, player.beamFlareTimer / 0.45, sec);
+      }
+
+      const beamOuterCol = packHex(0xdb2777), beamCoreCol = packHex(0xfff1f8);
       for (let i = 0; i < projectiles.length; i++) {
         const p = projectiles[i];
         if (p.isBeam) {
-          drawPixelBillboard(p.x, p.y, p.z, 4.2, packHex(p.beamHex || FORM_CFG[player.form].beamHex), 4);
-          drawPixelBillboard(p.x, p.y, p.z, 2.0, beamCoreCol, 1);
+          drawPixelBillboard(p.x, p.y, p.z, 8.4, beamOuterCol, 5);
+          drawPixelBillboard(p.x, p.y, p.z, 5.6, packHex(p.beamHex || FORM_CFG[player.form].beamHex), 5);
+          drawPixelBillboard(p.x, p.y, p.z, 2.8, beamCoreCol, 5);
         } else {
           const wStack = WEAPON_STACKS[p.weaponForm || 'G1'] || TOMAHAWK_STACK;
           drawSpriteStack(wStack, p.x, p.y, p.z, p.yaw, p.pitch, p.spin, p.isReflect ? 1.05 : 0.85, 1.0, 0, false, 0, p.matColor || 0);
