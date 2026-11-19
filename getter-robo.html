@@ -3829,16 +3829,23 @@
           player.fireCd = fCfg.fireCd * player.perks.fireRateMul;
         }
 
-        // Wingtip / Cape-Hem Dual Light Ribbons
+        // Wingtip / Cape-Hem Dual Light Ribbons (G1: maneuver-triggered aerodynamic vapor only)
         if (player.form === 'G1') {
-          ribbonsL.push({ x: capeTipL.x, y: capeTipL.y, z: capeTipL.z, life: 0.34 });
-          ribbonsR.push({ x: capeTipR.x, y: capeTipR.y, z: capeTipR.z, life: 0.34 });
+          const g1Maneuver = boosting || braking
+            || player.rollAnim > 0 || player.loopAnim > 0
+            || player.capeCycloneTimer > 0 || player.capeSnapTimer > 0
+            || Math.abs(turnIn) > 0.45 || Math.abs(pitchIn) > 0.45
+            || Math.abs(player.roll) > 0.38;
+          if (g1Maneuver) {
+            ribbonsL.push({ x: capeTipL.x, y: capeTipL.y, z: capeTipL.z, life: 0.28, maxLife: 0.28, air: true });
+            ribbonsR.push({ x: capeTipR.x, y: capeTipR.y, z: capeTipR.z, life: 0.28, maxLife: 0.28, air: true });
+          }
         } else {
           const rightX = Math.cos(player.yaw) * 6.5 * cfg.heroScale;
           const rightZ = -Math.sin(player.yaw) * 6.5 * cfg.heroScale;
           const tailX = player.x - fwd.x * 11, tailY = player.y - fwd.y * 11, tailZ = player.z - fwd.z * 11;
-          ribbonsL.push({ x: tailX - rightX, y: tailY, z: tailZ - rightZ, life: 0.34 });
-          ribbonsR.push({ x: tailX + rightX, y: tailY, z: tailZ + rightZ, life: 0.34 });
+          ribbonsL.push({ x: tailX - rightX, y: tailY, z: tailZ - rightZ, life: 0.34, maxLife: 0.34, air: false });
+          ribbonsR.push({ x: tailX + rightX, y: tailY, z: tailZ + rightZ, life: 0.34, maxLife: 0.34, air: false });
         }
         if (ribbonsL.length > 24) ribbonsL.shift();
         if (ribbonsR.length > 24) ribbonsR.shift();
@@ -4696,15 +4703,19 @@
         drawSpriteStack(st, e.x, e.y, e.z, e.yaw, e.pitch || 0, roll, sc, 1.0, 2, e.flash > 0, 0, e.isElite ? 18 : 0);
       }
 
-      // Dual Wingtip / Cape-Hem Light Ribbons
-      const ribCol = packHex(player.awakened && player.form === 'G1' ? 0xfbbf24 : FORM_CFG[player.form].trailHex);
-      for (let i = 0; i < ribbonsL.length; i++) {
-        if (!freezeSim) ribbonsL[i].life -= rawDt;
-        if (ribbonsL[i].life > 0) drawPixelBillboard(ribbonsL[i].x, ribbonsL[i].y, ribbonsL[i].z, 0.95, ribCol, 3);
-      }
-      for (let i = 0; i < ribbonsR.length; i++) {
-        if (!freezeSim) ribbonsR[i].life -= rawDt;
-        if (ribbonsR[i].life > 0) drawPixelBillboard(ribbonsR[i].x, ribbonsR[i].y, ribbonsR[i].z, 0.95, ribCol, 3);
+      // Dual Wingtip / Cape-Hem Light Ribbons (tapered aerodynamic vapor for G1 maneuvers)
+      const g1AirCol = packHex((player.capeCycloneTimer > 0 || player.awakened) ? 0xfef08a : 0xe2f4ff);
+      const g1AirGlow = (player.capeCycloneTimer > 0 || player.awakened) ? 1 : 2;
+      const formRibCol = packHex(FORM_CFG[player.form].trailHex);
+      for (const ribList of [ribbonsL, ribbonsR]) {
+        for (let i = ribList.length - 1; i >= 0; i--) {
+          const rb = ribList[i];
+          if (!freezeSim) rb.life -= rawDt;
+          if (rb.life <= 0) { ribList.splice(i, 1); continue; }
+          const f = Math.max(0, Math.min(1, rb.life / (rb.maxLife || 0.34)));
+          if (rb.air) drawPixelBillboard(rb.x, rb.y, rb.z, 0.34 + f * 0.56, g1AirCol, g1AirGlow);
+          else drawPixelBillboard(rb.x, rb.y, rb.z, 0.45 + f * 0.50, formRibCol, 3);
+        }
       }
 
       // Autonomous Getter Machine Eagle / Jaguar Wingmen
