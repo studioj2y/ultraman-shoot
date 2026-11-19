@@ -55,7 +55,7 @@
     }
     #hudOverlay {
       position: absolute; inset: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 12;
+      pointer-events: none; z-index: 17;
     }
 
     /* Damage Flash Overlay */
@@ -2018,7 +2018,7 @@
       const fwd = heroForward();
       const basis = basisFromFwd(fwd);
       const bossType = (wave - 1) % 3; // 0: Hyper Zetton, 1: King Ghidorah, 2: Dark Zagi
-      const d = 760 * cfg.engageRange;
+      const d = 600 * cfg.engageRange;
       const diff = DIFF_CFG[difficulty];
       const hp = Math.round((56 + wave * 14) * diff.hpMul);
       const e = {
@@ -2036,6 +2036,8 @@
         phase: 1,
         stunTimer: 0,
         blinkCd: 3.6,
+        offArcTimer: 0,
+        warpNoticeCd: 0,
         dashState: 'ORBIT', // 'ORBIT' | 'WINDUP' | 'DASH'
         dashTimer: 0,
         dashCooldown: Math.max(2.6, 5.5 / diff.rateMul),
@@ -2842,12 +2844,12 @@
     function drawEdgeArrow(wx, wy, wz, color, size = 8) {
       worldToCam(wx, wy, wz, _tmpC);
       let sx = _tmpC.x, sy = -_tmpC.y;
-      if (_tmpC.z < 0) { sx = -sx; sy = -sy; }
-      const len = Math.hypot(sx, sy) || 1;
+      let len = Math.hypot(sx, sy);
+      if (len < 1e-3) { sx = 1; sy = 0; len = 1; }
       const nx = sx / len, ny = sy / len;
-      const pad = 20;
-      const ax = Math.max(pad, Math.min(cssW - pad, cssW * 0.5 + nx * (cssW * 0.48 - pad)));
-      const ay = Math.max(pad + 34, Math.min(cssH - pad, cssH * 0.5 + ny * (cssH * 0.48 - pad)));
+      const padX = 24, padTop = 56, padBot = 42;
+      const ax = Math.max(padX, Math.min(cssW - padX, cssW * 0.5 + nx * (cssW * 0.48 - padX)));
+      const ay = Math.max(padTop, Math.min(cssH - padBot, cssH * 0.5 + ny * (cssH * 0.48 - padBot)));
       hctx.save();
       hctx.translate(ax, ay);
       hctx.rotate(Math.atan2(ny, nx));
@@ -2858,6 +2860,81 @@
       hctx.lineTo(-size, size * 0.72);
       hctx.closePath();
       hctx.fill();
+      hctx.restore();
+    }
+
+    function drawBossOffscreenBeacon(wx, wy, wz, dPlayer, stunTimer, sec) {
+      worldToCam(wx, wy, wz, _tmpC);
+      let sx = _tmpC.x, sy = -_tmpC.y;
+      let len = Math.hypot(sx, sy);
+      if (len < 1e-3) { sx = 1; sy = 0; len = 1; }
+      const nx = sx / len, ny = sy / len;
+      const ang = Math.atan2(ny, nx);
+      const pulse = 0.5 + 0.5 * Math.sin(sec * 8.5);
+      const mainCol = stunTimer > 0 ? '#fde047' : '#f43f5e';
+      const rimCol = stunTimer > 0 ? '#ffffff' : '#fbbf24';
+
+      // 1. Center-Reticle Compass Pointer
+      const cx = cssW * 0.5, cy = cssH * 0.5;
+      hctx.save();
+      hctx.strokeStyle = rimCol;
+      hctx.lineWidth = 2.2;
+      hctx.beginPath();
+      hctx.arc(cx, cy, 36, ang - 0.36, ang + 0.36);
+      hctx.stroke();
+
+      hctx.translate(cx + nx * 42, cy + ny * 42);
+      hctx.rotate(ang);
+      hctx.fillStyle = mainCol;
+      hctx.strokeStyle = rimCol;
+      hctx.lineWidth = 1.6;
+      hctx.beginPath();
+      hctx.moveTo(10, 0);
+      hctx.lineTo(-6, -6);
+      hctx.lineTo(-3, 0);
+      hctx.lineTo(-6, 6);
+      hctx.closePath();
+      hctx.fill();
+      hctx.stroke();
+      hctx.restore();
+
+      // 2. Screen-Edge Beacon & Distance Tag (kept clear of #bossBarWrap)
+      const padX = 52, padTop = 108, padBot = 62;
+      const bx = Math.max(padX, Math.min(cssW - padX, cx + nx * (cssW * 0.48 - padX)));
+      const by = Math.max(padTop, Math.min(cssH - padBot, cy + ny * (cssH * 0.48 - padBot)));
+
+      hctx.save();
+      hctx.translate(bx, by);
+      hctx.rotate(ang);
+      const sz = 12 + pulse * 3;
+      hctx.fillStyle = mainCol;
+      hctx.strokeStyle = rimCol;
+      hctx.lineWidth = 1.8;
+      hctx.beginPath();
+      hctx.moveTo(sz, 0);
+      hctx.lineTo(-sz * 0.75, -sz * 0.75);
+      hctx.lineTo(-sz * 0.35, 0);
+      hctx.lineTo(-sz * 0.75, sz * 0.75);
+      hctx.closePath();
+      hctx.fill();
+      hctx.stroke();
+      hctx.restore();
+
+      const lbl = `⚠️ BOSS ${dPlayer}m`;
+      const pillW = Math.max(82, lbl.length * 7.2 + 12);
+      const lx = Math.max(pillW * 0.5 + 8, Math.min(cssW - pillW * 0.5 - 8, bx - nx * 24));
+      const ly = Math.max(104, Math.min(cssH - 22, by - ny * 18));
+      hctx.save();
+      hctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      hctx.fillRect(lx - pillW * 0.5, ly - 10, pillW, 20);
+      hctx.strokeStyle = mainCol;
+      hctx.lineWidth = 1.4;
+      hctx.strokeRect(lx - pillW * 0.5, ly - 10, pillW, 20);
+      hctx.font = 'bold 11px monospace';
+      hctx.textAlign = 'center';
+      hctx.textBaseline = 'middle';
+      hctx.fillStyle = rimCol;
+      hctx.fillText(lbl, lx, ly + 0.5);
       hctx.restore();
     }
 
@@ -2883,6 +2960,34 @@
         y: player.y + fwd.y * distAhead + basis.r.y * rx + basis.u.y * uy,
         z: player.z + fwd.z * distAhead + basis.r.z * rx + basis.u.z * uy
       };
+    }
+
+    function teleportBossAhead(e, fwd, basis, showNotice = false) {
+      if (Number.isFinite(e.x + e.y + e.z)) spawnSparks(e.x, e.y, e.z, 16, 0x38bdf8, 85);
+      const warpD = (430 + Math.random() * 75) * cfg.engageRange;
+      const wp = warpAheadPos(fwd, basis, warpD, 65, 24);
+      e.x = wp.x; e.y = wp.y; e.z = wp.z;
+      e.dashState = 'ORBIT';
+      e.dashTimer = 0;
+      e.offArcTimer = 0;
+      e.behindTimer = 0;
+      e.yaw = Math.atan2(e.x - player.x, e.z - player.z);
+      e.pitch = 0;
+      e.roll = 0;
+      for (let bi = 0; bi < bossBits.length; bi++) {
+        const b = bossBits[bi];
+        if (b.ownerUid === e.uid) {
+          b.x = e.x + Math.cos(b.angle) * b.orbitDist;
+          b.y = e.y + b.orbitY;
+          b.z = e.z + Math.sin(b.angle) * b.orbitDist;
+        }
+      }
+      spawnSparks(e.x, e.y, e.z, 24, 0xfbbf24, 95);
+      if (showNotice && (e.warpNoticeCd || 0) <= 0) {
+        e.warpNoticeCd = 3.2;
+        sfx.dodge();
+        showBanner('🌀 BOSS 空间跃迁切入正前方空域！');
+      }
     }
 
     function frame(now) {
@@ -3254,13 +3359,30 @@
           e.flash = Math.max(0, e.flash - rawDt);
           e.ramCd = Math.max(0, (e.ramCd || 0) - rawDt);
 
-          const rx = e.x - player.x, ry = e.y - player.y, rz = e.z - player.z;
-          const tx = -rx, ty = -ry, tz = -rz;
-          const dist = Math.hypot(tx, ty, tz) || 1;
-          const horizD = Math.hypot(tx, tz) || 1;
-          const forwardDist = rx * fwd.x + ry * fwd.y + rz * fwd.z;
+          let rx = e.x - player.x, ry = e.y - player.y, rz = e.z - player.z;
+          let tx = -rx, ty = -ry, tz = -rz;
+          let dist = Math.hypot(tx, ty, tz) || 1;
+          let horizD = Math.hypot(tx, tz) || 1;
+          let forwardDist = rx * fwd.x + ry * fwd.y + rz * fwd.z;
 
           if (e.isBoss) {
+            e.warpNoticeCd = Math.max(0, (e.warpNoticeCd || 0) - rawDt);
+            const maxBossDist = (e.dashState === 'DASH' ? 1020 : 880) * cfg.engageRange;
+            const cosCone = forwardDist / dist;
+            if (e.dashState !== 'DASH' && (forwardDist < 80 || cosCone < 0.35 || dist > 720 * cfg.engageRange)) {
+              e.offArcTimer = (e.offArcTimer || 0) + dt;
+            } else {
+              e.offArcTimer = Math.max(0, (e.offArcTimer || 0) - dt * 2.5);
+            }
+            if (!Number.isFinite(e.x + e.y + e.z) || dist > maxBossDist || (e.dashState !== 'DASH' && forwardDist < -130) || (e.offArcTimer || 0) > 2.2) {
+              teleportBossAhead(e, fwd, basis, true);
+              rx = e.x - player.x; ry = e.y - player.y; rz = e.z - player.z;
+              tx = -rx; ty = -ry; tz = -rz;
+              dist = Math.hypot(tx, ty, tz) || 1;
+              horizD = Math.hypot(tx, tz) || 1;
+              forwardDist = rx * fwd.x + ry * fwd.y + rz * fwd.z;
+            }
+
             const bossLabel = e.bossType === 2
               ? '😈 DARK ZAGI · 暗黑破坏神扎基'
               : (e.bossType === 1 ? '🐉 KING GHIDORAH · 三首黄金帝王龙' : '👾 HYPER ZETTON · 宇宙恐龙杰顿');
@@ -3324,27 +3446,19 @@
                 }
                 if (e.dashTimer <= 0) {
                   e.dashState = 'ORBIT';
-                  if (forwardDist < 140) {
-                    spawnSparks(e.x, e.y, e.z, 18, 0x38bdf8, 85);
-                    const wp = warpAheadPos(fwd, basis, 560 * cfg.engageRange, 180, 60);
-                    e.x = wp.x; e.y = wp.y; e.z = wp.z;
-                    spawnSparks(e.x, e.y, e.z, 18, 0xfbbf24, 95);
+                  if (forwardDist < 180 || dist > 720 * cfg.engageRange) {
+                    teleportBossAhead(e, fwd, basis, false);
                   }
                 }
               } else {
-                // Forward-Arc Arena Orbit: Boss stays proudly ahead of Ultraman!
-                if (forwardDist < -160 || dist > 1850 * cfg.engageRange) {
-                  spawnSparks(e.x, e.y, e.z, 16, 0x38bdf8, 80);
-                  const wp = warpAheadPos(fwd, basis, 540 * cfg.engageRange, 190, 65);
-                  e.x = wp.x; e.y = wp.y; e.z = wp.z;
-                  spawnSparks(e.x, e.y, e.z, 16, 0xfbbf24, 90);
-                }
+                // Forward-Arc Arena Orbit: Boss stays reliably ahead of Ultraman!
                 if (e.bossType === 2) {
                   e.blinkCd -= dt * dRate;
                   if (e.blinkCd <= 0 && dist < 950) {
                     e.blinkCd = Math.max(2.1, 3.8 / dRate);
                     ghosts.push({ x: e.x, y: e.y, z: e.z, yaw: e.yaw, stack: BOSS_STACKS[2], scale: 1.85, life: 0.42 });
-                    const dir = Math.random() < 0.5 ? 1 : -1;
+                    const latNow = (e.x - player.x) * right.x + (e.y - player.y) * right.y + (e.z - player.z) * right.z;
+                    const dir = Math.abs(latNow) > 140 ? (latNow > 0 ? -1 : 1) : (Math.random() < 0.5 ? 1 : -1);
                     e.x += right.x * dir * 130; e.y += right.y * dir * 130 + up.y * ((Math.random() - 0.5) * 40); e.z += right.z * dir * 130;
                     spawnSparks(e.x, e.y, e.z, 14, 0xc084fc, 85);
                   }
@@ -3356,10 +3470,10 @@
                 const goalZ = player.z + fwd.z * (500 * cfg.engageRange) + right.z * swayX + up.z * swayY;
                 const cx = goalX - e.x, cy = goalY - e.y, cz = goalZ - e.z;
                 const cLen = Math.hypot(cx, cy, cz) || 1;
-                const corrSpd = Math.min(240 * dSpd, cLen * 1.35);
-                e.x += (fwd.x * player.speed * 0.90 + (cx / cLen) * corrSpd) * dt;
-                e.y += (fwd.y * player.speed * 0.90 + (cy / cLen) * corrSpd) * dt;
-                e.z += (fwd.z * player.speed * 0.90 + (cz / cLen) * corrSpd) * dt;
+                const corrSpd = Math.min(420 * dSpd, Math.max(240 * dSpd, cLen * 2.0));
+                e.x += (fwd.x * player.speed * 0.95 + (cx / cLen) * corrSpd) * dt;
+                e.y += (fwd.y * player.speed * 0.95 + (cy / cLen) * corrSpd) * dt;
+                e.z += (fwd.z * player.speed * 0.95 + (cz / cLen) * corrSpd) * dt;
 
                 const desiredYaw = Math.atan2(-tx, -tz);
                 let diff = desiredYaw - e.yaw;
@@ -3436,7 +3550,8 @@
             }
 
             const pct = Math.max(0, Math.round((e.hp / e.maxHp) * 100));
-            document.getElementById('bossHpTxt').textContent = e.stunTimer > 0 ? `💥破防 ${e.stunTimer.toFixed(1)}s` : `${pct}%`;
+            const distTxt = Math.round(dist);
+            document.getElementById('bossHpTxt').textContent = e.stunTimer > 0 ? `💥破防 ${e.stunTimer.toFixed(1)}s · 📍${distTxt}m` : `${pct}% · 📍${distTxt}m`;
             document.getElementById('bossBarFill').style.width = `${pct}%`;
           } else {
             // Regular / Elite / Carrier Kaiju: Forward-Arc Pacing Formation AI
@@ -3444,9 +3559,9 @@
             if (forwardDist < 40) e.behindTimer += dt;
             else e.behindTimer = Math.max(0, e.behindTimer - dt * 2.5);
 
-            if (forwardDist < -220 || dist > 1900 * cfg.engageRange) {
+            if (forwardDist < -200 || dist > 1150 * cfg.engageRange) {
               spawnSparks(e.x, e.y, e.z, 10, 0x38bdf8, 60);
-              const wp = warpAheadPos(fwd, basis, (620 + Math.random() * 260) * cfg.engageRange, 260, 85);
+              const wp = warpAheadPos(fwd, basis, (500 + Math.random() * 180) * cfg.engageRange, 155, 55);
               e.x = wp.x; e.y = wp.y; e.z = wp.z;
               e.behindTimer = 0; e.aiMode = 'FRONT_WEAVE';
               spawnSparks(e.x, e.y, e.z, 12, 0x22d3ee, 70);
@@ -4023,6 +4138,17 @@
           const sz = e.isBoss ? 24 : (e.isCarrier ? 22 : (e.isElite ? 19 : 16));
           hctx.strokeRect(ex - sz, ey - sz, sz * 2, sz * 2);
 
+          if (e.isBoss && dPlayer > 520) {
+            const pulseR = sz + 10 + 4 * Math.sin(sec * 7.5);
+            hctx.save();
+            hctx.translate(ex, ey);
+            hctx.rotate(Math.PI * 0.25);
+            hctx.strokeStyle = e.stunTimer > 0 ? '#fde047' : 'rgba(244, 63, 94, 0.85)';
+            hctx.lineWidth = 1.6;
+            hctx.strokeRect(-pulseR * 0.72, -pulseR * 0.72, pulseR * 1.44, pulseR * 1.44);
+            hctx.restore();
+          }
+
           if (isLock) {
             const ls = sz + (1 - player.lockProgress) * 18;
             hctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
@@ -4073,7 +4199,11 @@
             }
           }
         } else {
-          drawEdgeArrow(e.x, e.y, e.z, e.isBoss ? '#f43f5e' : '#fbbf24', e.isBoss ? 11 : 8);
+          if (e.isBoss) {
+            drawBossOffscreenBeacon(e.x, e.y, e.z, dPlayer, e.stunTimer, sec);
+          } else {
+            drawEdgeArrow(e.x, e.y, e.z, '#fbbf24', 8);
+          }
         }
       }
 
