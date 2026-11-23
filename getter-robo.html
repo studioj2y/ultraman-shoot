@@ -13,43 +13,46 @@
     }
     body { display: flex; flex-direction: column; }
 
-    /* Top Header Bar */
+    /* Top Header Bar (Studio Trigger Clipped Geometric Style) */
     header {
       height: 42px; flex-shrink: 0;
-      background: #0c1018; border-bottom: 1px solid rgba(51, 65, 85, 0.8);
+      background: #0c0820; border-bottom: 2px solid #050208;
+      box-shadow: 0 2px 0 #ff1e7a;
       padding: 0 10px; display: flex; align-items: center; justify-content: space-between;
       z-index: 30;
     }
     .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .dot { width: 9px; height: 9px; border-radius: 50%; background: #f43f5e; box-shadow: 0 0 10px #f43f5e; flex-shrink: 0; }
-    .brand-title { font-weight: 700; font-size: 13px; color: #fff; white-space: nowrap; }
+    .dot { width: 9px; height: 9px; border-radius: 0; transform: rotate(45deg); background: #ff1e7a; border: 1.5px solid #ffe600; flex-shrink: 0; }
+    .brand-title { font-weight: 900; font-size: 13px; color: #fff; white-space: nowrap; letter-spacing: 0.5px; text-shadow: 2px 2px 0 #ff1e7a; }
     .badge {
-      display: none; padding: 2px 7px; border-radius: 4px; font-size: 11px;
-      background: rgba(30, 41, 59, 0.9); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4);
+      display: none; padding: 2px 9px; border-radius: 0; font-size: 11px; font-weight: 800;
+      background: #1a103d; color: #ffe600; border: 1.5px solid #050208; box-shadow: 2px 2px 0 #00f5ff;
+      clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
     }
     @media (min-width: 980px) { .badge { display: inline-flex; } }
 
-    .hdr-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .hdr-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
     .hdr-btn {
-      padding: 4px 8px; border-radius: 5px; font-size: 11px; font-family: inherit;
-      background: rgba(30, 41, 59, 0.9); color: #e2e8f0; border: 1px solid rgba(71, 85, 105, 0.8);
+      padding: 4px 10px; border-radius: 0; font-size: 11px; font-weight: 800; font-family: inherit;
+      background: #1b123d; color: #f8fafc; border: 1.5px solid #050208;
+      clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
       cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
-      transition: background 0.15s, border-color 0.15s; white-space: nowrap;
+      transition: background 0.12s, transform 0.1s; white-space: nowrap;
     }
-    .hdr-btn:hover { background: #334155; }
+    .hdr-btn:hover { background: #311d6b; transform: translateY(-1px); }
     .hdr-btn.switch-3d {
-      background: rgba(14, 165, 233, 0.18); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.55); font-weight: 600;
+      background: #0c2c4d; color: #00f5ff; border-color: #050208; box-shadow: 2px 2px 0 #00f5ff;
     }
-    .hdr-btn.switch-3d:hover { background: rgba(14, 165, 233, 0.32); }
+    .hdr-btn.switch-3d:hover { background: #14497a; }
     .hdr-btn.switch-getter {
-      background: rgba(225, 29, 72, 0.22); color: #fda4af; border-color: rgba(244, 63, 94, 0.65); font-weight: 700;
+      background: #520a2c; color: #ffe600; border-color: #050208; box-shadow: 2px 2px 0 #ff1e7a;
     }
-    .hdr-btn.switch-getter:hover { background: rgba(225, 29, 72, 0.36); }
-    .hdr-btn.bgm-on { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border-color: rgba(52, 211, 153, 0.5); }
+    .hdr-btn.switch-getter:hover { background: #7a1040; }
+    .hdr-btn.bgm-on { background: #064e3b; color: #00ffa6; border-color: #050208; box-shadow: 2px 2px 0 #00ffa6; }
 
     /* Main Viewport */
     .stage-wrap { flex: 1; position: relative; overflow: hidden; display: flex; min-height: 0; }
-    .viewport { flex: 1; position: relative; background: #04060c; overflow: hidden; }
+    .viewport { flex: 1; position: relative; background: #050208; overflow: hidden; }
     #pixelCanvas {
       width: 100%; height: 100%; display: block;
       image-rendering: -moz-crisp-edges;
@@ -65,77 +68,93 @@
     /* Damage Flash Overlay */
     #dmgFlash {
       position: absolute; inset: 0; pointer-events: none; z-index: 14; opacity: 0;
-      background: radial-gradient(circle, transparent 48%, rgba(239, 68, 68, 0.65) 100%);
-      transition: opacity 0.12s;
+      background: radial-gradient(circle, transparent 45%, rgba(255, 30, 122, 0.78) 100%);
+      transition: opacity 0.10s;
     }
 
-    /* HUD Overlays */
+    /* HUD Overlays (Sharp Clipped Cards & Hard Comic Shadows) */
     .hud-top {
       position: absolute; top: 10px; left: 10px; right: 10px;
       display: flex; justify-content: space-between; align-items: flex-start;
       pointer-events: none; z-index: 15; gap: 8px;
     }
     .hud-card {
-      background: rgba(10, 14, 23, 0.84); border: 1px solid rgba(51, 65, 85, 0.78);
-      border-radius: 7px; padding: 6px 10px; backdrop-filter: blur(4px);
+      background: rgba(18, 11, 42, 0.94); border: 2px solid #050208;
+      border-radius: 0; padding: 6px 13px;
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+      filter: drop-shadow(3px 3px 0 #050208);
     }
     .hud-row { display: flex; align-items: center; gap: 10px; font-size: 11px; flex-wrap: wrap; }
-    .stat-lbl { color: #94a3b8; font-size: 10px; }
-    .stat-val { color: #f8fafc; font-weight: 700; font-size: 13px; }
-    .stat-cyan { color: #22d3ee; }
-    .stat-amber { color: #fbbf24; }
-    .stat-emerald { color: #34d399; }
+    .stat-lbl { color: #a5b4fc; font-size: 10px; font-weight: 800; }
+    .stat-val { color: #ffffff; font-weight: 900; font-size: 13px; }
+    .stat-cyan { color: #00f5ff; text-shadow: 1px 1px 0 #050208; }
+    .stat-amber { color: #ffe600; text-shadow: 1px 1px 0 #050208; }
+    .stat-emerald { color: #00ffa6; text-shadow: 1px 1px 0 #050208; }
 
     .hull-pips { display: inline-flex; gap: 3px; vertical-align: middle; }
-    .pip { width: 9px; height: 10px; border-radius: 2px; background: #22d3ee; box-shadow: 0 0 6px rgba(34,211,238,0.6); }
-    .pip.crit { background: #ef4444; box-shadow: 0 0 8px #ef4444; animation: critPulse 0.5s infinite alternate; }
-    .pip.off { background: #1e293b; box-shadow: none; }
+    .pip {
+      width: 10px; height: 11px; border-radius: 0;
+      clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+      background: #00f5ff; border: 1px solid #050208; box-shadow: none;
+    }
+    .pip.crit { background: #ff1e7a; animation: critPulse 0.42s infinite alternate; }
+    .pip.off { background: #1e1638; border-color: #050208; }
     @keyframes critPulse { from { opacity: 0.45; } to { opacity: 1; } }
 
-    /* Boss Bar & Crisis Event Bar */
+    /* Boss Bar & Crisis Event Bar (Keep translateX(-50%) centering!) */
     #bossBarWrap, #eventHud {
       display: none; position: absolute; top: 54px; left: 50%; transform: translateX(-50%);
-      width: min(390px, 90vw); background: rgba(20, 8, 18, 0.9);
-      border: 1px solid rgba(244, 63, 94, 0.7); border-radius: 7px; padding: 6px 10px;
+      width: min(390px, 90vw); background: rgba(24, 8, 36, 0.96);
+      border: 2px solid #050208; border-radius: 0; padding: 6px 16px;
+      clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+      box-shadow: 0 4px 0 #ff1e7a;
       z-index: 16; pointer-events: none; text-align: center;
     }
-    #eventHud { background: rgba(10, 18, 34, 0.9); border-color: rgba(56, 189, 248, 0.75); }
-    .boss-bar-bg { height: 7px; background: #1e1b2e; border-radius: 4px; overflow: hidden; margin-top: 4px; }
-    #bossBarFill { height: 100%; width: 100%; background: linear-gradient(90deg, #e11d48, #fbbf24); transition: width 0.1s; }
-    #eventBarFill { height: 100%; width: 100%; background: linear-gradient(90deg, #38bdf8, #34d399); transition: width 0.1s; }
+    #eventHud { background: rgba(11, 22, 52, 0.96); box-shadow: 0 4px 0 #00f5ff; }
+    .boss-bar-bg {
+      height: 8px; background: #0c071a; border: 1px solid #050208; border-radius: 0; overflow: hidden; margin-top: 4px;
+    }
+    #bossBarFill { height: 100%; width: 100%; background: linear-gradient(90deg, #ff1e7a 0%, #ff1e7a 68%, #ffe600 68%, #ffe600 100%); transition: width 0.1s; }
+    #eventBarFill { height: 100%; width: 100%; background: linear-gradient(90deg, #00f5ff 0%, #00f5ff 72%, #ffe600 72%, #ffe600 100%); transition: width 0.1s; }
 
     /* Difficulty Selector & Perk Draft Cards */
     .diff-row { display: flex; justify-content: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
     .diff-btn {
-      padding: 6px 12px; font-size: 11px; font-weight: 800; font-family: inherit;
-      border-radius: 6px; border: 1px solid #334155; background: #111827; color: #94a3b8;
-      cursor: pointer; transition: all 0.14s;
+      padding: 6px 14px; font-size: 11px; font-weight: 900; font-family: inherit;
+      border-radius: 0; border: 2px solid #050208; background: #161030; color: #a5b4fc;
+      clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+      cursor: pointer; transition: all 0.12s;
     }
-    .diff-btn:hover { color: #f8fafc; border-color: #64748b; }
-    .diff-btn.active { background: rgba(14, 165, 233, 0.25); border-color: #38bdf8; color: #e0f2fe; box-shadow: 0 0 12px rgba(56, 189, 248, 0.35); }
+    .diff-btn:hover { color: #ffffff; background: #261b52; }
+    .diff-btn.active { background: #ff1e7a; border-color: #050208; color: #ffffff; box-shadow: 3px 3px 0 #00f5ff; }
     .perk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     @media (max-width: 600px) { .perk-grid { grid-template-columns: 1fr; } }
     .perk-card {
       position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
-      gap: 6px; padding: 14px 10px 12px; border-radius: 10px;
-      background: linear-gradient(160deg, #0f172a, #1e1b4b); border: 1.5px solid rgba(56, 189, 248, 0.45);
-      color: #f8fafc; cursor: pointer; font-family: inherit; transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+      gap: 6px; padding: 14px 12px 12px; border-radius: 0;
+      background: #170e36; border: 2px solid #050208;
+      clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+      box-shadow: 4px 4px 0 #00f5ff;
+      color: #ffffff; cursor: pointer; font-family: inherit; transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
     }
-    .perk-card:hover { transform: translateY(-3px); border-color: #fbbf24; box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3); }
+    .perk-card:hover { transform: translate(-2px, -3px); background: #28144f; box-shadow: 6px 6px 0 #ff1e7a; }
     .perk-ico { font-size: 24px; line-height: 1; }
-    .perk-nm { font-size: 12px; font-weight: 900; color: #fde68a; }
-    .perk-ds { font-size: 10.5px; color: #cbd5e1; line-height: 1.45; }
+    .perk-nm { font-size: 12px; font-weight: 900; color: #ffe600; text-shadow: 1.5px 1.5px 0 #050208; }
+    .perk-ds { font-size: 10.5px; color: #e2e8f0; line-height: 1.45; }
     .perk-key {
-      font-size: 9px; font-weight: 800; color: #38bdf8; background: rgba(14, 165, 233, 0.18);
-      padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.4);
+      font-size: 9px; font-weight: 900; color: #050208; background: #00f5ff;
+      padding: 1px 8px; border-radius: 0; border: 1px solid #050208;
     }
 
-    /* Banner */
+    /* Banner (Keep translateX(-50%) centering!) */
     #bannerMsg {
       position: absolute; top: 102px; left: 50%; transform: translateX(-50%);
-      padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 800;
-      background: rgba(14, 165, 233, 0.92); color: #fff; border: 1px solid #bae6fd;
-      z-index: 25; pointer-events: none; opacity: 0; transition: opacity 0.25s; white-space: nowrap;
+      padding: 6px 18px; border-radius: 0; font-size: 12px; font-weight: 900;
+      background: #140b2e; color: #ffe600; border: 2px solid #050208;
+      border-left: 5px solid #ff1e7a; border-right: 5px solid #00f5ff;
+      clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+      text-shadow: 1.5px 1.5px 0 #050208;
+      z-index: 25; pointer-events: none; opacity: 0; transition: opacity 0.22s; white-space: nowrap;
       max-width: 92vw; overflow: hidden; text-overflow: ellipsis;
     }
 
@@ -143,68 +162,78 @@
     #energyHud {
       position: absolute; bottom: 12px; left: 12px; z-index: 15; pointer-events: none;
     }
-    .beam-dots { display: inline-flex; gap: 4px; margin-left: 4px; vertical-align: middle; }
-    .bdot { width: 8px; height: 8px; border-radius: 50%; background: #fb7185; box-shadow: 0 0 6px #f43f5e; }
-    .bdot.off { background: #334155; box-shadow: none; }
-    .sphere-pill {
-      display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 9px;
-      font-size: 10px; font-weight: 800; background: rgba(245, 158, 11, 0.2);
-      border: 1px solid rgba(251, 191, 36, 0.65); color: #fde68a;
+    .beam-dots { display: inline-flex; gap: 5px; margin-left: 4px; vertical-align: middle; }
+    .bdot {
+      width: 8px; height: 8px; border-radius: 0; transform: rotate(45deg);
+      background: #ff1e7a; border: 1px solid #050208; box-shadow: 0 0 0 1px #ffe600;
     }
-    .sphere-pill.empty { opacity: 0.35; border-color: #475569; color: #94a3b8; }
+    .bdot.off { background: #1e1638; border-color: #050208; box-shadow: none; }
+    .sphere-pill {
+      display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border-radius: 0;
+      clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+      font-size: 10px; font-weight: 900; background: #ffe600;
+      border: 1.5px solid #050208; color: #050208;
+    }
+    .sphere-pill.empty { opacity: 0.35; background: #1e1638; border-color: #050208; color: #94a3b8; }
 
     /* Modal Overlays (Title / Pause / Game Over) */
     .overlay-mask {
       position: absolute; inset: 0; z-index: 28;
       display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-      padding: 20px 16px; background: radial-gradient(circle at center, rgba(5,7,13,0.3) 0%, rgba(5,7,13,0.9) 100%);
+      padding: 20px 16px; background: radial-gradient(circle at center, rgba(16,8,38,0.28) 0%, rgba(5,2,8,0.88) 100%);
       text-align: center;
     }
     .overlay-mask.hidden { display: none !important; }
     .modal-box {
       margin: auto; max-width: 540px; width: 100%;
-      background: rgba(11, 15, 24, 0.92); border: 1px solid rgba(56, 189, 248, 0.35);
-      border-radius: 12px; padding: 20px 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.75);
+      background: rgba(18, 10, 42, 0.96); border: 2.5px solid #050208;
+      border-radius: 0; padding: 20px 22px;
+      clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+      box-shadow: 6px 6px 0 #ff1e7a;
     }
     .pixel-tag {
-      display: inline-block; padding: 3px 10px; font-size: 10px; font-weight: 700; letter-spacing: 1px;
-      background: rgba(225, 29, 72, 0.2); border: 1px solid #f43f5e; color: #fda4af; border-radius: 4px; margin-bottom: 10px;
+      display: inline-block; padding: 3px 12px; font-size: 10px; font-weight: 900; letter-spacing: 1px;
+      background: #ffe600; border: 2px solid #050208; color: #050208;
+      clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+      border-radius: 0; margin-bottom: 10px;
     }
     .main-h1 {
-      font-size: clamp(22px, 5vw, 36px); font-weight: 900; letter-spacing: 2px; color: #fff;
-      text-shadow: 3px 3px 0 #e11d48, 0 0 24px rgba(56, 189, 248, 0.5);
+      font-size: clamp(22px, 5vw, 36px); font-weight: 900; font-style: italic; letter-spacing: 2px; color: #ffffff;
+      text-shadow: 4px 4px 0 #ff1e7a, -2px -2px 0 #00f5ff;
     }
-    .sub-desc { font-size: 12px; color: #cbd5e1; margin-top: 8px; line-height: 1.6; }
+    .sub-desc { font-size: 12px; color: #e2e8f0; margin-top: 8px; line-height: 1.6; }
     .start-btn {
-      margin-top: 16px; padding: 11px 28px; font-size: 14px; font-weight: 800; font-family: inherit;
-      color: #fff; background: linear-gradient(135deg, #e11d48, #0284c7);
-      border: 2px solid #fff; border-radius: 8px; cursor: pointer;
-      box-shadow: 0 0 24px rgba(225, 29, 72, 0.55); transition: transform 0.12s;
+      margin-top: 16px; padding: 11px 30px; font-size: 14px; font-weight: 900; font-style: italic; font-family: inherit;
+      color: #ffffff; background: #ff1e7a;
+      border: 2.5px solid #050208; border-radius: 0; cursor: pointer;
+      clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+      box-shadow: 4px 4px 0 #00f5ff; transition: transform 0.1s, background 0.1s;
     }
-    .start-btn:hover { transform: scale(1.04); }
-    .start-btn:active { transform: scale(0.96); }
+    .start-btn:hover { transform: translate(-2px, -2px); background: #ff358c; }
+    .start-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #ffe600; }
 
     .go-grid {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; text-align: left;
     }
     .go-cell {
-      background: #111827; border: 1px solid #1e293b; border-radius: 7px; padding: 8px 10px;
+      background: #120b2c; border: 2px solid #050208; border-radius: 0; padding: 8px 12px;
+      clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
     }
-    .go-k { font-size: 10px; color: #94a3b8; }
-    .go-v { font-size: 18px; font-weight: 900; color: #22d3ee; margin-top: 2px; }
+    .go-k { font-size: 10px; color: #a5b4fc; font-weight: 700; }
+    .go-v { font-size: 18px; font-weight: 900; color: #00f5ff; margin-top: 2px; text-shadow: 1.5px 1.5px 0 #050208; }
 
     /* Controls Drawer */
     #ctrlDrawer {
-      width: 280px; background: #0b0f17; border-left: 1px solid #1e293b;
+      width: 280px; background: #0c0820; border-left: 2px solid #050208;
       padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; z-index: 35;
     }
-    .ctrl-sec { background: #111622; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; }
-    .ctrl-sec-title { font-size: 11px; font-weight: 700; color: #38bdf8; margin-bottom: 8px; text-transform: uppercase; }
+    .ctrl-sec { background: #140e30; border: 1.5px solid #050208; border-radius: 0; padding: 10px; box-shadow: 3px 3px 0 #2b1854; }
+    .ctrl-sec-title { font-size: 11px; font-weight: 900; color: #00f5ff; margin-bottom: 8px; text-transform: uppercase; }
     .ctrl-item { margin-bottom: 8px; font-size: 11px; }
     .ctrl-item:last-child { margin-bottom: 0; }
-    .ctrl-lbl-row { display: flex; justify-content: space-between; color: #cbd5e1; margin-bottom: 3px; }
-    input[type="range"] { width: 100%; accent-color: #22d3ee; cursor: pointer; }
-    .chk-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #cbd5e1; margin-top: 6px; }
+    .ctrl-lbl-row { display: flex; justify-content: space-between; color: #e2e8f0; margin-bottom: 3px; }
+    input[type="range"] { width: 100%; accent-color: #ff1e7a; cursor: pointer; }
+    .chk-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #e2e8f0; margin-top: 6px; }
 
     /* Mobile Responsive & Touch Controls */
     .touch-ui { display: flex; }
@@ -560,42 +589,42 @@
     // 7..12: Kaiju/Boss/Asteroid ramps
     // 13: Critical Timer Blink Red (emissive), 14: Critical Timer Dim Red, 15: White-Cyan Glow
     const PAL_RAMPS = {
-      1: [packHex(0x475569), packHex(0x64748b), packHex(0x94a3b8), packHex(0xcbd5e1), packHex(0xf1f5f9)],
-      2: [packHex(0x881337), packHex(0xbe123c), packHex(0xe11d48), packHex(0xf43f5e), packHex(0xfb7185)],
-      3: [packHex(0xfde047), packHex(0xfef08a), packHex(0xfef9c3), packHex(0xffffff), packHex(0xffffff)],
-      4: [packHex(0xb45309), packHex(0xd97706), packHex(0xf59e0b), packHex(0xfbbf24), packHex(0xfcd34d)],
-      5: [packHex(0x0284c7), packHex(0x06b6d4), packHex(0x22d3ee), packHex(0x67e8f9), packHex(0xe0f2fe)],
-      6: [packHex(0x334155), packHex(0x475569), packHex(0x64748b), packHex(0x94a3b8), packHex(0xcbd5e1)],
-      7: [packHex(0x0f172a), packHex(0x1e1b4b), packHex(0x312e81), packHex(0x4338ca), packHex(0x6366f1)],
-      8: [packHex(0x09090b), packHex(0x18181b), packHex(0x27272a), packHex(0x3f3f46), packHex(0x71717a)],
-      9: [packHex(0x7c2d12), packHex(0xb45309), packHex(0xf59e0b), packHex(0xfbbf24), packHex(0xfde68a)],
-      10:[packHex(0x0891b2), packHex(0x06b6d4), packHex(0x22d3ee), packHex(0x67e8f9), packHex(0xcffafe)],
-      11:[packHex(0x9f1239), packHex(0xe11d48), packHex(0xf43f5e), packHex(0xfb7185), packHex(0xffe4e6)],
-      12:[packHex(0x1e293b), packHex(0x334155), packHex(0x475569), packHex(0x64748b), packHex(0x94a3b8)],
-      13:[packHex(0x991b1b), packHex(0xdc2626), packHex(0xef4444), packHex(0xf87171), packHex(0xfee2e2)],
-      14:[packHex(0x450a0a), packHex(0x7f1d1d), packHex(0x991b1b), packHex(0xb91c1c), packHex(0xdc2626)],
-      15:[packHex(0x67e8f9), packHex(0xa5f3fc), packHex(0xe0f2fe), packHex(0xffffff), packHex(0xffffff)],
-      16:[packHex(0x064e3b), packHex(0x0f766e), packHex(0x14b8a6), packHex(0x2dd4bf), packHex(0x99f6e4)],
-      17:[packHex(0x78350f), packHex(0xb45309), packHex(0xd97706), packHex(0xfbbf24), packHex(0xfef08a)],
-      18:[packHex(0x059669), packHex(0x10b981), packHex(0x34d399), packHex(0xa7f3d0), packHex(0xffffff)],
-      19:[packHex(0x1e3a8a), packHex(0x1d4ed8), packHex(0x2563eb), packHex(0x3b82f6), packHex(0x93c5fd)],
-      20:[packHex(0x4c1d95), packHex(0x6d28d9), packHex(0xd97706), packHex(0xfbbf24), packHex(0xfef08a)],
-      21:[packHex(0x92400e), packHex(0xc2410c), packHex(0xeab308), packHex(0xfacc15), packHex(0xfef08a)],
-      22:[packHex(0x450a0a), packHex(0x6b0f1a), packHex(0x881337), packHex(0x9f1239), packHex(0xbe123c)],
-      23:[packHex(0x1e1035), packHex(0x3b0764), packHex(0x581c87), packHex(0x7e22ce), packHex(0xa855f7)]
+      1: [packHex(0x312e81), packHex(0x4f46e5), packHex(0xeef2ff), packHex(0xf8fafc), packHex(0xffffff)], // White armor -> electric indigo-violet shadow
+      2: [packHex(0x4a052e), packHex(0x831843), packHex(0xe11444), packHex(0xff1e56), packHex(0xffb8d0)], // Hero crimson -> deep magenta-plum shadow
+      3: [packHex(0xd97706), packHex(0xfacc15), packHex(0xffe600), packHex(0xffffff), packHex(0xffffff)], // Eye solar gold
+      4: [packHex(0x581c87), packHex(0x7e22ce), packHex(0xfacc15), packHex(0xffe600), packHex(0xffffff)], // Yellow armor -> purple-violet cel shadow
+      5: [packHex(0x1e1b4b), packHex(0x2563eb), packHex(0x00e5ff), packHex(0x67e8f9), packHex(0xffffff)], // Electric cyan
+      6: [packHex(0x0f0a26), packHex(0x1e1b4b), packHex(0x475569), packHex(0x64748b), packHex(0xe2e8f0)], // Mecha dark joint steel
+      7: [packHex(0x170b3b), packHex(0x311068), packHex(0x3b82f6), packHex(0x60a5fa), packHex(0xe0f2fe)], // Cobalt mecha
+      8: [packHex(0x050208), packHex(0x1a1036), packHex(0x312e81), packHex(0x4f46e5), packHex(0xc7d2fe)], // Obsidian mecha
+      9: [packHex(0x4c052e), packHex(0x9d174d), packHex(0xff5500), packHex(0xffb700), packHex(0xffe600)], // Magma orange -> magenta shadow
+      10:[packHex(0x172554), packHex(0x1d4ed8), packHex(0x00f5ff), packHex(0x7df9ff), packHex(0xffffff)], // Hyper cyan
+      11:[packHex(0x3b0764), packHex(0x831843), packHex(0xff1e7a), packHex(0xff5ca8), packHex(0xffffff)], // Boss neon pink-red
+      12:[packHex(0x140f2d), packHex(0x27204d), packHex(0x4f46e5), packHex(0x818cf8), packHex(0xe0e7ff)], // Cool slate-indigo
+      13:[packHex(0x7f1d1d), packHex(0xdc2626), packHex(0xff1e56), packHex(0xff6b8b), packHex(0xffffff)], // Critical red blink
+      14:[packHex(0x3b061e), packHex(0x6b082e), packHex(0x9f1239), packHex(0xe11d48), packHex(0xfb7185)], // Critical dim
+      15:[packHex(0x00e5ff), packHex(0x7df9ff), packHex(0xe0fbff), packHex(0xffffff), packHex(0xffffff)], // White-cyan glow
+      16:[packHex(0x0f172a), packHex(0x065f46), packHex(0x00c885), packHex(0x00f5a0), packHex(0xccffeb)], // Getter-1 emerald cowl
+      17:[packHex(0x4c1d95), packHex(0x86198f), packHex(0xf59e0b), packHex(0xffe600), packHex(0xffffff)], // Brass/gold -> violet shadow
+      18:[packHex(0x047857), packHex(0x00d68f), packHex(0x00ffa6), packHex(0xb8ffe3), packHex(0xffffff)], // Getter core neon green
+      19:[packHex(0x1e1b4b), packHex(0x3730a3), packHex(0x2563eb), packHex(0x38bdf8), packHex(0xbae6fd)], // Royal blue
+      20:[packHex(0x2e1065), packHex(0x6b21a8), packHex(0xe11d48), packHex(0xffe600), packHex(0xffffff)], // Boss gold-violet
+      21:[packHex(0x581c87), packHex(0x9d174d), packHex(0xf59e0b), packHex(0xffe600), packHex(0xffffff)], // Getter-3 heavy yellow -> plum shadow
+      22:[packHex(0x24031a), packHex(0x4a052e), packHex(0x9f1239), packHex(0xe11444), packHex(0xff7597)], // Deep crimson
+      23:[packHex(0x16072e), packHex(0x3b0764), packHex(0x7e22ce), packHex(0xc026d3), packHex(0xf5d0fe)]  // Invader neon purple
     };
     const CAPE_FRONT_RAMP = [
-      packHex(0x38040d), packHex(0x6b0818), packHex(0x990f26),
-      packHex(0xc8142e), packHex(0xe11d38), packHex(0xf43f5e), packHex(0xff8da1)
+      packHex(0x4a052e), packHex(0x4a052e), packHex(0x8c0d49),
+      packHex(0xe11444), packHex(0xe11444), packHex(0xff2a6d), packHex(0xffc2d6)
     ];
     const CAPE_BACK_RAMP = [
-      packHex(0x220208), packHex(0x450610), packHex(0x690b1a), packHex(0x881328), packHex(0xa81832)
+      packHex(0x24031a), packHex(0x24031a), packHex(0x4a052e), packHex(0x750b3d), packHex(0x750b3d)
     ];
-    const EMISSIVE_MAT = new Uint8Array(24);
+    const EMISSIVE_MAT = new Uint8Array(32);
     EMISSIVE_MAT[3] = 1; EMISSIVE_MAT[5] = 2; EMISSIVE_MAT[10] = 2; EMISSIVE_MAT[11] = 3; EMISSIVE_MAT[13] = 3; EMISSIVE_MAT[15] = 2; EMISSIVE_MAT[18] = 4;
 
-    const COL_OUTLINE_HERO = packHex(0x0f172a);
-    const COL_OUTLINE_FOE  = packHex(0x1e1b4b);
+    const COL_OUTLINE_HERO = packHex(0x050208);
+    const COL_OUTLINE_FOE  = packHex(0x050208);
 
     const BAYER4 = [
        0,  8,  2, 10,
@@ -1093,7 +1122,7 @@
 
     let W = 640, H = 360;
     let cssW = 800, cssH = 450, hudDpr = 1;
-    let imgData = null, fb32 = null, zbuf = null, mask = null, glowBuf = null;
+    let imgData = null, fb32 = null, zbuf = null, mask = null, glowBuf = null, matBuf = null;
 
     function syncBufferSize() {
       const rect = canvas.parentElement.getBoundingClientRect();
@@ -1125,6 +1154,7 @@
         zbuf = new Float32Array(W * H);
         mask = new Uint8Array(W * H);
         glowBuf = new Uint8Array(W * H);
+        matBuf = new Uint8Array(W * H);
         document.getElementById('hudRes').textContent = `${W}×${H}`;
       }
     }
@@ -1286,7 +1316,7 @@
               col = ramp[3];
             } else {
               const ndotl = NX[v] * localSunX + NY[v] * localSunY + NZ[v] * localSunZ;
-              const shade = ndotl > 0.62 ? 4 : (ndotl > 0.22 ? 3 : (ndotl > -0.20 ? 2 : (ndotl > -0.58 ? 1 : 0)));
+              const shade = ndotl > 0.66 ? 4 : (ndotl > -0.08 ? 3 : 1);
               col = ramp[shade];
             }
           }
@@ -1300,7 +1330,7 @@
             if (vz <= zbuf[at] + 0.8) {
               zbuf[at] = vz;
               fb32[at] = col;
-              if (maskId) mask[at] = maskId;
+              if (maskId) { mask[at] = maskId; matBuf[at] = matId; }
               if (glowType) glowBuf[at] = glowType;
             }
           }
@@ -1448,7 +1478,7 @@
       }
     }
 
-    function rasterTriPixel(x0, y0, z0, x1, y1, z1, x2, y2, z2, col, maskId, glowType) {
+    function rasterTriPixel(x0, y0, z0, x1, y1, z1, x2, y2, z2, col, maskId, glowType, matId = 24) {
       let area = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
       if (Math.abs(area) < 0.08) return;
       if (area < 0) {
@@ -1482,14 +1512,14 @@
           if (z < zbuf[at]) {
             zbuf[at] = z;
             fb32[at] = col;
-            if (maskId) mask[at] = maskId;
+            if (maskId) { mask[at] = maskId; matBuf[at] = matId; }
             if (glowType) glowBuf[at] = glowType;
           }
         }
       }
     }
 
-    function drawCapeTri(ia, ib, ic, pleatBias, glowType) {
+    function drawCapeTri(ia, ib, ic, pleatBias, glowType, matId = 24) {
       if (capeSZ[ia] < 5.5 || capeSZ[ib] < 5.5 || capeSZ[ic] < 5.5) return;
       const e1x = capeWX[ib] - capeWX[ia], e1y = capeWY[ib] - capeWY[ia], e1z = capeWZ[ib] - capeWZ[ia];
       const e2x = capeWX[ic] - capeWX[ia], e2y = capeWY[ic] - capeWY[ia], e2z = capeWZ[ic] - capeWZ[ia];
@@ -1511,7 +1541,7 @@
         capeSX[ia], capeSY[ia], capeSZ[ia],
         capeSX[ib], capeSY[ib], capeSZ[ib],
         capeSX[ic], capeSY[ic], capeSZ[ic],
-        col, 1, glowType
+        col, 1, glowType, matId
       );
     }
 
@@ -1630,19 +1660,19 @@
           const isTipEdge = isOuter || s >= TENDRIL_SEGS - 3;
           const glowType = (cycloneTimer > 0) ? (isTipEdge ? 1 : 3) : ((awakened && isTipEdge) ? 1 : ((boosting && isTipEdge) ? 3 : 0));
 
-          // Left V-flank (brighter sunlit slope) & Right V-flank (contrasting shaded slope for sharp crease)
-          drawCapeTri(i0,     i1,     i1 + 1, 0.28, glowType);
-          drawCapeTri(i0,     i1 + 1, i0 + 1, 0.28, glowType);
-          drawCapeTri(i0 + 1, i1 + 1, i1 + 2, 0.06, glowType);
-          drawCapeTri(i0 + 1, i1 + 2, i0 + 2, 0.06, glowType);
+          // Left V-flank (mat 24) & Right V-flank (mat 25) so sharp V-pleat spine gets crisp #050208 crease ink
+          drawCapeTri(i0,     i1,     i1 + 1, 0.28, glowType, 24);
+          drawCapeTri(i0,     i1 + 1, i0 + 1, 0.28, glowType, 24);
+          drawCapeTri(i0 + 1, i1 + 1, i1 + 2, 0.06, glowType, 25);
+          drawCapeTri(i0 + 1, i1 + 2, i0 + 2, 0.06, glowType, 25);
         }
         const iEnd = (k * TENDRIL_SEGS + TENDRIL_SEGS - 2) * 3;
         const tipV = iEnd + 4;
-        drawCapeTri(iEnd,     tipV, iEnd + 1, 0.34, tipGlow);
-        drawCapeTri(iEnd + 1, tipV, iEnd + 2, 0.10, tipGlow);
+        drawCapeTri(iEnd,     tipV, iEnd + 1, 0.34, tipGlow, 24);
+        drawCapeTri(iEnd + 1, tipV, iEnd + 2, 0.10, tipGlow, 25);
       }
 
-      // 2. Render irregular battle-torn inner connecting webbing between tendril roots
+      // 2. Render irregular battle-torn inner connecting webbing between tendril roots (mat 26)
       for (let k = 0; k < CAPE_TENDRIL_COUNT - 1; k++) {
         const cut = CAPE_WEB_CUT[k];
         for (let s = 0; s < cut; s++) {
@@ -1655,11 +1685,11 @@
           const webGlow = (cycloneTimer > 0) ? (isTornHem ? 1 : 3) : ((awakened && isTornHem) ? 1 : 0);
 
           if (isTornHem) {
-            if (k % 2 === 0) drawCapeTri(a0, a1, b0, -0.32, webGlow);
-            else drawCapeTri(a0, b1, b0, -0.32, webGlow);
+            if (k % 2 === 0) drawCapeTri(a0, a1, b0, -0.32, webGlow, 26);
+            else drawCapeTri(a0, b1, b0, -0.32, webGlow, 26);
           } else {
-            drawCapeTri(a0, a1, b1, -0.32, webGlow);
-            drawCapeTri(a0, b1, b0, -0.32, webGlow);
+            drawCapeTri(a0, a1, b1, -0.32, webGlow, 26);
+            drawCapeTri(a0, b1, b0, -0.32, webGlow, 26);
           }
         }
       }
@@ -1841,80 +1871,283 @@
 
     const SECTORS = [
       {
-        name: '早乙女研究所高空黄昏',
-        skyTop: [16, 12, 36], skyBot: [92, 36, 38],
+        name: '早乙女高空星幕',
+        bands5a: [0x12102e, 0x1a1540, 0x251a52, 0x38194e, 0x4b1a4b],
+        ring5a: 0xff2e88,
+        col5b: { bg: 0x18113b, sliceA: 0x2b145e, sliceB: 0xff1e7a, sliceC: 0x00f5ff, accent: 0xffe600 },
         magmaRate: 0.16,
         pals: [
-          [0x451a03, 0x9a3412, 0xea580c, 0xfb923c, 0xfed7aa],
-          [0x064e3b, 0x0f766e, 0x10b981, 0x34d399, 0xa7f3d0],
-          [0x1e293b, 0x475569, 0x64748b, 0x94a3b8, 0xe2e8f0]
+          [0x1e1b4b, 0x312e81, 0xff2e88, 0xff2e88, 0x38bdf8],
+          [0x0f172a, 0x1e1b4b, 0x00e5ff, 0x00e5ff, 0x00ffa6],
+          [0x24031a, 0x4a052e, 0xffe600, 0xffe600, 0xff5ca8]
         ]
       },
       {
-        name: '富士火山裂谷',
-        skyTop: [26, 6, 10], skyBot: [86, 24, 14],
+        name: '富士裂谷星域',
+        bands5a: [0x1f0c29, 0x311036, 0x47133a, 0x5e163b, 0x441740],
+        ring5a: 0xffe600,
+        col5b: { bg: 0x260929, sliceA: 0x4a103d, sliceB: 0xff2a55, sliceC: 0xffe600, accent: 0x00f5ff },
         magmaRate: 0.34,
         pals: [
-          [0x450a0a, 0x7f1d1d, 0xb91c1c, 0xef4444, 0xfca5a5],
-          [0x451a03, 0x78350f, 0xb45309, 0xf59e0b, 0xfde68a],
-          [0x2e1065, 0x581c87, 0x9333ea, 0xc084fc, 0xe9d5ff]
+          [0x2e0824, 0x4c052e, 0x00f5ff, 0x38bdf8, 0xff3b7f],
+          [0x240a33, 0x4c1d95, 0xffe600, 0xffe600, 0xff9e00],
+          [0x170b3b, 0x3b0764, 0xff2e88, 0xff5ca8, 0xc084fc]
         ]
       },
       {
-        name: '近地卫星轨道',
-        skyTop: [4, 12, 28], skyBot: [14, 42, 68],
+        name: '近地孔雀轨道',
+        bands5a: [0x0b1e36, 0x0e2b47, 0x133b59, 0x1b476b, 0x262d66],
+        ring5a: 0x00f5d4,
+        col5b: { bg: 0x0b2038, sliceA: 0x103c59, sliceB: 0x00f5d4, sliceC: 0xff1e8a, accent: 0xffe600 },
         magmaRate: 0.14,
         pals: [
-          [0x083344, 0x0e7490, 0x06b6d4, 0x22d3ee, 0xa5f3fc],
-          [0x064e3b, 0x047857, 0x10b981, 0x34d399, 0xa7f3d0],
-          [0x1e293b, 0x334155, 0x64748b, 0x94a3b8, 0xe2e8f0]
+          [0x0f172a, 0x172554, 0xffe600, 0xffe600, 0x00f5ff],
+          [0x082f49, 0x1e3a8a, 0xff2e88, 0xff5ca8, 0x2dd4bf],
+          [0x1e1b4b, 0x312e81, 0x00f5ff, 0x7df9ff, 0xf8fafc]
         ]
       },
       {
-        name: '猩红火星裂隙',
-        skyTop: [24, 4, 18], skyBot: [74, 12, 26],
+        name: '盖塔终焉裂隙',
+        bands5a: [0x171130, 0x231645, 0x341959, 0x4a1b66, 0x331c54],
+        ring5a: 0xc026ff,
+        col5b: { bg: 0x1c0f38, sliceA: 0x351461, sliceB: 0xc026ff, sliceC: 0xffe600, accent: 0xff1e7a },
         magmaRate: 0.25,
         pals: [
-          [0x4c0519, 0x881337, 0xe11d48, 0xfb7185, 0xfda4af],
-          [0x064e3b, 0x047857, 0x10b981, 0x34d399, 0xa7f3d0],
-          [0x3b0764, 0x6b21a8, 0xa855f7, 0xc084fc, 0xf3e8ff]
+          [0x1e1038, 0x3b0764, 0xff2e88, 0xff2e88, 0xfde047],
+          [0x0f172a, 0x1e1b4b, 0x00f5ff, 0x00f5ff, 0xc084fc],
+          [0x2e0824, 0x581c87, 0xffe600, 0xffe600, 0xff3b7f]
         ]
       }
     ];
+    for (const sc of SECTORS) {
+      sc.packed5a = sc.bands5a.map(packHex);
+      sc.packedRing5a = packHex(sc.ring5a);
+      sc.p5b = {
+        bg: packHex(sc.col5b.bg),
+        sliceA: packHex(sc.col5b.sliceA),
+        sliceB: packHex(sc.col5b.sliceB),
+        sliceC: packHex(sc.col5b.sliceC),
+        accent: packHex(sc.col5b.accent)
+      };
+    }
+
     const planets = [];
-    const curSkyTop = [5, 8, 22], curSkyBot = [18, 28, 58];
+    let dimRift = 0, climaxRiftTimer = 0;
+    const impactFrame = { timer: 0, maxTimer: 0.066, cd: 0, cx: 0.5, cy: 0.5 };
+    const animeBursts = [];
+    const animeStars = [];
+    const cutInFX = { timer: 0, maxTimer: 0.54, title: '', sub: '', colA: '#ff1e7a', colB: '#00f5ff', cds: {} };
+
+    // Celestial sphere shards anchored around skybox for 5B Promare dimension tear
+    const PROMARE_SHARDS = [];
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 + 0.42;
+      const el = (i % 2 === 0 ? 0.28 : -0.22);
+      PROMARE_SHARDS.push({
+        dx: Math.cos(a) * Math.cos(el),
+        dy: Math.sin(el),
+        dz: Math.sin(a) * Math.cos(el),
+        size: 165 + (i % 3) * 55,
+        spd: (i % 2 === 0 ? 0.45 : -0.35),
+        kind: i % 3 // 0: shard triangle, 1: hollow ring segment, 2: sliceB triangle
+      });
+    }
 
     function getCurrentSector() {
       return SECTORS[(wave - 1) % SECTORS.length];
+    }
+
+    function fillModSpan(rowOff, clipL, clipR, uCenter, uHalf, fillCol, inkCol) {
+      const a0 = uCenter - uHalf, a1 = uCenter + uHalf;
+      for (let sh = -1; sh <= 1; sh++) {
+        const l = Math.max(clipL, Math.floor((a0 + sh) * W));
+        const r = Math.min(clipR, Math.ceil((a1 + sh) * W));
+        if (r <= l) continue;
+        fb32.fill(fillCol, rowOff + l, rowOff + r);
+        const bl = Math.min(r, l + 2);
+        const br = Math.max(l, r - 2);
+        fb32.fill(inkCol, rowOff + l, rowOff + bl);
+        fb32.fill(inkCol, rowOff + br, rowOff + r);
+      }
+    }
+
+    function drawStarPixelSafe(px, py, col) {
+      if (px >= 0 && px < W && py >= 0 && py < H) {
+        const at = py * W + px;
+        if (zbuf[at] > 2800) fb32[at] = col;
+      }
     }
 
     function clearAndDrawCosmos(timeSec) {
       zbuf.fill(1e9);
       mask.fill(0);
       glowBuf.fill(0);
+      matBuf.fill(0);
 
       const secCfg = getCurrentSector();
-      for (let c = 0; c < 3; c++) {
-        curSkyTop[c] += (secCfg.skyTop[c] - curSkyTop[c]) * 0.04;
-        curSkyBot[c] += (secCfg.skyBot[c] - curSkyBot[c]) * 0.04;
-      }
-      const dr = curSkyBot[0] - curSkyTop[0], dg = curSkyBot[1] - curSkyTop[1], db = curSkyBot[2] - curSkyTop[2];
+      const bands = secCfg.packed5a;
+      const horizShift = Math.max(-0.28, Math.min(0.28, -camF.y * 0.35));
 
-      for (let y = 0; y < H; y++) {
-        const t = y / H;
-        const bRow = (y & 3) << 2;
-        const rowOff = y * W;
-        for (let x = 0; x < W; x++) {
-          const dither = (BAYER4[bRow | (x & 3)] / 16 - 0.5) * 0.08;
-          const v = Math.max(0, Math.min(1, t + dither));
-          const r = (curSkyTop[0] + v * dr) | 0;
-          const g = (curSkyTop[1] + v * dg) | 0;
-          const b = (curSkyTop[2] + v * db) | 0;
-          fb32[rowOff + x] = (255 << 24) | (b << 16) | (g << 8) | r;
+      // 1. 5A Hard-Edged Cel Horizontal Bands (ultra-fast TypedArray.fill)
+      if (dimRift < 0.99) {
+        for (let y = 0; y < H; y++) {
+          const bIdx = Math.max(0, Math.min(4, Math.floor(((y / H) + horizShift) * 5)));
+          const rowOff = y * W;
+          fb32.fill(bands[bIdx], rowOff, rowOff + W);
+        }
+
+        // 2. 5A Flat 2-Tone Cel Crescent Planets + #050208 Ink Borders
+        const cx = W * 0.5, cy = H * 0.5;
+        for (let i = 0; i < planets.length; i++) {
+          const p = planets[i];
+          worldToCam(p.x, p.y, p.z, _tmpC);
+          if (_tmpC.z < p.r + 12 || _tmpC.z > 4500) continue;
+          const invZ = focal / _tmpC.z;
+          const sx = cx + _tmpC.x * invZ;
+          const sy = cy - _tmpC.y * invZ;
+          const sr = p.r * invZ;
+          if (sx + sr * 2.2 < 0 || sx - sr * 2.2 >= W || sy + sr * 2.2 < 0 || sy - sr * 2.2 >= H) continue;
+
+          const x0 = Math.max(0, Math.floor(sx - sr)), x1 = Math.min(W - 1, Math.ceil(sx + sr));
+          const y0 = Math.max(0, Math.floor(sy - sr)), y1 = Math.min(H - 1, Math.ceil(sy + sr));
+          const cLit = p.cols[4], cDark = p.cols[0];
+
+          for (let py = y0; py <= y1; py++) {
+            const dy = (sy - py) / sr;
+            const rowOff = py * W;
+            for (let px = x0; px <= x1; px++) {
+              const dx = (px - sx) / sr;
+              const d2 = dx * dx + dy * dy;
+              if (d2 > 1.0) continue;
+              const at = rowOff + px;
+              const depth = _tmpC.z - (1.0 - d2) * p.r;
+              if (depth < zbuf[at]) {
+                zbuf[at] = depth;
+                if (d2 > 0.87) {
+                  fb32[at] = COL_OUTLINE_HERO;
+                } else {
+                  const lx = dx + 0.36, ly = dy + 0.28;
+                  fb32[at] = (lx * lx + ly * ly <= 0.88) ? cLit : cDark;
+                }
+              }
+            }
+          }
+
+          if (p.ring && sr > 4) {
+            const ringColA = p.cols[3], ringColB = COL_OUTLINE_HERO;
+            const steps = Math.min(260, Math.max(64, (sr * 5.5) | 0));
+            for (let a = 0; a < steps; a++) {
+              const ang = (a / steps) * Math.PI * 2;
+              const ca = Math.cos(ang), sa = Math.sin(ang);
+              for (let rb = 0; rb < 3; rb++) {
+                const rad = p.r * (1.44 + rb * 0.14);
+                const wx = p.x + ca * rad;
+                const wy = p.y + sa * rad * 0.28;
+                const wz = p.z + sa * rad * 0.96;
+                worldToCam(wx, wy, wz, _tmpC);
+                if (_tmpC.z < 8) continue;
+                const rpx = (cx + (_tmpC.x * focal) / _tmpC.z) | 0;
+                const rpy = (cy - (_tmpC.y * focal) / _tmpC.z) | 0;
+                if (rpx >= 0 && rpx < W && rpy >= 0 && rpy < H) {
+                  const at = rpy * W + rpx;
+                  if (_tmpC.z < zbuf[at]) {
+                    zbuf[at] = _tmpC.z;
+                    fb32[at] = rb === 1 ? ringColA : ringColB;
+                  }
+                }
+              }
+            }
+          }
         }
       }
 
+      // 3. 5B Dynamic Climax Promare Dimension Tear Overlay (full-saturation neon diagonal graphics)
       const cx = W * 0.5, cy = H * 0.5;
+      if (dimRift > 0.01) {
+        const t5b = secCfg.p5b;
+        const yawNorm = ((Math.atan2(camF.x, camF.z) / (Math.PI * 2)) % 1 + 1) % 1;
+        const pitchPan = -camF.y * 0.28;
+        const fullOpen = dimRift >= 0.99;
+        const whiteCol = 0xffffffff;
+
+        for (let y = 0; y < H; y++) {
+          const v = y / H;
+          const rowOff = y * W;
+          let rx0 = 0, rx1 = W;
+          if (!fullOpen) {
+            const tearC = 0.5 - (v - 0.5) * 0.58 + Math.sin(y * 0.14 + timeSec * 18) * 0.02;
+            const hw = dimRift * 0.98;
+            rx0 = Math.max(0, Math.floor((tearC - hw) * W));
+            rx1 = Math.min(W, Math.ceil((tearC + hw) * W));
+            if (rx1 <= rx0) continue;
+            zbuf.fill(1e9, rowOff + rx0, rowOff + rx1);
+          }
+
+          fb32.fill(t5b.bg, rowOff + rx0, rowOff + rx1);
+          const diagBase = ((v * 0.45 + yawNorm + pitchPan) % 1 + 1) % 1;
+          fillModSpan(rowOff, rx0, rx1, diagBase, 0.19, t5b.sliceA, COL_OUTLINE_HERO);
+          fillModSpan(rowOff, rx0, rx1, (diagBase + 0.16) % 1, 0.042, t5b.sliceB, COL_OUTLINE_HERO);
+          fillModSpan(rowOff, rx0, rx1, (diagBase + 0.48) % 1, 0.032, t5b.sliceC, COL_OUTLINE_HERO);
+          fillModSpan(rowOff, rx0, rx1, (diagBase + 0.78) % 1, 0.022, t5b.accent, COL_OUTLINE_HERO);
+
+          if (!fullOpen) {
+            if (rx0 > 0) {
+              fb32.fill(COL_OUTLINE_HERO, rowOff + Math.max(0, rx0 - 2), rowOff + Math.min(W, rx0 + 4));
+              fb32.fill(whiteCol, rowOff + rx0, rowOff + Math.min(W, rx0 + 2));
+            }
+            if (rx1 < W) {
+              fb32.fill(COL_OUTLINE_HERO, rowOff + Math.max(0, rx1 - 4), rowOff + Math.min(W, rx1 + 2));
+              fb32.fill(whiteCol, rowOff + Math.max(0, rx1 - 2), rowOff + rx1);
+            }
+          }
+        }
+
+        // 5B Celestial-Sphere 3D Geometric Landmarks (rotate smoothly in 360 dogfights)
+        if (dimRift > 0.25) {
+          const Rsky = 2600;
+          for (let i = 0; i < PROMARE_SHARDS.length; i++) {
+            const sh = PROMARE_SHARDS[i];
+            const wx = camPos.x + sh.dx * Rsky, wy = camPos.y + sh.dy * Rsky, wz = camPos.z + sh.dz * Rsky;
+            worldToCam(wx, wy, wz, _tmpC);
+            if (_tmpC.z < 400) continue;
+            const invZ = focal / _tmpC.z;
+            const sx = cx + _tmpC.x * invZ, sy = cy - _tmpC.y * invZ;
+            const sr = sh.size * invZ;
+            if (sx + sr * 1.4 < 0 || sx - sr * 1.4 >= W || sy + sr * 1.4 < 0 || sy - sr * 1.4 >= H) continue;
+            const rot = timeSec * sh.spd + i * 1.1;
+            const fillC = sh.kind === 0 ? t5b.sliceC : (sh.kind === 1 ? t5b.accent : t5b.sliceB);
+            if (sh.kind === 1) {
+              // Geometric hollow hexagonal ring frame
+              const sides = 6;
+              for (let s = 0; s < sides; s++) {
+                const a0 = rot + (s / sides) * Math.PI * 2;
+                const a1 = rot + ((s + 1) / sides) * Math.PI * 2;
+                const ro = sr * 1.15, ri = sr * 0.85;
+                const ox0 = sx + Math.cos(a0) * ro, oy0 = sy + Math.sin(a0) * ro;
+                const ox1 = sx + Math.cos(a1) * ro, oy1 = sy + Math.sin(a1) * ro;
+                const ix0 = sx + Math.cos(a0) * ri, iy0 = sy + Math.sin(a0) * ri;
+                const ix1 = sx + Math.cos(a1) * ri, iy1 = sy + Math.sin(a1) * ri;
+                rasterTriPixel(ox0, oy0, 2600, ox1, oy1, 2600, ix1, iy1, 2600, fillC, 0, 0, 0);
+                rasterTriPixel(ox0, oy0, 2600, ix1, iy1, 2600, ix0, iy0, 2600, fillC, 0, 0, 0);
+              }
+            } else {
+              // Crisp ink-bordered Promare crystal triangle
+              const a0 = rot, a1 = rot + 2.15, a2 = rot + 4.35;
+              const x0 = sx + Math.cos(a0) * sr * 1.18, y0 = sy + Math.sin(a0) * sr * 1.18;
+              const x1 = sx + Math.cos(a1) * sr * 1.18, y1 = sy + Math.sin(a1) * sr * 1.18;
+              const x2 = sx + Math.cos(a2) * sr * 1.18, y2 = sy + Math.sin(a2) * sr * 1.18;
+              rasterTriPixel(x0, y0, 2610, x1, y1, 2610, x2, y2, 2610, COL_OUTLINE_HERO, 0, 0, 0);
+              const ix0 = sx + Math.cos(a0) * sr * 0.92, iy0 = sy + Math.sin(a0) * sr * 0.92;
+              const ix1 = sx + Math.cos(a1) * sr * 0.92, iy1 = sy + Math.sin(a1) * sr * 0.92;
+              const ix2 = sx + Math.cos(a2) * sr * 0.92, iy2 = sy + Math.sin(a2) * sr * 0.92;
+              rasterTriPixel(ix0, iy0, 2595, ix1, iy1, 2595, ix2, iy2, 2595, fillC, 0, 0, 0);
+            }
+          }
+        }
+      }
+
+      // 4. Crisp Stars & 4-Point Cross Glints across both 5A & 5B sky layers
+      const glintCol = dimRift > 0.5 ? secCfg.p5b.accent : secCfg.packedRing5a;
       for (let i = 0; i < STARS.length; i++) {
         const st = STARS[i];
         const sx = st.x * camR.x + st.y * camR.y + st.z * camR.z;
@@ -1923,72 +2156,14 @@
         if (sz <= 0.1) continue;
         const px = (cx + (focal * sx) / sz) | 0;
         const py = (cy - (focal * sy) / sz) | 0;
-        if (px >= 1 && px < W - 1 && py >= 1 && py < H - 1) {
-          fb32[py * W + px] = st.col;
+        if (px >= 2 && px < W - 2 && py >= 2 && py < H - 2) {
+          drawStarPixelSafe(px, py, st.col);
           if (st.big && ((i + ((timeSec * 3) | 0)) & 3) !== 0) {
-            fb32[py * W + px + 1] = st.col;
-            fb32[(py + 1) * W + px] = st.col;
-          }
-        }
-      }
-
-      for (let i = 0; i < planets.length; i++) {
-        const p = planets[i];
-        worldToCam(p.x, p.y, p.z, _tmpC);
-        if (_tmpC.z < p.r + 12 || _tmpC.z > 4500) continue;
-        const invZ = focal / _tmpC.z;
-        const sx = cx + _tmpC.x * invZ;
-        const sy = cy - _tmpC.y * invZ;
-        const sr = p.r * invZ;
-        if (sx + sr * 2.2 < 0 || sx - sr * 2.2 >= W || sy + sr * 2.2 < 0 || sy - sr * 2.2 >= H) continue;
-
-        const x0 = Math.max(0, Math.floor(sx - sr)), x1 = Math.min(W - 1, Math.ceil(sx + sr));
-        const y0 = Math.max(0, Math.floor(sy - sr)), y1 = Math.min(H - 1, Math.ceil(sy + sr));
-
-        for (let py = y0; py <= y1; py++) {
-          const dy = (sy - py) / sr;
-          const bRow = (py & 3) << 2;
-          for (let px = x0; px <= x1; px++) {
-            const dx = (px - sx) / sr;
-            const d2 = dx * dx + dy * dy;
-            if (d2 > 1.0) continue;
-            const at = py * W + px;
-            const depth = _tmpC.z - Math.sqrt(1.0 - d2) * p.r;
-            if (depth < zbuf[at]) {
-              zbuf[at] = depth;
-              const nz = Math.sqrt(1.0 - d2);
-              const lit = dx * 0.55 + dy * 0.62 + nz * 0.55;
-              const stripes = Math.sin(dy * 9.0 + dx * 1.5) * 0.08;
-              const dth = (BAYER4[bRow | (px & 3)] / 16 - 0.5) * 0.18;
-              const idx = Math.max(0, Math.min(4, Math.floor((lit + stripes + dth + 0.35) * 3.4)));
-              fb32[at] = p.cols[idx];
-            }
-          }
-        }
-
-        if (p.ring && sr > 4) {
-          const ringColA = p.cols[3], ringColB = p.cols[1];
-          const steps = Math.min(360, Math.max(72, (sr * 7) | 0));
-          for (let a = 0; a < steps; a++) {
-            const ang = (a / steps) * Math.PI * 2;
-            const ca = Math.cos(ang), sa = Math.sin(ang);
-            for (let rb = 0; rb < 3; rb++) {
-              const rad = p.r * (1.42 + rb * 0.22);
-              const wx = p.x + ca * rad;
-              const wy = p.y + sa * rad * 0.28;
-              const wz = p.z + sa * rad * 0.96;
-              worldToCam(wx, wy, wz, _tmpC);
-              if (_tmpC.z < 8) continue;
-              const rpx = (cx + (_tmpC.x * focal) / _tmpC.z) | 0;
-              const rpy = (cy - (_tmpC.y * focal) / _tmpC.z) | 0;
-              if (rpx >= 0 && rpx < W && rpy >= 0 && rpy < H) {
-                const at = rpy * W + rpx;
-                if (_tmpC.z < zbuf[at]) {
-                  zbuf[at] = _tmpC.z;
-                  fb32[at] = rb === 1 ? ringColA : ringColB;
-                }
-              }
-            }
+            const sc = (i & 1) === 0 ? 0xffffffff : glintCol;
+            drawStarPixelSafe(px, py, sc);
+            drawStarPixelSafe(px - 1, py, sc); drawStarPixelSafe(px + 1, py, sc);
+            drawStarPixelSafe(px, py - 1, sc); drawStarPixelSafe(px, py + 1, sc);
+            drawStarPixelSafe(px - 2, py, sc); drawStarPixelSafe(px + 2, py, sc);
           }
         }
       }
@@ -2034,15 +2209,33 @@
     }
 
     function applyPostPixelFX() {
+      if (impactFrame.timer > 0) {
+        const phase1 = impactFrame.timer > impactFrame.maxTimer * 0.5;
+        const colBg = phase1 ? 0xffffffff : COL_OUTLINE_HERO;
+        const colBody = phase1 ? COL_OUTLINE_HERO : 0xffffffff;
+        const colAccent = phase1 ? 0xffffffff : packHex(0xff1e7a);
+        for (let at = 0, len = W * H; at < len; at++) {
+          fb32[at] = glowBuf[at] >= 4 ? colAccent : (mask[at] !== 0 ? colBody : colBg);
+        }
+        return;
+      }
+
       if (cfg.outline) {
         for (let y = 1; y < H - 1; y++) {
           const row = y * W;
           for (let x = 1; x < W - 1; x++) {
             const at = row + x;
-            if (mask[at] !== 0) continue;
-            const n = mask[at - W] || mask[at + W] || mask[at - 1] || mask[at + 1];
-            if (n !== 0) {
-              fb32[at] = n === 1 ? COL_OUTLINE_HERO : COL_OUTLINE_FOE;
+            if (mask[at] === 0) {
+              const n = mask[at - W] || mask[at + W] || mask[at - 1] || mask[at + 1]
+                || mask[at - W - 1] || mask[at - W + 1] || mask[at + W - 1] || mask[at + W + 1];
+              if (n !== 0) fb32[at] = COL_OUTLINE_HERO;
+            } else {
+              const m = matBuf[at];
+              if (EMISSIVE_MAT[m]) continue;
+              const rIdx = at + 1, dIdx = at + W;
+              const seamR = mask[rIdx] !== 0 && (matBuf[rIdx] !== m || Math.abs(zbuf[at] - zbuf[rIdx]) > 6.8);
+              const seamD = mask[dIdx] !== 0 && (matBuf[dIdx] !== m || Math.abs(zbuf[at] - zbuf[dIdx]) > 6.8);
+              if (seamR || seamD) fb32[at] = COL_OUTLINE_HERO;
             }
           }
         }
@@ -2061,6 +2254,7 @@
             for (let k = 0; k < 8; k++) {
               const idx = row + x + offs[k];
               if (glowBuf[idx] || (mask[idx] === 1 && g !== 5)) continue;
+              if (g !== 5 && fb32[idx] === COL_OUTLINE_HERO) continue;
               const p = fb32[idx];
               const fall = k < 4 ? 1.0 : 0.48;
               const r = Math.min(255, (p & 255) + ((addR * fall) | 0));
@@ -2071,6 +2265,77 @@
           }
         }
       }
+    }
+
+    // Studio Trigger 2D High-DPI VFX Emitters & Helpers
+    function spawnAnimeBurst(x, y, z, scale = 1.0, colHex = 0xff1e7a) {
+      if (animeBursts.length >= 22) animeBursts.shift();
+      const maxLife = 0.48 + Math.min(0.24, scale * 0.08);
+      animeBursts.push({
+        x, y, z,
+        scale,
+        age: 0,
+        maxLife,
+        seed: Math.random() * Math.PI * 2,
+        spikes: 7 + ((Math.random() * 4) | 0),
+        colHex
+      });
+    }
+
+    function spawnAnimeStar(x, y, z, size = 18, col = '#ffffff', life = 0.30) {
+      if (animeStars.length >= 26) animeStars.shift();
+      animeStars.push({
+        x, y, z, size, col, life, maxLife: life, rot: (Math.random() - 0.5) * 0.35
+      });
+    }
+
+    function triggerCutIn(key, title, sub, colA = '#ff1e7a', colB = '#00f5ff') {
+      const nowMs = performance.now();
+      if (cutInFX.cds[key] && nowMs - cutInFX.cds[key] < 1400) return;
+      cutInFX.cds[key] = nowMs;
+      cutInFX.timer = cutInFX.maxTimer;
+      cutInFX.title = title;
+      cutInFX.sub = sub;
+      cutInFX.colA = colA;
+      cutInFX.colB = colB;
+    }
+
+    function triggerImpactFrame(wx, wy, wz) {
+      if (impactFrame.cd > 0) return;
+      impactFrame.timer = impactFrame.maxTimer;
+      impactFrame.cd = 2.5;
+      impactFrame.cx = 0.5;
+      impactFrame.cy = 0.5;
+      if (wx !== undefined) {
+        worldToCam(wx, wy, wz, _tmpC);
+        if (_tmpC.z > 5) {
+          impactFrame.cx = Math.max(0.12, Math.min(0.88, 0.5 + ((_tmpC.x * focal) / _tmpC.z) / W));
+          impactFrame.cy = Math.max(0.12, Math.min(0.88, 0.5 - ((_tmpC.y * focal) / _tmpC.z) / H));
+        }
+      }
+    }
+
+    function drawTriggerStar2D(ctx2, x, y, rOuter, rInner, col, outlineCol = '#050208', rot = 0) {
+      ctx2.save();
+      ctx2.translate(x, y);
+      if (rot) ctx2.rotate(rot);
+      ctx2.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const a = (i * Math.PI) / 4;
+        const r = i % 2 === 0 ? rOuter : rInner;
+        const px = Math.cos(a) * r, py = Math.sin(a) * r;
+        if (i === 0) ctx2.moveTo(px, py);
+        else ctx2.lineTo(px, py);
+      }
+      ctx2.closePath();
+      ctx2.fillStyle = col;
+      ctx2.fill();
+      if (outlineCol) {
+        ctx2.strokeStyle = outlineCol;
+        ctx2.lineWidth = 1.8;
+        ctx2.stroke();
+      }
+      ctx2.restore();
     }
 
     // =========================================================================
@@ -2303,6 +2568,9 @@
         spawnSparks(player.x, player.y, player.z, 12, 0xf43f5e, 115);
         spawnSparks(player.x, player.y, player.z, 10, 0x38bdf8, 115);
         spawnSparks(player.x, player.y, player.z, 10, 0xfacc15, 115);
+        climaxRiftTimer = Math.max(climaxRiftTimer, 1.05);
+        triggerCutIn('openget', 'OPEN GET!!', FORM_CFG[nextKey].name, '#ff1e7a', '#00f5ff');
+        spawnAnimeStar(player.x, player.y, player.z, 32, '#ffe600', 0.38);
         showBanner(`⚡ OPEN GET! 合体切换：${FORM_CFG[nextKey].name}（分离无敌 + 冲击波）！`);
       }
       updateFormUI();
@@ -2717,6 +2985,7 @@
       document.getElementById('bossTitle').textContent = `${bossLabel} (Phase 1)`;
       document.getElementById('bossBarWrap').style.display = 'block';
       sfx.roar();
+      triggerCutIn('boss', 'WARNING · BOSS!!', bossLabel, '#ff1e7a', '#ffe600');
       showBanner(`⚠️ WARNING: ${bossLabel} 携 3 枚护盾浮游炮降临！击碎浮游炮可触发破防！`);
     }
 
@@ -2761,9 +3030,14 @@
     }
 
     function spawnSparks(x, y, z, count, colHex, spdBase = 55) {
-      if (particles.length > 130) particles.splice(0, count);
+      if (count >= 9) {
+        spawnAnimeBurst(x, y, z, Math.min(2.4, 0.65 + count / 22), colHex);
+        if (count >= 14) spawnAnimeStar(x, y, z, Math.min(34, 12 + count * 0.55), '#ffffff', 0.34);
+      }
+      const spawnCnt = Math.max(2, Math.ceil(count * 0.38));
+      if (particles.length > 120) particles.splice(0, spawnCnt);
       const col = packHex(colHex);
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < spawnCnt; i++) {
         const a = Math.random() * Math.PI * 2;
         const b = (Math.random() - 0.5) * Math.PI;
         const s = spdBase * (0.5 + Math.random());
@@ -2802,6 +3076,8 @@
             sfx.armorBreak();
             hitStopTimer = Math.max(hitStopTimer, 0.055);
             spawnSparks(boss.x, boss.y, boss.z, 38, 0xfef08a, 130);
+            triggerImpactFrame(boss.x, boss.y, boss.z);
+            triggerCutIn('break', 'ARMOR BREAK!!', '护盾全灭 · 首领破防 2×伤害', '#00f5ff', '#ffe600');
             showBanner('💥 ARMOR BREAK！护盾浮游炮全灭 · 首领陷入 4.6s 破防虚弱 (2× 伤害)！');
           }
         }
@@ -2861,6 +3137,9 @@
         enemies.splice(idx, 1);
 
         if (wasBoss) {
+          triggerImpactFrame(ex, ey, ez);
+          spawnAnimeBurst(ex, ey, ez, 2.8, 0xff1e7a);
+          spawnAnimeStar(ex, ey, ez, 48, '#ffe600', 0.55);
           spawnPickup(ex - 14, ey, ez, 0);
           spawnPickup(ex + 14, ey, ez, 2);
           const unlockedNow = !player.awakened;
@@ -2871,7 +3150,11 @@
           wave++;
           player.spheres = Math.min(2, player.spheres + 1);
           updateSphereUI();
-          if (unlockedNow) showBanner('🔥 盖塔炉心觉醒！盖塔1号红披风进化为真盖塔燃焰巨翼！');
+          if (unlockedNow) {
+            climaxRiftTimer = Math.max(climaxRiftTimer, 4.2);
+            triggerCutIn('awaken', 'GETTER AWAKEN!!', '真盖塔炉心觉醒 · 燃焰巨翼', '#ff1e7a', '#ffe600');
+            showBanner('🔥 盖塔炉心觉醒！盖塔1号红披风进化为真盖塔燃焰巨翼！');
+          }
           openPerkDraft();
         } else {
           if (Math.random() < (wasElite ? 0.72 : 0.42)) spawnPickup(ex, ey, ez);
@@ -3025,6 +3308,9 @@
       const homingTurn = 2.2 * player.perks.homingMul;
       const splashRad = fCfg.splashRad * player.perks.splashMul;
       player.beamFlareTimer = 0.45;
+      climaxRiftTimer = Math.max(climaxRiftTimer, 1.35);
+      triggerCutIn('beam', 'GETTER BEAM!!', '高出力集束盖塔射线', '#ff1e7a', '#ffe600');
+      if (tgt && (tgt.isBoss || tgt.isElite)) triggerImpactFrame(tgt.x, tgt.y, tgt.z);
       beamFX.push({
         ox: player.x + dx * 12,
         oy: player.y + dy * 12,
@@ -3065,6 +3351,9 @@
       player.reloadTimer = 0;
       sfx.transform();
       player.shake = 10;
+      climaxRiftTimer = Math.max(climaxRiftTimer, 2.2);
+      triggerCutIn('sunshine', 'STONER SUNSHINE!!', '盖塔烈阳弹 · 全功率解放', '#00f5a0', '#ffe600');
+      triggerImpactFrame(player.x, player.y, player.z);
       spawnSparks(player.x, player.y, player.z, 26, 0x34d399, 100);
       updateSphereUI();
       showBanner('☀️ 盖塔烈阳弹（Stoner Sunshine）全功率解放！装甲全满 · 粉碎前方一切！');
@@ -3165,6 +3454,10 @@
         addScore(180 * reflectedCount);
         bumpCombo(reflectedCount);
         spawnSparks(player.x, player.y, player.z, 20, player.form === 'G1' ? 0xf43f5e : 0xfef08a, 105);
+        spawnAnimeStar(player.x, player.y, player.z, 28, '#00f5ff', 0.35);
+        if (reflectedCount >= 2) {
+          triggerCutIn('parry', player.form === 'G1' ? 'CAPE CYCLONE!!' : 'SONIC DEFLECT!!', `弹反 ×${reflectedCount} 反杀追踪`, '#00f5ff', '#ff1e7a');
+        }
         showBanner(player.form === 'G1'
           ? `🌪️ 红披风血红旋风弹反 ×${reflectedCount}！敌弹抽飞反杀！`
           : `🪞 高速能量弹反 ×${reflectedCount}！金色追踪刃反杀！`);
@@ -3489,6 +3782,10 @@
       projectiles.length = 0; beamFX.length = 0; enemyProjectiles.length = 0; particles.length = 0;
       ribbonsL.length = 0; ribbonsR.length = 0; ghosts.length = 0; pickups.length = 0;
       bossBits.length = 0; crisisMeteors.length = 0; escortShip = null;
+      animeBursts.length = 0; animeStars.length = 0;
+      cutInFX.timer = 0; cutInFX.cds = {};
+      impactFrame.timer = 0; impactFrame.cd = 0;
+      dimRift = 0; climaxRiftTimer = 0;
       crisisState = { active: false, type: -1, timer: 0, maxTimer: 0, spawnCd: 0 };
       perkChoices = [];
       resetCapeSpine(player.x, player.y, player.z, player.yaw, player.pitch, player.roll, cfg.heroScale);
@@ -3707,6 +4004,7 @@
       const sec = now * 0.001;
 
       if (gameState === 'TITLE') {
+        dimRift = 0; impactFrame.timer = 0;
         const ang = sec * 0.55;
         const dist = 70;
         const tY = Math.sin(sec * 1.6) * 1.5;
@@ -3722,6 +4020,16 @@
         hctx.clearRect(0, 0, hudOverlay.width, hudOverlay.height);
         return;
       }
+
+      // Climax 5A <-> 5B Dimension Tear & Anime FX Timers
+      if (!freezeSim) {
+        if (climaxRiftTimer > 0) climaxRiftTimer = Math.max(0, climaxRiftTimer - rawDt);
+        if (impactFrame.cd > 0) impactFrame.cd = Math.max(0, impactFrame.cd - rawDt);
+        if (cutInFX.timer > 0) cutInFX.timer = Math.max(0, cutInFX.timer - rawDt);
+      }
+      if (impactFrame.timer > 0) impactFrame.timer = Math.max(0, impactFrame.timer - rawDt);
+      const want5B = enemies.some(e => e.isBoss) || player.lightSphereTimer > 0 || beamFX.length > 0 || player.beamFlareTimer > 0 || climaxRiftTimer > 0;
+      dimRift += ((want5B ? 1 : 0) - dimRift) * Math.min(1, rawDt * (want5B ? 9.5 : 4.2));
 
       // Check Boss Phase 2 for BGM tempo
       const bossPhase2 = enemies.some(e => e.isBoss && e.phase === 2);
@@ -4759,9 +5067,10 @@
         }
       }
 
-      // Visible Two-Tone Enemy Homing Fireballs & Cluster Orbs
+      // Visible Two-Tone Enemy Homing Fireballs & Cluster Orbs (with #050208 contrast rim over bright 5B slashes)
       for (let i = 0; i < enemyProjectiles.length; i++) {
         const ep = enemyProjectiles[i];
+        drawPixelBillboard(ep.x, ep.y, ep.z, ep.radius * 1.42, COL_OUTLINE_HERO, 0);
         drawPixelBillboard(ep.x, ep.y, ep.z, ep.radius * 1.15, ep.colOuter, ep.glowType);
         drawPixelBillboard(ep.x, ep.y, ep.z, ep.radius * 0.55, ep.colCore, ep.glowType);
       }
@@ -4796,12 +5105,155 @@
       ctx.putImageData(imgData, 0, 0);
 
       // =========================================================================
-      // 11. 2D HIGH-DPI HUD OVERLAY: LOCK-ON, DISTANCE, SHIELDS, RINGS & RADAR
+      // 11. 2D HIGH-DPI ANIME VFX + TRIGGER HUD OVERLAY
       // =========================================================================
       hctx.clearRect(0, 0, hudOverlay.width, hudOverlay.height);
       hctx.save();
       hctx.scale(hudDpr, hudDpr);
       const sx = cssW / W, sy = cssH / H;
+
+      // 11A. Stepped 18fps Promare Geometric Spiky Explosions
+      for (let i = animeBursts.length - 1; i >= 0; i--) {
+        const b = animeBursts[i];
+        if (!freezeSim) b.age += rawDt;
+        if (b.age >= b.maxLife) { animeBursts.splice(i, 1); continue; }
+        worldToCam(b.x, b.y, b.z, _tmpC);
+        if (_tmpC.z < 10) continue;
+        const pxB = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) | 0;
+        const pyB = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) | 0;
+        if (pxB >= 0 && pxB < W && pyB >= 0 && pyB < H && _tmpC.z > zbuf[pyB * W + pxB] + 24) continue;
+
+        const qStep = Math.floor(b.age * 18);
+        const totalSteps = Math.max(1, Math.floor(b.maxLife * 18));
+        const qProg = Math.min(1, qStep / totalSteps);
+        const bx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
+        const by = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+        const viewMul = Math.max(0.55, Math.min(2.6, (focal / _tmpC.z) * 0.9));
+        const pop = (0.45 + Math.sin(Math.min(1, qProg * 1.7) * Math.PI * 0.5) * 1.15 - qProg * 0.45) * b.scale * viewMul;
+        if (pop <= 0.08) continue;
+
+        hctx.save();
+        hctx.translate(bx, by);
+        hctx.rotate(b.seed + qStep * 0.14);
+        // Outer neon Promare spike star (#00f5ff onset -> #ff1e7a body) + bold #050208 outline
+        hctx.beginPath();
+        for (let k = 0; k < b.spikes * 2; k++) {
+          const ang = (k * Math.PI) / b.spikes + Math.sin(k * 2.3 + b.seed) * 0.14;
+          const rad = (k % 2 === 0 ? 32 : 10) * pop * (k % 4 === 0 ? 1.24 : 0.92);
+          const vx = Math.cos(ang) * rad, vy = Math.sin(ang) * rad;
+          if (k === 0) hctx.moveTo(vx, vy); else hctx.lineTo(vx, vy);
+        }
+        hctx.closePath();
+        hctx.fillStyle = qProg < 0.25 ? '#00f5ff' : (b.colHex === 0x34d399 ? '#00ffa6' : '#ff1e7a');
+        hctx.fill();
+        hctx.strokeStyle = '#050208'; hctx.lineWidth = 2.4; hctx.stroke();
+
+        // Inner solar yellow spiky star
+        hctx.beginPath();
+        for (let k = 0; k < b.spikes * 2; k++) {
+          const ang = (k * Math.PI) / b.spikes + 0.24;
+          const rad = (k % 2 === 0 ? 19 : 6.5) * pop;
+          const vx = Math.cos(ang) * rad, vy = Math.sin(ang) * rad;
+          if (k === 0) hctx.moveTo(vx, vy); else hctx.lineTo(vx, vy);
+        }
+        hctx.closePath();
+        hctx.fillStyle = '#ffe600';
+        hctx.fill();
+        hctx.strokeStyle = '#050208'; hctx.lineWidth = 1.6; hctx.stroke();
+
+        // Pure white -> pure black center comic punch core
+        hctx.beginPath();
+        hctx.moveTo(0, -8 * pop); hctx.lineTo(8 * pop, 0); hctx.lineTo(0, 8 * pop); hctx.lineTo(-8 * pop, 0);
+        hctx.closePath();
+        hctx.fillStyle = qProg < 0.2 ? '#ffffff' : '#050208';
+        hctx.fill();
+
+        // Stepped flying diamond shards
+        for (let d = 0; d < 5; d++) {
+          const da = b.seed + d * 1.26;
+          const dd = (qProg * 48 + 12) * pop;
+          const dx = Math.cos(da) * dd, dy = Math.sin(da) * dd;
+          hctx.fillStyle = d % 2 === 0 ? '#00f5ff' : '#ffe600';
+          hctx.strokeStyle = '#050208'; hctx.lineWidth = 1.4;
+          hctx.beginPath();
+          hctx.moveTo(dx, dy - 4.2); hctx.lineTo(dx + 4.2, dy); hctx.lineTo(dx, dy + 4.2); hctx.lineTo(dx - 4.2, dy);
+          hctx.closePath(); hctx.fill(); hctx.stroke();
+        }
+        hctx.restore();
+      }
+
+      // 11B. Studio Trigger 4-Point Cross-Star Glints
+      for (let i = animeStars.length - 1; i >= 0; i--) {
+        const st = animeStars[i];
+        if (!freezeSim) st.life -= rawDt;
+        if (st.life <= 0) { animeStars.splice(i, 1); continue; }
+        worldToCam(st.x, st.y, st.z, _tmpC);
+        if (_tmpC.z < 8) continue;
+        const xs = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
+        const ys = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+        const f = st.life / st.maxLife;
+        const rad = st.size * Math.sin(Math.min(1, f * 1.4) * Math.PI * 0.5) * Math.max(0.6, Math.min(2.2, (focal / _tmpC.z) * 0.85));
+        drawTriggerStar2D(hctx, xs, ys, rad * 1.25, rad * 0.20, st.col, '#050208', st.rot);
+      }
+      if (player.beamFlareTimer > 0) {
+        worldToCam(player.x + fwd.x * 11, player.y + fwd.y * 11, player.z + fwd.z * 11, _tmpC);
+        if (_tmpC.z > 8) {
+          const xs = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
+          const ys = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
+          const rf = (player.beamFlareTimer / 0.45) * 34;
+          drawTriggerStar2D(hctx, xs, ys, rf * 1.35, rf * 0.18, '#ffffff', '#ff1e7a', sec * 4);
+        }
+      }
+
+      // 11C. Manga Impact Frame Speed Radial Lines
+      if (impactFrame.timer > 0) {
+        const ix = impactFrame.cx * cssW, iy = impactFrame.cy * cssH;
+        const maxR = Math.hypot(cssW, cssH);
+        const phase1 = impactFrame.timer > impactFrame.maxTimer * 0.5;
+        hctx.save();
+        hctx.strokeStyle = phase1 ? '#050208' : '#ffffff';
+        for (let i = 0; i < 18; i++) {
+          const ang = (i / 18) * Math.PI * 2 + (phase1 ? 0 : 0.17);
+          hctx.lineWidth = (i % 3 === 0) ? 4.5 : 2.0;
+          hctx.beginPath();
+          hctx.moveTo(ix + Math.cos(ang) * 44, iy + Math.sin(ang) * 44);
+          hctx.lineTo(ix + Math.cos(ang) * maxR, iy + Math.sin(ang) * maxR);
+          hctx.stroke();
+        }
+        hctx.restore();
+      }
+
+      // 11D. Diagonal Upper-Screen Trigger Cut-In Flash Strip (never obscures center reticle)
+      if (cutInFX.timer > 0) {
+        const u = 1.0 - cutInFX.timer / cutInFX.maxTimer;
+        const slide = u < 0.18 ? (u / 0.18) - 1.0 : (u > 0.80 ? (u - 0.80) / 0.20 : 0);
+        const fSz = Math.min(22, Math.max(15, Math.round(cssW * 0.045)));
+        hctx.save();
+        hctx.translate(cssW * 0.5 + slide * cssW * 1.1, cssH * 0.19);
+        hctx.rotate(-0.088);
+        const bw = cssW * 1.35, bh = 48;
+        hctx.fillStyle = '#050208';
+        hctx.fillRect(-bw * 0.5, -bh * 0.5 - 4, bw, bh + 8);
+        hctx.fillStyle = cutInFX.colA;
+        hctx.fillRect(-bw * 0.5, -bh * 0.5, bw, bh);
+        hctx.fillStyle = cutInFX.colB;
+        hctx.fillRect(-bw * 0.5, bh * 0.5 - 7, bw, 7);
+        hctx.textAlign = 'center';
+        hctx.textBaseline = 'middle';
+        hctx.font = `italic 900 ${fSz}px monospace`;
+        hctx.lineWidth = 5;
+        hctx.strokeStyle = '#050208';
+        hctx.strokeText(cutInFX.title, 0, -7);
+        hctx.fillStyle = '#ffffff';
+        hctx.fillText(cutInFX.title, 0, -7);
+        hctx.font = 'bold 11px monospace';
+        hctx.lineWidth = 3.5;
+        hctx.strokeText(cutInFX.sub, 0, 11);
+        hctx.fillStyle = '#ffe600';
+        hctx.fillText(cutInFX.sub, 0, 11);
+        hctx.restore();
+      }
+
       const locked = getLockedEnemy(fwd);
       if (locked) {
         if (locked.uid !== lastLockedUid) { lastLockedUid = locked.uid; player.lockProgress = 0.15; }
@@ -4811,8 +5263,8 @@
       }
 
       if (cfg.view === 'cockpit') {
-        hctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
-        hctx.lineWidth = 1.5;
+        hctx.strokeStyle = 'rgba(0, 245, 255, 0.42)';
+        hctx.lineWidth = 1.6;
         const cx = cssW * 0.5, cy = cssH * 0.5;
         hctx.strokeRect(cx - 58, cy - 36, 116, 72);
       }
@@ -4821,9 +5273,15 @@
       if (_tmpC.z > 5) {
         const rx = (W * 0.5 + (_tmpC.x * focal) / _tmpC.z) * sx;
         const ry = (H * 0.5 - (_tmpC.y * focal) / _tmpC.z) * sy;
-        hctx.strokeStyle = locked ? '#fbbf24' : FORM_CFG[player.form].uiColor;
-        hctx.lineWidth = 1.8;
-        hctx.strokeRect(rx - 10, ry - 10, 20, 20);
+        hctx.save();
+        hctx.translate(rx, ry);
+        hctx.rotate(Math.PI * 0.25);
+        hctx.strokeStyle = '#050208'; hctx.lineWidth = 4.0;
+        hctx.strokeRect(-9, -9, 18, 18);
+        hctx.strokeStyle = locked ? '#ffe600' : FORM_CFG[player.form].uiColor;
+        hctx.lineWidth = 2.0;
+        hctx.strokeRect(-9, -9, 18, 18);
+        hctx.restore();
       }
 
       // Escort SSSP Jet Status Marker
